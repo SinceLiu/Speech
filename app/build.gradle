@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 23
     buildToolsVersion "27.0.1"
     defaultConfig {
-        applicationId "com.readboy.speech"
-        minSdkVersion 19
+        applicationId "com.readboy.watch.speech"
+        minSdkVersion 23
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -37,5 +37,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile files('libs/bugly_crash_release.jar')
     compile project(':swipeback')
 }

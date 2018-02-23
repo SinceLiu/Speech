@@ -1,3 +1,47 @@
-<resources>
-    <string name="app_name">Speech_DuerOs</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">语音识别</string>
+
+    <string name="help_title">"您可以这样问我"</string>
+    <string name="help_content">"打电话给爸爸\n讲个笑话\n中山天气怎样\n讲个故事"</string>
+    <string name="help_content2">打电话给爸爸\n讲个笑话\n1+1\n中山天气怎样\n背一首唐诗\n唱一首儿歌\n三字经 </string>
+
+    <string name="hello1">Hi，我是你的好朋友小Wa，能帮你做点什么吗？</string>
+    <string name="hello2">你好，我是小Wa</string>
+    <string name="hello3">小主人，请问还有什么可以帮你的？</string>
+    <string name="connect_time_out">当前网络不稳定，请稍后再试</string>
+    <string name="error_no_network">世界上最遥远的距离，就是你在我身边却没有网络，赶紧去设置吧！</string>
+    <string name="error_no_network2">世界上最遥远的距离，就是没有了网络，快去设置吧！</string>
+    <!-- 手表内部出问题 -->
+    <string name="error_internal">小Wa累了，需要休息一会</string>
+    <string name="error_no_result1">噢，你可以再说一遍吗？</string>
+    <string name="error_no_result2">对不起，没有听清，能再说一遍吗？</string>
+    <string name="error_useless_result">这个问题有点难，你可以去问问你爸爸噢！</string>
+    <!--比如我们这边的网络被网管禁止了-->
+    <!--asr,tts服务器出问题了-->
+    <string name="error_service">小Wa生病了，需要休息一会</string>
+    <!--如：10086。冬天天气-->
+    <string name="contact_not_exist">\"%s\"联系人不存在</string>
+    <string name="loading">识别中&#8230;</string>
+    <string name="hold_record">按住说话</string>
+    <string name="hold_record_message">请长按录音</string>
+    <string name="short_time">录音时间过短</string>
+
+    <string name="using_mobile_data_traffic">未连接WIFI，使用流量可能会产生费用，是否允许使用?</string>
+    <string name="yes">确定</string>
+    <string name="no">取消</string>
+
+    <string name="always_allow">总是允许</string>
+    <string name="once_allow">允许本次</string>
+
+    <string name="always">总是</string>
+    <string name="once">本次</string>
+    <string name="cancel">取消</string>
+
+    <string name="cannot_using_traffic">请连接WIFI！</string>
+    <string name="toast_max_record_time">说话时间超长</string>
+
+    <string name="recording_format_high">高</string>
+    <string name="recording_format_mid">中</string>
+    <string name="recording_format_low">低</string>
+
 </resources>

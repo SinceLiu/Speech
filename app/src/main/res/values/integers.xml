@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer name="duration_short">350</integer>
+    <integer name="duration">350</integer>
+    <integer name="duration_long">500</integer>
+    <integer name="view_show_duration">150</integer>
+</resources>

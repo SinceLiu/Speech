@@ -237,10 +237,6 @@ public class Main2Activity extends Activity {
             }
         };
         mViewpager.setAdapter(adapter);
-        PointIndicator mIndicator = (PointIndicator) findViewById(R.id.indicator);
-        if (mIndicator != null) {
-            mIndicator.setViewPager(mViewpager);
-        }
     }
 
     private void assignViews() {

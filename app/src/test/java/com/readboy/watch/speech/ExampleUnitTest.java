@@ -2,6 +2,8 @@ package com.readboy.watch.speech;
 
 import org.junit.Test;
 
+import java.util.concurrent.BlockingQueue;
+
 import static org.junit.Assert.*;
 
 /**
@@ -13,5 +15,7 @@ public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
+
+        BlockingQueue
     }
 }

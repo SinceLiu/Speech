@@ -11,6 +11,7 @@
     <string name="connect_time_out">当前网络不稳定，请稍后再试</string>
     <string name="error_no_network">世界上最遥远的距离，就是你在我身边却没有网络，赶紧去设置吧！</string>
     <string name="error_no_network2">世界上最遥远的距离，就是没有了网络，快去设置吧！</string>
+    <string name="error_no_network3">请检查网络是否可用</string>
     <!-- 手表内部出问题 -->
     <string name="error_internal">小Wa累了，需要休息一会</string>
     <string name="error_no_result1">噢，你可以再说一遍吗？</string>

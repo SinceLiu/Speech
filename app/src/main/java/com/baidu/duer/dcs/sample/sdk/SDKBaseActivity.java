@@ -55,6 +55,8 @@ import com.baidu.duer.dcs.framework.internalapi.IWakeupAgent;
 import com.baidu.duer.dcs.framework.internalapi.IWakeupProvider;
 import com.baidu.duer.dcs.framework.location.Location;
 import com.baidu.duer.dcs.framework.message.DcsRequestBody;
+import com.baidu.duer.dcs.framework.upload.contact.IUpload;
+import com.baidu.duer.dcs.oauth.api.credentials.BaiduOauthClientCredentialsImpl;
 import com.baidu.duer.dcs.oauth.api.grant.BaiduOauthImplicitGrantIml;
 import com.baidu.duer.dcs.offline.asr.bean.ASROffLineConfig;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.alarms.AlarmsDeviceModule;
@@ -115,11 +117,15 @@ import com.baidu.duer.dcs.sample.sdk.widget.DcsWebView;
 import com.baidu.duer.dcs.statistics.DCSStatistics;
 import com.baidu.duer.dcs.systeminterface.BaseAudioRecorder;
 import com.baidu.duer.dcs.systeminterface.BaseWakeup;
+import com.baidu.duer.dcs.systeminterface.IMediaPlayer;
 import com.baidu.duer.dcs.systeminterface.IOauth;
 import com.baidu.duer.dcs.util.CommonUtil;
+import com.baidu.duer.dcs.util.ContactsChoiceUtil;
 import com.baidu.duer.dcs.util.FileUtil;
 import com.baidu.duer.dcs.util.NetWorkUtil;
 import com.readboy.watch.speech.R;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -215,7 +221,7 @@ public abstract class SDKBaseActivity extends Activity implements
     private ScreenDeviceModule.IScreenListener screenListener = new ScreenDeviceModule.IScreenListener() {
         @Override
         public void onRenderVoiceInputText(RenderVoiceInputTextPayload payload) {
-            Log.e(TAG, "onRenderVoiceInputText() called with: payload = " + payload.toString() + "");
+            Log.e(TAG, "onRenderVoiceInputText() called with: header payload = " + payload.toString() + "");
             handleRenderVoiceInputTextPayload(payload);
         }
 
@@ -503,6 +509,24 @@ public abstract class SDKBaseActivity extends Activity implements
         initContactsListener();
         contactsDeviceModule.addContactsListener(contactsListener);
         dcsSdk.putDeviceModule(contactsDeviceModule);
+        try {
+            String contactsJson = ContactsChoiceUtil.getAllContacts(this);
+            Log.e(TAG, "initSdk: contactsJson = " + contactsJson);
+            ((DcsSdkImpl)dcsSdk).getUpload().uploadPhoneContacts(this, contactsJson, new IUpload.IUploadListener() {
+                @Override
+                public void onSucceed(int i) {
+                    Log.e(TAG, "onSucceed() called with: i = " + i + "");
+                }
+
+                @Override
+                public void onFailed() {
+                    Log.e(TAG, "onFailed() called");
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         // 离线识别
         OffLineDeviceModule offLineDeviceModule = new OffLineDeviceModule();
         dcsSdk.putDeviceModule(offLineDeviceModule);
@@ -517,6 +541,76 @@ public abstract class SDKBaseActivity extends Activity implements
 
         addOtherDeviceModule(dcsSdk, messageSender);
 
+        ((DcsSdkImpl) dcsSdk).addAudioPlayListener(new IMediaPlayer.IMediaPlayerListener() {
+            @Override
+            public void onInit() {
+
+            }
+
+            @Override
+            public void onPrepared() {
+
+            }
+
+            @Override
+            public void onRelease() {
+
+            }
+
+            @Override
+            public void onPlaying() {
+
+            }
+
+            @Override
+            public void onPaused() {
+
+            }
+
+            @Override
+            public void onStopped() {
+
+            }
+
+            @Override
+            public void onCompletion() {
+                Log.e(TAG, "onCompletion: ");
+                getInternalApi().pauseSpeaker();
+                getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule.CommandIssued.CommandIssuedPause);
+            }
+
+            @Override
+            public void onError(String s, IMediaPlayer.ErrorType errorType) {
+
+            }
+
+            @Override
+            public void onBufferingUpdate(int i) {
+
+            }
+
+            @Override
+            public void onBufferingStart() {
+
+            }
+
+            @Override
+            public void onBufferingEnd() {
+
+            }
+
+            @Override
+            public void onDuration(long l) {
+
+            }
+
+            @Override
+            public void onUpdateProgress(int i) {
+
+            }
+        });
+
+
     }
 
     protected void addOtherDeviceModule(IDcsSdk dcsSdk, IMessageSender messageSender) {
@@ -525,21 +619,25 @@ public abstract class SDKBaseActivity extends Activity implements
 
     protected void sdkRun() {
         // 第三步，将sdk跑起来
+        Log.e(TAG, "sdkRun: ");
         ((DcsSdkImpl) dcsSdk).getInternalApi().login(new ILoginListener() {
             @Override
             public void onSucceed(String accessToken) {
                 dcsSdk.run();
+                Log.e(TAG, "onSucceed() called with: accessToken = " + accessToken + "");
                 Toast.makeText(SDKBaseActivity.this.getApplicationContext(), "登录成功", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailed(String errorMessage) {
+                Log.e(TAG, "onFailed() called with: errorMessage = " + errorMessage + "");
                 Toast.makeText(SDKBaseActivity.this.getApplicationContext(), "登录失败", Toast.LENGTH_SHORT).show();
                 finish();
             }
 
             @Override
             public void onCancel() {
+                Log.e(TAG, "onCancel() called");
                 Toast.makeText(SDKBaseActivity.this.getApplicationContext(), "登录被取消", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -648,16 +746,19 @@ public abstract class SDKBaseActivity extends Activity implements
         phoneCallListener = new PhoneCallDeviceModule.IPhoneCallListener() {
             @Override
             public void onPhoneCallByName(PhonecallByNamePayload payload) {
+                Log.e(TAG, "onPhoneCallByName: paylaod : " + payload.toString());
                 Toast.makeText(SDKBaseActivity.this, "打电话指令（按姓名）", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onSelectCallee(SelectCalleePayload payload) {
+                Log.e(TAG, "onSelectCallee() called with: payload = " + payload.toString() + "");
                 Toast.makeText(SDKBaseActivity.this, "打电话指令（选择联系人）", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onPhoneCallByNumber(PhonecallByNumberPayload payload) {
+                Log.e(TAG, "onPhoneCallByNumber() called with: payload = " + payload.toString() + "");
                 Toast.makeText(SDKBaseActivity.this, "打电话指令（按号码）", Toast.LENGTH_LONG).show();
             }
         };
@@ -884,6 +985,7 @@ public abstract class SDKBaseActivity extends Activity implements
     }
 
     private void handleRenderVoiceInputTextPayload(RenderVoiceInputTextPayload payload) {
+        Log.e(TAG, "handleRenderVoiceInputTextPayload: header payload = " + payload.text);
         textViewRenderVoiceInputText.setText(payload.text);
         if (payload.type == RenderVoiceInputTextPayload.Type.FINAL) {
             FileUtil.appendStrToFileNew("ASR-FINAL-RESULT:" + payload.text + "," + System.currentTimeMillis() + "\n");
@@ -1066,7 +1168,11 @@ public abstract class SDKBaseActivity extends Activity implements
     }
 
     protected IOauth getOath() {
-        return new BaiduOauthImplicitGrantIml(CLIENT_ID, this);
+        if (isSilentLogin()) {
+            return new BaiduOauthClientCredentialsImpl(CLIENT_ID, CLIENT_SECRET);
+        } else {
+            return new BaiduOauthImplicitGrantIml(CLIENT_ID, this);
+        }
     }
 
     // -------------------------abstract

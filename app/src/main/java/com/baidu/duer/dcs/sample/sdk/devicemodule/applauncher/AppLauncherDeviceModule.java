@@ -33,6 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by caoyushu01 on 2017/7/20.
+ * "namespace":"ai.dueros.device_interface.app"
+ *  "name":"TryLaunchApp"
  */
 
 public class AppLauncherDeviceModule extends BaseDeviceModule {
@@ -59,10 +61,10 @@ public class AppLauncherDeviceModule extends BaseDeviceModule {
     public void handleDirective(Directive directive) throws HandleDirectiveException {
         String headerName = directive.getName();
         Payload payload = directive.getPayload();
-        if (ApiConstants.Directives.LaunchApp.NAME.equals(headerName)) {
+        if (ApiConstants.Directives.TryLaunchApp.NAME.equals(headerName)) {
             fireOnLaunchApp((LaunchAppPayload) payload);
         } else {
-            String message = "launch app cannot handle the directive";
+            String message = "launch app cannot handle the directive, headerName = " + headerName;
             throw (new HandleDirectiveException(
                     HandleDirectiveException.ExceptionType.UNSUPPORTED_OPERATION, message));
         }
@@ -72,6 +74,7 @@ public class AppLauncherDeviceModule extends BaseDeviceModule {
     public HashMap<String, Class<?>> supportPayload() {
         HashMap<String, Class<?>> map = new HashMap<>();
         map.put(getNameSpace() + ApiConstants.Directives.LaunchApp.NAME, LaunchAppPayload.class);
+        map.put(getNameSpace() + ApiConstants.Directives.TryLaunchApp.NAME, LaunchAppPayload.class);
         return map;
     }
 

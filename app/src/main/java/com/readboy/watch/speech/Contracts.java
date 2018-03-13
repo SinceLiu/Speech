@@ -34,10 +34,10 @@ public final class Contracts {
 
     public static final String GRAMMAR_FILE = DIR + "grammar.text";
 
-    public static final String NO_RESULT_FILE1 = "noresult1.mp3";
-    public static final String NO_RESULT_FILE2 = "noresult2.mp3";
-    public static final String HELLO1 = "hello1.mp3";
-    public static final String HELLO2 = "hello2.mp3";
+    public static final String NO_RESULT_FILE1 = "assets://noresult1.mp3";
+    public static final String NO_RESULT_FILE2 = "assets://noresult2.mp3";
+    public static final String HELLO1 = "assets://hello1.mp3";
+    public static final String HELLO2 = "assets://hello2.mp3";
 
 
     public static final int LOADING_MORE_MAX_TIME = 10;

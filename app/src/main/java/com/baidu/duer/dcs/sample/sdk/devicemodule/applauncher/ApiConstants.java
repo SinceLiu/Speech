@@ -21,7 +21,8 @@ package com.baidu.duer.dcs.sample.sdk.devicemodule.applauncher;
  */
 
 public class ApiConstants {
-    public static final String NAMESPACE = "ai.dueros.device_interface.app_launcher";
+//    public static final String NAMESPACE = "ai.dueros.device_interface.app_launcher";
+    public static final String NAMESPACE = "ai.dueros.device_interface.app";
     public static final String NAME = "AppLauncherInterface";
 
     public static final class Events {
@@ -32,7 +33,14 @@ public class ApiConstants {
 
     public static final class Directives {
         public static final class LaunchApp {
-            public static final String NAME = LaunchApp.class.getSimpleName();
+//            public static final String NAME = LaunchApp.class.getSimpleName();
+            public static final String NAME = "app";
         }
+
+        public static final class TryLaunchApp{
+            public static final String NAME = TryLaunchApp.class.getSimpleName();
+        }
+
     }
+
 }

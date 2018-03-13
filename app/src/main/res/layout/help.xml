@@ -8,22 +8,24 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="15px"
         android:orientation="vertical">
 
         <TextView
-            style="@style/TitleStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@string/help_title"
+            android:textColor="@color/green"
+            android:textSize="@dimen/text_size_large"
             android:layout_marginTop="@dimen/help_margin_top" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/white_opacity"
-            android:layout_marginTop="1px"
-            android:lineSpacingExtra="5px"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/text_size_small"
+            android:textColor="@color/white_dark"
+            android:layout_marginTop="10px"
+            android:lineSpacingExtra="12px"
+            android:textSize="@dimen/text_size_normal"
             android:text="@string/help_content" />
 
     </LinearLayout>

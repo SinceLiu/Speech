@@ -48,4 +48,12 @@ public class CandidateCallee implements Serializable {
     public void setPinYin(String pinYin) {
         this.pinYin = pinYin;
     }
+
+    @Override
+    public String toString() {
+        return "CandidateCallee{" +
+                "contactName='" + contactName + '\'' +
+                ", pinYin='" + pinYin + '\'' +
+                '}';
+    }
 }

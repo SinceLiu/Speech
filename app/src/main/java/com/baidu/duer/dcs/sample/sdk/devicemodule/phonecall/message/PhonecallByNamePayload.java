@@ -18,6 +18,7 @@ package com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message;
 
 import com.baidu.duer.dcs.framework.message.Payload;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,7 +43,7 @@ public class PhonecallByNamePayload extends Payload {
         this.useCarrier = useCarrier;
     }
 
-    public List<CandidateCallee> getCandidateCallees () {
+    public List<com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.CandidateCallee> getCandidateCallees () {
         return candidateCallees;
     }
 
@@ -64,5 +65,14 @@ public class PhonecallByNamePayload extends Payload {
 
     public void setUseCarrier (String useCarrier) {
         this.useCarrier = useCarrier;
+    }
+
+    @Override
+    public String toString() {
+        return "PhonecallByNamePayload{" +
+                "candidateCallees=" + Arrays.toString(candidateCallees.toArray()) +
+                ", useSimIndex='" + useSimIndex + '\'' +
+                ", useCarrier='" + useCarrier + '\'' +
+                '}';
     }
 }

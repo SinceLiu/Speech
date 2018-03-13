@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
+ * @author oubin
  * Activity that requests permissions needed for activities exported from filemanager.
  */
 public class RequestPermissionsActivity extends Activity {
@@ -60,7 +61,10 @@ public class RequestPermissionsActivity extends Activity {
             permission.READ_EXTERNAL_STORAGE,
             permission.CALL_PHONE,
             permission.READ_CONTACTS,
-            permission.RECORD_AUDIO};
+            permission.READ_PHONE_STATE,
+            permission.RECORD_AUDIO,
+            permission.ACCESS_COARSE_LOCATION,
+            permission.ACCESS_FINE_LOCATION};
 
     public static boolean startPermissionActivity(Activity activity) {
         return startRequestPermissionActivity(activity, REQUIRED_PERMISSIONS,

@@ -1,8 +1,11 @@
 package com.readboy.watch.speech;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import static org.junit.Assert.*;
 
@@ -16,6 +19,20 @@ public class ExampleUnitTest {
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
 
-        BlockingQueue
+        Semaphore semaphore = new Semaphore(1, true);
+        String jsonStr = "{name:[\"zhang\", \"ou\"]}";
+        JSONObject object = new JSONObject(jsonStr);
+        JSONArray names = object.optJSONArray("name");
+
     }
+
+
+    public static class Builder {
+        private String name;
+
+        public Builder() {
+
+        }
+    }
+
 }

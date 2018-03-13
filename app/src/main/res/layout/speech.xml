@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/speech"
     android:layout_width="@dimen/display_width"
     android:layout_height="@dimen/display_height"
-    android:clickable="true"
     android:layout_gravity="center"
+    android:clickable="true"
     tools:context=".Main2Activity">
 
     <TextView
         android:id="@+id/message_tv"
         android:layout_width="match_parent"
         android:layout_height="140px"
-        android:clickable="false"
-        android:gravity="left|center_vertical"
         android:layout_marginLeft="12px"
         android:layout_marginRight="12px"
+        android:clickable="false"
+        android:gravity="left|center_vertical"
         android:text="@string/hello1"
         android:textColor="@android:color/white"
         android:textSize="24px" />
@@ -25,24 +26,24 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="40px"
-        android:visibility="gone"
-        android:background="@drawable/wave" />
+        android:background="@drawable/wave"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/hold_record"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="false"
         android:layout_gravity="bottom|center_horizontal"
-        android:background="@drawable/bg_record_selector" />
+        android:background="@drawable/bg_record_selector"
+        android:clickable="false" />
 
     <ImageView
         android:id="@+id/recording_iv"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
-        android:background="@drawable/bg_recording" />
+        android:background="@drawable/bg_recording"
+        android:visibility="gone" />
 
     <include layout="@layout/loading" />
 

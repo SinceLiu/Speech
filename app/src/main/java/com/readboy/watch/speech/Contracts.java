@@ -1,5 +1,6 @@
 package com.readboy.watch.speech;
 
+import android.Manifest;
 import android.os.Environment;
 
 import java.io.File;
@@ -55,6 +56,17 @@ public final class Contracts {
     public static final String DOMAIN_PLAYMUSIC = "playmusic";
     public static final String DOMAIN_MUSIC = "music";
     public static final String DOMAIN_BAIKE = "baike";
+
+    public static final String[] PERMISSIONS = {Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.INTERNET,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.WRITE_CONTACTS
+    };
 
 
 }

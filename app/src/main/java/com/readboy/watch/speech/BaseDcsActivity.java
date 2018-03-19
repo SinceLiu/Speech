@@ -9,7 +9,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.baidu.duer.dcs.androidsystemimpl.AudioRecordImpl;
@@ -275,7 +274,9 @@ public abstract class BaseDcsActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+//        if (RequestPermissionsActivity.startPermissionActivity(this)) {
+//            finish();
+//        }
         initPermission();
 
         initSdk();
@@ -368,23 +369,16 @@ public abstract class BaseDcsActivity extends Activity {
      * android 6.0 以上需要动态申请权限
      */
     private void initPermission() {
-        String permissions[] = {Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.INTERNET,
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-        };
-        ArrayList<String> toApplyList = new ArrayList<>();
-        for (String perm : permissions) {
+        ArrayList<String> toApplyList = new ArrayList<String>();
+        for (String perm : Contracts.PERMISSIONS) {
             if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(this, perm)) {
                 toApplyList.add(perm);
                 //进入到这里代表没有权限.
+                Log.e(TAG, "initPermission: no permission : " + perm);
             }
         }
         if (!toApplyList.isEmpty()) {
-            String tmpList[] = new String[toApplyList.size()];
+            String[] tmpList = new String[toApplyList.size()];
             ActivityCompat.requestPermissions(this, toApplyList.toArray(tmpList), REQUEST_CODE);
         }
     }
@@ -392,6 +386,15 @@ public abstract class BaseDcsActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // 此处为android 6.0以上动态授权的回调，用户自行实现。
+        for (int i = 0; i < permissions.length; i++) {
+            if (grantResults[i] != PackageManager.PERMISSION_GRANTED
+                    && Arrays.asList(Contracts.PERMISSIONS).contains(permissions[i])) {
+                Log.e(TAG, "onRequestPermissionsResult: has not permissions2 = " + permissions[i]);
+            }
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            uploadContacts();
+        }
 
     }
 
@@ -491,6 +494,8 @@ public abstract class BaseDcsActivity extends Activity {
         initPhoneCallListener();
         phoneCallDeviceModule.addPhoneCallListener(phoneCallListener);
         dcsSdk.putDeviceModule(phoneCallDeviceModule);
+        uploadContacts();
+
         // 发短信
 //        initSms(messageSender);
         // AppLauncher
@@ -515,6 +520,30 @@ public abstract class BaseDcsActivity extends Activity {
         initContactsListener();
         contactsDeviceModule.addContactsListener(contactsListener);
         dcsSdk.putDeviceModule(contactsDeviceModule);
+//        uploadContacts();
+
+        // 离线识别
+//        OffLineDeviceModule offLineDeviceModule = new OffLineDeviceModule();
+//        dcsSdk.putDeviceModule(offLineDeviceModule);
+
+        // 设置闹钟播放源（实例代码）
+//        InternalApi internalApi = ((DcsSdkImpl) dcsSdk).getInternalApi();
+//        String namespace = com.baidu.duer.dcs.devicemodule.alerts.ApiConstants.NAMESPACE;
+//        AlertsDeviceModule alertsDeviceModule = (AlertsDeviceModule) internalApi.getDeviceModule(namespace);
+//        if (alertsDeviceModule != null) {
+//            alertsDeviceModule.setAlarmSource("assets://ding.wav");
+//        }
+
+        addOtherDeviceModule(dcsSdk, messageSender);
+
+    }
+
+    private void uploadContacts() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "uploadContacts: no read contacts permission ");
+            return;
+        }
+        Log.e(TAG, "uploadContacts: ");
         try {
             String contactsJson = ContactsChoiceUtil.getAllContacts(this);
             Log.e(TAG, "initSdk: contactsJson = " + contactsJson);
@@ -535,21 +564,6 @@ public abstract class BaseDcsActivity extends Activity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        // 离线识别
-//        OffLineDeviceModule offLineDeviceModule = new OffLineDeviceModule();
-//        dcsSdk.putDeviceModule(offLineDeviceModule);
-
-        // 设置闹钟播放源（实例代码）
-//        InternalApi internalApi = ((DcsSdkImpl) dcsSdk).getInternalApi();
-//        String namespace = com.baidu.duer.dcs.devicemodule.alerts.ApiConstants.NAMESPACE;
-//        AlertsDeviceModule alertsDeviceModule = (AlertsDeviceModule) internalApi.getDeviceModule(namespace);
-//        if (alertsDeviceModule != null) {
-//            alertsDeviceModule.setAlarmSource("assets://ding.wav");
-//        }
-
-        addOtherDeviceModule(dcsSdk, messageSender);
-
     }
 
     private void initSms(IMessageSender messageSender) {

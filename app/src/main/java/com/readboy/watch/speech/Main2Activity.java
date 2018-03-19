@@ -108,11 +108,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         Log.e(TAG, "onCreate: ");
-        if (RequestPermissionsActivity.startPermissionActivity(this)) {
-            finish();
-        }
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         assignViews();
         initViewPager();
@@ -126,6 +123,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //        operateNetwork();
         String mode = Build.MODEL;
         Log.e(TAG, "onCreate: mode2 = " + mode);
+
+        if (firstBlood && Contracts.INTERNET_ENABLE) {
+            operateNetwork();
+            firstBlood = false;
+            interrupt = false;
+        }
 
     }
 

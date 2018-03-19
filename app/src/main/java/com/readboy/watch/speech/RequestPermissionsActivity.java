@@ -61,6 +61,7 @@ public class RequestPermissionsActivity extends Activity {
             permission.READ_EXTERNAL_STORAGE,
             permission.CALL_PHONE,
             permission.READ_CONTACTS,
+            permission.WRITE_CONTACTS,
             permission.READ_PHONE_STATE,
             permission.RECORD_AUDIO,
             permission.ACCESS_COARSE_LOCATION,
@@ -148,6 +149,7 @@ public class RequestPermissionsActivity extends Activity {
             Log.e(TAG, "Request permission activity was called even"
                     + " though all permissions are satisfied.");
         }
+        Log.e(TAG, "requestPermissions: noGrantedPermission = " + noGrantedPermissions);
         requestPermissions(noGrantedPermissions.toArray(new String[noGrantedPermissions.size()]),
                 REQUEST_ALL_PERMISSIONS);
     }

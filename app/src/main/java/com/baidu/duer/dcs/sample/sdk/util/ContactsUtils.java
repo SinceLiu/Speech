@@ -30,17 +30,24 @@ public final class ContactsUtils {
     }
 
     public static boolean callByNumber(Context context, String number) {
+        Log.e(TAG, "callByNumber() called with: context = " + context + ", number = " + number + "");
+        String newNumber = number.replace(" ", "");
+        Log.e(TAG, "callByNumber: newNumber = " + newNumber);
         Intent intent = new Intent(Intent.ACTION_CALL);
-        Uri data = Uri.parse("tel:" + number);
+        Uri data = Uri.parse("tel:" + newNumber);
         intent.setData(data);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                context.checkSelfPermission(Manifest.permission.CALL_PHONE)
-                        == PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (context.checkSelfPermission(Manifest.permission.CALL_PHONE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                context.startActivity(intent);
+                return true;
+            } else {
+                Log.e(TAG, "callByNumber contacts: 没有打电话权限");
+                return false;
+            }
+        } else {
             context.startActivity(intent);
             return true;
-        } else {
-            Log.e(TAG, "contacts: 没有打电话权限");
-            return false;
         }
     }
 

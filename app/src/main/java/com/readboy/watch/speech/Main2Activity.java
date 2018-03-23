@@ -29,7 +29,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.baidu.duer.dcs.androidsystemimpl.player.MediaPlayerImpl;
 import com.baidu.duer.dcs.api.IDialogStateListener;
 import com.baidu.duer.dcs.framework.internalapi.DcsConfig;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.HtmlPayload;
@@ -50,7 +49,8 @@ import java.io.File;
  * @date 2018/2/1
  */
 public class Main2Activity extends BaseDcsActivity implements View.OnClickListener {
-    private static final String TAG = "Dcs_Main2Activity";
+    private static final String TAG = "DCS_Main2Activity";
+
     private static final boolean IS_TEST_MODE = false;
     private static final int HANDLER_WHAT_STOP_RECORD = 1;
     private static final int HANDLER_WHAT_FINISH = 2;
@@ -78,8 +78,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private boolean started = false;
     private float mDownX = 0;
     private float mDownY = 0;
-
-    private MediaPlayerImpl mMediaPlayer;
 
     /**
      * 控制最长录音时间
@@ -121,14 +119,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         //TODO 去掉检查网络状态
 //        checkNetwork();
 //        operateNetwork();
-        String mode = Build.MODEL;
-        Log.e(TAG, "onCreate: mode2 = " + mode);
+//        String mode = Build.MODEL;
+//        Log.e(TAG, "onCreate: mode2 = " + mode);
 
-        if (firstBlood && Contracts.INTERNET_ENABLE) {
-            operateNetwork();
-            firstBlood = false;
-            interrupt = false;
-        }
+        getInternalApi().speakRequest("你好，我是你的好朋友小蛙，有什么可以帮到你的吗");
 
     }
 
@@ -142,20 +136,27 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "onResume: ");
-        registerReceiver();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         //非息屏停止播放， isInteractive = false 代表息屏
-        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-        //正在打电话停止播放
-        TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        if (manager.getCallState() != TelephonyManager.CALL_STATE_IDLE) {
-            Log.e(TAG, "onPause: calling");
-            mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
+//        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+//        正在打电话停止播放
+//        TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+//        Log.e(TAG, "onPause: telephony state = " + manager.getCallState());
+        Log.e(TAG, "onPause: isStopListenReceiving = " + isStopListenReceiving);
+        if (isStopListenReceiving) {
+            dcsSdk.getVoiceRequest().cancelVoiceRequest();
+            showHello3();
         }
+//        if (manager.getCallState() != TelephonyManager.CALL_STATE_IDLE) {
+//            Log.e(TAG, "onPause: calling");
+//            mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
+////            dcsSdk.getVoiceRequest().cancelVoiceRequest();
+//        }
+
         overridePendingTransition(R.anim.activity_bottom_enter, R.anim.activity_bottom_exit);
     }
 
@@ -171,9 +172,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         Log.e(TAG, "onDestroy: ");
         stopAll();
         removeMessages();
-        unregisterReceiver();
 //        ToastUtils.cancel();
-        mMediaPlayer.release();
+
+//        overridePendingTransition(R.anim.activity_bottom_enter, R.anim.activity_bottom_exit);
     }
 
     private void initVoiceRequestListener() {
@@ -358,7 +359,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             public void onViewReleased(View view) {
                 if (!mHoldRecord.isActivated()) {
                     Log.e(TAG, "onViewReleased: send finish message");
-                    mHandler.sendEmptyMessageDelayed(HANDLER_WHAT_FINISH, DELAYED_FINISH_MILLIS);
+//                    mHandler.sendEmptyMessageDelayed(HANDLER_WHAT_FINISH, DELAYED_FINISH_MILLIS);
                 }
             }
         });
@@ -366,14 +367,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void init() {
-        mMediaPlayer = new MediaPlayerImpl();
-    }
-
-    private void registerReceiver() {
-    }
-
-    private void unregisterReceiver() {
-
     }
 
     private void checkNetwork() {
@@ -494,13 +487,13 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //        Log.e(TAG, "dispatchTouchEvent: event = " + event.getAction()
 //                + ", time = " + (System.currentTimeMillis() - time));
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            keepScreenOn();
+//            keepScreenOn();
 //            Log.e(TAG, "dispatchTouchEvent: down time = " + time);
         }
         if (event.getAction() == MotionEvent.ACTION_UP
                 || event.getAction() == MotionEvent.ACTION_CANCEL) {
             interrupt = false;
-            cancelScreenOn();
+//            cancelScreenOn();
         }
         if (interrupt) {
 //            Log.e(TAG, "dispatchTouchEvent: interrupt motion event.");
@@ -623,7 +616,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mEnable = false;
         setMessage(R.string.cannot_using_traffic);
         mHoldRecord.setActivated(false);
-        mHandler.sendEmptyMessageDelayed(HANDLER_WHAT_FINISH, DELAYED_FINISH_MILLIS);
+//        mHandler.sendEmptyMessageDelayed(HANDLER_WHAT_FINISH, DELAYED_FINISH_MILLIS);
         hideDialog();
     }
 
@@ -753,6 +746,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         isStopListenReceiving = true;
 //        voiceButton.setText("录音中...");
         mMessageTv.setText("");
+        Log.e(TAG, "startRecord: begin voice request.");
         dcsSdk.getVoiceRequest().beginVoiceRequest(getAsrType() == DcsConfig.ASR_TYPE_AUTO);
     }
 
@@ -769,15 +763,30 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //                    getInternalApi().resumeSpeaker();
 //                }
                 //暂停点播内容
-                pauseOrPlayMusic();
+                if (isPlayingAudio) {
+                    pauseOrPlayMusic();
+                }
                 mMediaPlayer.stop();
 //                if (CommonUtil.isFastDoubleClick()){
 //                }
                 break;
             case R.id.hold_record:
-//                stopMusic();
-                mMediaPlayer.stop();
+                Log.e(TAG, "onClick: mEnable = " + mEnable);
+                if (!mEnable) {
+                    return;
+//                stopMusic()
+                }
+                IMediaPlayer.PlayState state = mMediaPlayer.getPlayState();
+                if (state == IMediaPlayer.PlayState.PREPARING
+                        || state == IMediaPlayer.PlayState.PLAYING
+                        || state == IMediaPlayer.PlayState.PAUSED
+                        || state == IMediaPlayer.PlayState.PREPARED) {
+                    mMediaPlayer.stop();
+                } else {
+                    Log.e(TAG, "onClick: mMediaPlayer state = " + state);
+                }
                 stopMusic();
+                isPlayingAudio = false;
                 startRecord();
                 break;
             default:
@@ -812,5 +821,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             return false;
         }
     }
+
 
 }

@@ -28,6 +28,9 @@ import com.baidu.duer.dcs.api.DcsSdkBuilder;
 import com.baidu.duer.dcs.api.IConnectionStatusListener;
 import com.baidu.duer.dcs.api.IDcsSdk;
 import com.baidu.duer.dcs.api.IDialogStateListener;
+import com.baidu.duer.dcs.devicemodule.audioplayer.message.AudioPlayerPayload;
+import com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload;
+import com.baidu.duer.dcs.devicemodule.form.Form;
 import com.baidu.duer.dcs.devicemodule.playbackcontroller.PlaybackControllerDeviceModule;
 import com.baidu.duer.dcs.framework.DcsSdkImpl;
 import com.baidu.duer.dcs.framework.HttpProxy;
@@ -44,6 +47,7 @@ import com.baidu.duer.dcs.framework.message.DcsRequestBody;
 import com.baidu.duer.dcs.framework.message.Event;
 import com.baidu.duer.dcs.framework.message.Header;
 import com.baidu.duer.dcs.framework.message.MessageIdHeader;
+import com.baidu.duer.dcs.framework.message.Payload;
 import com.baidu.duer.dcs.framework.upload.contact.IUpload;
 import com.baidu.duer.dcs.framework.upload.contact.UploadPreference;
 import com.baidu.duer.dcs.oauth.api.credentials.BaiduOauthClientCredentialsImpl;
@@ -102,6 +106,10 @@ import com.readboy.watch.speech.util.ToastUtils;
 
 import org.json.JSONException;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -133,7 +141,6 @@ public abstract class BaseDcsActivity extends Activity {
     private static final int REQUEST_CODE = 123;
     protected IDcsSdk dcsSdk;
     protected ScreenDeviceModule screenDeviceModule;
-    private BroadcastReceiver mPowerReceiver;
     private ContentObserver mContractsObserver;
 
     private ILocation location;
@@ -169,6 +176,9 @@ public abstract class BaseDcsActivity extends Activity {
     protected boolean isPlayingAudio;
     protected boolean isStopListenReceiving;
     protected boolean isLoginSucceed;
+    protected IConnectionStatusListener.ConnectionStatus connectionStatus = IConnectionStatusListener.ConnectionStatus.DISCONNECTED;
+    protected boolean isLogging = true;
+    private boolean isReleased = false;
 
     protected MediaPlayerImpl mMediaPlayer;
     private AudioManager.OnAudioFocusChangeListener mAudioListener;
@@ -207,7 +217,7 @@ public abstract class BaseDcsActivity extends Activity {
         @Override
         public void onRenderCard(RenderCardPayload renderCardPayload, int id) {
             Log.e(TAG, "onRenderCard: title = " + renderCardPayload.title +
-                    ", content = " + renderCardPayload.content);
+                    ", content = " + renderCardPayload.content + ", token = " + renderCardPayload.token);
             handleRenderCard(renderCardPayload);
         }
 
@@ -234,6 +244,11 @@ public abstract class BaseDcsActivity extends Activity {
                 if (PlaybackEvent.PLAYBACK_STARTED.equals(eventName)) {
                     Log.e(TAG, "onDcsRequestBody: started playback.");
                     isPlayingAudio = true;
+                    Payload payload = dcsRequestBody.getEvent().getPayload();
+                    Log.e(TAG, "onDcsRequestBody: payload = " + payload.getClass().getSimpleName());
+                    if (payload instanceof AudioPlayerPayload) {
+                        Log.e(TAG, "onDcsRequestBody: audio token = " + ((AudioPlayerPayload) payload).token);
+                    }
                 }
                 handlePlaybackStarted();
                 isPlaying = true;
@@ -243,7 +258,7 @@ public abstract class BaseDcsActivity extends Activity {
     private IErrorListener errorListener = new IErrorListener() {
         @Override
         public void onErrorCode(ErrorCode errorCode) {
-            Log.d(TAG, "onErrorCode:" + errorCode);
+            Log.e(TAG, "onErrorCode:" + errorCode);
             if (errorCode == ErrorCode.VOICE_REQUEST_FAILED) {
                 Toast.makeText(BaseDcsActivity.this,
                         getResources().getString(R.string.voice_err_msg),
@@ -259,7 +274,7 @@ public abstract class BaseDcsActivity extends Activity {
                 // 未登录
                 if (NetworkUtils.isConnected(BaseDcsActivity.this)) {
                     Toast.makeText(BaseDcsActivity.this,
-                            "未登录",
+                            getString(R.string.no_login),
                             Toast.LENGTH_SHORT)
                             .show();
                 } else {
@@ -268,11 +283,16 @@ public abstract class BaseDcsActivity extends Activity {
             }
         }
     };
+
+    /**
+     * ConnectionStatus|DISCONNECTED（长连接断开）,PENDING(长连接正在连接中),CONNECTED(长连接连接正常)
+     */
     private IConnectionStatusListener connectionStatusListener = new IConnectionStatusListener() {
         @Override
-        public void onConnectStatus(ConnectionStatus connectionStatus) {
-            Log.e(TAG, "onConnectionStatusChange: " + connectionStatus);
-            switch (connectionStatus) {
+        public void onConnectStatus(ConnectionStatus status) {
+            Log.e(TAG, "onConnectionStatusChange: " + status);
+            connectionStatus = status;
+            switch (status) {
                 case CONNECTED:
                     break;
                 case DISCONNECTED:
@@ -281,7 +301,6 @@ public abstract class BaseDcsActivity extends Activity {
                 case PENDING:
                     break;
                 default:
-
             }
         }
     };
@@ -312,7 +331,6 @@ public abstract class BaseDcsActivity extends Activity {
 
         mMediaPlayer = new MediaPlayerImpl();
 
-        registerReceiver();
         registerContentObserver();
 
     }
@@ -356,14 +374,6 @@ public abstract class BaseDcsActivity extends Activity {
         release();
     }
 
-    private void registerReceiver() {
-        if (mPowerReceiver == null) {
-            mPowerReceiver = new PowerPressReceiver();
-            IntentFilter filter = new IntentFilter(ACTION_POWER_PRESS_EXIT);
-            registerReceiver(mPowerReceiver, filter);
-        }
-    }
-
     private void registerContentObserver() {
         if (mContractsObserver == null) {
             mContractsObserver = new ContractsObserver(new Handler(Looper.getMainLooper()));
@@ -373,20 +383,19 @@ public abstract class BaseDcsActivity extends Activity {
                 true, mContractsObserver);
     }
 
-    private void release() {
+    protected void release() {
         Log.e(TAG, "release: ");
-        if (mPowerReceiver == null) {
+        if (isReleased) {
             Log.e(TAG, "release: had release.");
             return;
         }
+        isReleased = true;
 
         Log.e(TAG, "release: state = " + mMediaPlayer.getPlayState());
         mMediaPlayer.stop();
         mMediaPlayer.release();
 
-        unregisterReceiver(mPowerReceiver);
         getContentResolver().unregisterContentObserver(mContractsObserver);
-        mPowerReceiver = null;
         abandonAudioFocus();
 
         getInternalApi().pauseSpeaker();
@@ -909,9 +918,11 @@ public abstract class BaseDcsActivity extends Activity {
             return;
         }
         if (isPlaying) {
+            Log.e(TAG, "pauseOrPlayMusic: pause audio.");
             getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule.CommandIssued
                     .CommandIssuedPause);
         } else {
+            Log.e(TAG, "pauseOrPlayMusic: play audio.");
             getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule.CommandIssued
                     .CommandIssuedPlay);
         }
@@ -921,10 +932,36 @@ public abstract class BaseDcsActivity extends Activity {
     protected void stopMusic() {
         //防止频繁上发数据
         if (isPlaying) {
+            Log.e(TAG, "stopMusic: pause audio player");
             getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule.CommandIssued
                     .CommandIssuedPause);
             isPlaying = false;
         }
+    }
+
+    protected void clearAudioList(){
+        DcsSdkImpl sdk = (DcsSdkImpl) dcsSdk;
+        try {
+            Field audioPlayerField = sdk.getClass().getDeclaredField("audioPlayerDeviceModule");
+            audioPlayerField.setAccessible(true);
+            Object object = audioPlayerField.get(audioPlayerField);
+            Method method = object.getClass().getDeclaredMethod("clearAll");
+            method.setAccessible(true);
+            method.invoke(object);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    protected void stopPlayerByToken(String token) {
+        getInternalApi().postEvent(Form.playPauseButtonClicked(token), null);
     }
 
     private void stopVoiceOutput() {
@@ -934,11 +971,13 @@ public abstract class BaseDcsActivity extends Activity {
     protected void sdkRun() {
         // 第三步，将sdk跑起来
         Log.e(TAG, "sdkRun: ");
+        isLogging = true;
         ((DcsSdkImpl) dcsSdk).getInternalApi().login(new ILoginListener() {
             @Override
             public void onSucceed(String accessToken) {
                 dcsSdk.run();
                 isLoginSucceed = true;
+                isLogging = false;
                 Log.e(TAG, "onSucceed() called with: accessToken = " + accessToken + "");
 //                Toast.makeText(BaseDcsActivity.this.getApplicationContext(), "登录成功", Toast.LENGTH_SHORT).show();
             }
@@ -953,14 +992,17 @@ public abstract class BaseDcsActivity extends Activity {
                 }
 
                 isLoginSucceed = false;
-                finish();
+                isLogging = false;
+//                finish();
             }
 
             @Override
             public void onCancel() {
                 Log.e(TAG, "onCancel() called");
+                isLogging = false;
+                isLoginSucceed = false;
                 Toast.makeText(BaseDcsActivity.this.getApplicationContext(), "登录被取消", Toast.LENGTH_SHORT).show();
-                finish();
+//                finish();
             }
         });
     }
@@ -1037,6 +1079,10 @@ public abstract class BaseDcsActivity extends Activity {
      */
     protected abstract void handlePlaybackStarted();
 
+    protected boolean isConnected() {
+        return connectionStatus == IConnectionStatusListener.ConnectionStatus.CONNECTED;
+    }
+
     private int requestAudioFocus() {
         if (hadAudioFocus) {
             Log.e(TAG, "requestAudioFocus: had request audio focus.");
@@ -1080,8 +1126,8 @@ public abstract class BaseDcsActivity extends Activity {
                     Log.e(TAG, "onAudioFocusChange: audio focus loss");
                     mPausedByTransientLossOfFocus = false;
                     hadAudioFocus = false;
-                    stopMusic();
                     stopVoiceOutput();
+                    stopMusic();
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                     //-3

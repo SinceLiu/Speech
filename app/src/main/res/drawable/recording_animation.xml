@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/recording1" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording2" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording3" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording4" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording5" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording6" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording7" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording8" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording9" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording10" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording11" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording12" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording13" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording14" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording15" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording16" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording17" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording18" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording19" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording20" android:duration="@integer/recording_duration"/>
+
+</animation-list>

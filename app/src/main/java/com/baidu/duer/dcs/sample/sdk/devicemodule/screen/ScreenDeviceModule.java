@@ -15,6 +15,8 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.screen;
 
+import android.util.Log;
+
 import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
 import com.baidu.duer.dcs.duerlink.DlpSdk;
 import com.baidu.duer.dcs.framework.BaseDeviceModule;
@@ -43,6 +45,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by wuruisheng on 2017/5/31.
  */
 public class ScreenDeviceModule extends BaseDeviceModule {
+    private static final String TAG = "dcs_ScreenDeviceModule";
+
     private List<IScreenListener> listeners;
     private String token = "";
 
@@ -63,6 +67,7 @@ public class ScreenDeviceModule extends BaseDeviceModule {
     @Override
     public void handleDirective(Directive directive) throws HandleDirectiveException {
         String name = directive.header.getName();
+        Log.e(TAG, "handleDirective: name = " + name);
         if (name.equals(ApiConstants.Directives.HtmlView.NAME)) {
             handleHtmlPayload(directive.getPayload(), directive.id);
         } else if (name.equals(ApiConstants.Directives.RenderVoiceInputText.NAME)) {

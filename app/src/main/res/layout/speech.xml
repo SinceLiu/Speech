@@ -21,12 +21,36 @@
         android:textSize="24px" />
 
     <ImageView
-        android:id="@+id/waveform"
+        android:id="@+id/recording_iv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="40px"
-        android:background="@drawable/wave"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="@dimen/record_margin_bottom"
+        android:background="@drawable/recording_animation1"
+        android:paddingBottom="@dimen/record_padding"
+        android:paddingTop="@dimen/record_padding"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/recording_iv2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="@dimen/record_margin_bottom"
+        android:background="@drawable/recording_animation2"
+        android:paddingBottom="@dimen/record_padding"
+        android:paddingTop="@dimen/record_padding"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/loading_pb"
+        android:layout_width="60px"
+        android:layout_height="60px"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="@dimen/record_margin_bottom"
+        android:indeterminateDrawable="@drawable/loading_animation"
+        android:paddingBottom="@dimen/record_padding"
+        android:paddingTop="@dimen/record_padding"
         android:visibility="gone" />
 
     <Button
@@ -34,17 +58,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="@dimen/record_margin_bottom"
         android:background="@drawable/bg_record_selector"
-        android:clickable="false" />
-
-    <ImageView
-        android:id="@+id/recording_iv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:background="@drawable/bg_recording"
-        android:visibility="gone" />
-
-    <include layout="@layout/loading" />
+        android:clickable="false"
+        android:paddingBottom="@dimen/record_padding"
+        android:paddingTop="@dimen/record_padding" />
 
 </FrameLayout>

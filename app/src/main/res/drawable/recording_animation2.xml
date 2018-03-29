@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/recording17" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording18" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording19" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording20" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording21" android:duration="@integer/recording_duration"/>
+    <item android:drawable="@drawable/recording22" android:duration="@integer/recording_duration"/>
+
+</animation-list>

@@ -939,12 +939,15 @@ public abstract class BaseDcsActivity extends Activity {
         }
     }
 
+    /**
+     *
+     */
     protected void clearAudioList(){
         DcsSdkImpl sdk = (DcsSdkImpl) dcsSdk;
         try {
             Field audioPlayerField = sdk.getClass().getDeclaredField("audioPlayerDeviceModule");
             audioPlayerField.setAccessible(true);
-            Object object = audioPlayerField.get(audioPlayerField);
+            Object object = audioPlayerField.get(sdk);
             Method method = object.getClass().getDeclaredMethod("clearAll");
             method.setAccessible(true);
             method.invoke(object);

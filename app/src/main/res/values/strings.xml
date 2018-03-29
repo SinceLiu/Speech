@@ -2,7 +2,7 @@
     <string name="app_name">语音识别</string>
 
     <string name="help_title">"您可以这样问我"</string>
-    <string name="help_content">"打电话给爸爸\n讲个笑话\n中山天气怎样\n讲个故事"</string>
+    <string name="help_content">"打电话给爸爸\n猜谜语\n中山天气怎样\n讲个故事"</string>
     <string name="help_content2">打电话给爸爸\n讲个笑话\n今天天气怎样\n背一首唐诗\n唱一首儿歌\n三字经 </string>
 
     <string name="hello1">Hi，我是你的好朋友小Wa，能帮你做点什么吗？</string>

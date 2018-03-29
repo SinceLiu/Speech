@@ -363,8 +363,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
         mHoldRecord.setActivated(true);
         mRecordingIv = (ImageView) speech.findViewById(R.id.recording_iv);
+        mRecordingIv.setOnClickListener(this);
         mRecordAnimator = (AnimationDrawable) mRecordingIv.getBackground();
         mRecordingIv2 = (ImageView) speech.findViewById(R.id.recording_iv2);
+        mRecordingIv2.setOnClickListener(this);
         mRecordAnimator2 = (AnimationDrawable) mRecordingIv2.getBackground();
         mDialog = findViewById(R.id.dialog_main);
         DragFrameLayout dragFrameLayout = (DragFrameLayout) findViewById(R.id.drag_layout);
@@ -824,7 +826,15 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
                 stopMusic();
                 isPlayingAudio = false;
+                clearAudioList();
                 startRecord();
+                break;
+            case R.id.recording_iv:
+            case R.id.recording_iv2:
+                if (isStopListenReceiving){
+                    dcsSdk.getVoiceRequest().endVoiceRequest();
+                    isStopListenReceiving = false;
+                }
                 break;
             default:
                 Log.e(TAG, "onClick: default = " + v.getId());

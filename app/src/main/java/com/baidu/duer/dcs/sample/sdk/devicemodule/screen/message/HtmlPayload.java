@@ -15,7 +15,7 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 
 import java.io.Serializable;
 
@@ -50,13 +50,5 @@ public class HtmlPayload extends Payload implements Serializable {
 
     public String getToken() {
         return token;
-    }
-
-    @Override
-    public String toString() {
-        return "HtmlPayload{" +
-                "url='" + url + '\'' +
-                ", token='" + token + '\'' +
-                '}';
     }
 }

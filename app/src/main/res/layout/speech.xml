@@ -8,6 +8,38 @@
     android:clickable="true"
     tools:context=".Main2Activity">
 
+    <ImageView
+        android:id="@+id/recording_iv"
+        style="@style/RecordButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/recording_animation1"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/recording_iv2"
+        style="@style/RecordButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/recording_animation2"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/loading_pb"
+        style="@style/RecordButton"
+        android:layout_width="60px"
+        android:layout_height="72px"
+        android:indeterminateDrawable="@drawable/loading_animation"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/hold_record"
+        style="@style/RecordButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:src="@drawable/bg_record_selector" />
+
     <TextView
         android:id="@+id/message_tv"
         android:layout_width="match_parent"
@@ -19,49 +51,5 @@
         android:text="@string/hello1"
         android:textColor="@android:color/white"
         android:textSize="24px" />
-
-    <ImageView
-        android:id="@+id/recording_iv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="@dimen/record_margin_bottom"
-        android:background="@drawable/recording_animation1"
-        android:paddingBottom="@dimen/record_padding"
-        android:paddingTop="@dimen/record_padding"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/recording_iv2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="@dimen/record_margin_bottom"
-        android:background="@drawable/recording_animation2"
-        android:paddingBottom="@dimen/record_padding"
-        android:paddingTop="@dimen/record_padding"
-        android:visibility="gone" />
-
-    <ProgressBar
-        android:id="@+id/loading_pb"
-        android:layout_width="60px"
-        android:layout_height="60px"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="@dimen/record_margin_bottom"
-        android:indeterminateDrawable="@drawable/loading_animation"
-        android:paddingBottom="@dimen/record_padding"
-        android:paddingTop="@dimen/record_padding"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/hold_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="@dimen/record_margin_bottom"
-        android:background="@drawable/bg_record_selector"
-        android:clickable="false"
-        android:paddingBottom="@dimen/record_padding"
-        android:paddingTop="@dimen/record_padding" />
 
 </FrameLayout>

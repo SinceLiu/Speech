@@ -16,7 +16,7 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.applauncher.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 
 /**
  * Created by caoyushu01 on 2017/7/20.

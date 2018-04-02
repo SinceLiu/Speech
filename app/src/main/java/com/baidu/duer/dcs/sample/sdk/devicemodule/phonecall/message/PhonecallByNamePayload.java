@@ -16,9 +16,8 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,7 +26,7 @@ import java.util.List;
 
 public class PhonecallByNamePayload extends Payload {
     // 服务端返回的全部响应当前次打电话的人名列表
-    private List<CandidateCallee> candidateCallees;
+    private List<com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.CandidateCallee> candidateCallees;
     // 使用sim卡1/卡2
     private String useSimIndex = "";
     // 用户指定的运营商名称,可选字段
@@ -65,14 +64,5 @@ public class PhonecallByNamePayload extends Payload {
 
     public void setUseCarrier (String useCarrier) {
         this.useCarrier = useCarrier;
-    }
-
-    @Override
-    public String toString() {
-        return "PhonecallByNamePayload{" +
-                "candidateCallees=" + Arrays.toString(candidateCallees.toArray()) +
-                ", useSimIndex='" + useSimIndex + '\'' +
-                ", useCarrier='" + useCarrier + '\'' +
-                '}';
     }
 }

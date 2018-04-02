@@ -16,15 +16,15 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.contacts;
 
-import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
-import com.baidu.duer.dcs.framework.BaseDeviceModule;
-import com.baidu.duer.dcs.framework.IMessageSender;
-import com.baidu.duer.dcs.framework.message.ClientContext;
-import com.baidu.duer.dcs.framework.message.Directive;
-import com.baidu.duer.dcs.framework.message.Event;
-import com.baidu.duer.dcs.framework.message.Header;
-import com.baidu.duer.dcs.framework.message.MessageIdHeader;
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.HandleDirectiveException;
+import com.baidu.duer.dcs.api.BaseDeviceModule;
+import com.baidu.duer.dcs.api.IMessageSender;
+import com.baidu.duer.dcs.util.message.ClientContext;
+import com.baidu.duer.dcs.util.message.Directive;
+import com.baidu.duer.dcs.util.message.Event;
+import com.baidu.duer.dcs.util.message.Header;
+import com.baidu.duer.dcs.util.message.MessageIdHeader;
+import com.baidu.duer.dcs.util.message.Payload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.contacts.message.CreateContactFailedPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.contacts.message.CreateContactPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.contacts.message.SearchContactPayload;
@@ -95,7 +95,7 @@ public class ContactsDeviceModule extends BaseDeviceModule {
         Header header = new MessageIdHeader(ApiConstants.NAMESPACE, "CreateContactFailed");
         Payload payload = new CreateContactFailedPayload(token);
         Event event = new Event(header, payload);
-        messageSender.sendEvent(event);
+        messageSender.sendEvent(event, null);
     }
 
     private void fireOnSearchContact(SearchContactPayload payload) {

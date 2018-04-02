@@ -16,10 +16,9 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,24 +26,18 @@ import java.util.List;
  */
 
 public class SelectCalleePayload extends Payload implements Serializable {
-    /**
-     * 服务端返回的全部响应当前次打电话的电话号/或服务端解析到的名称
-     */
-    private List<CandidateCalleeNumber> candidateCallees;
-    /**
-     * 使用sim卡1/卡2
-     */
+    // 服务端返回的全部响应当前次打电话的电话号/或服务端解析到的名称
+    private List<com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.CandidateCalleeNumber> candidateCallees;
+    // 使用sim卡1/卡2
     private String useSimIndex;
-    /**
-     *  用户指定的运营商名称,可选字段
-     */
+    // 用户指定的运营商名称,可选字段
     private String useCarrier;
 
-    public List<com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.CandidateCalleeNumber> getCandidateCallees() {
+    public List<com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.CandidateCalleeNumber> getCandidateCallees () {
         return candidateCallees;
     }
 
-    public void setCandidateCallees(List<CandidateCalleeNumber> candidateCallees) {
+    public void setCandidateCallees (List<CandidateCalleeNumber> candidateCallees) {
         this.candidateCallees = candidateCallees;
     }
 
@@ -56,20 +49,11 @@ public class SelectCalleePayload extends Payload implements Serializable {
         this.useSimIndex = useSimIndex;
     }
 
-    public String getUseCarrier() {
+    public String getUseCarrier () {
         return useCarrier;
     }
 
-    public void setUseCarrier(String useCarrier) {
+    public void setUseCarrier (String useCarrier) {
         this.useCarrier = useCarrier;
-    }
-
-    @Override
-    public String toString() {
-        return "SelectCalleePayload{" +
-                "candidateCallees=" + Arrays.toString(candidateCallees.toArray()) +
-                ", useSimIndex='" + useSimIndex + '\'' +
-                ", useCarrier='" + useCarrier + '\'' +
-                '}';
     }
 }

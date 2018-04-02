@@ -38,16 +38,25 @@ import java.util.concurrent.CountDownLatch;
  */
 
 public class AppLauncherImpl implements IAppLauncher {
-    private static final String TAG = "AppLauncherImpl";
+    private static final String TAG = AppLauncherImpl.class.getSimpleName();
+    private static volatile AppLauncherImpl instance;
     private boolean isUpdatingAppList = false;
-    private List<PackageInfo> cacheAppNameList = new CopyOnWriteArrayList<>();
     // 需要上报给云端的app列表
     ArrayList<AppInfo> contextAppList = new ArrayList<>();
     final Object mLock = new Object();
 
-    public AppLauncherImpl(Context context) {
+    private AppLauncherImpl(Context context) {
         // 在初始化的时候更新一次应用列表
         updateAppList(context);
+    }
+
+    public static AppLauncherImpl getInstance(Context context) {
+        if (instance == null) {
+            synchronized (AppLauncherImpl.class) {
+                instance = new AppLauncherImpl(context);
+            }
+        }
+        return instance;
     }
 
     @Override
@@ -130,14 +139,12 @@ public class AppLauncherImpl implements IAppLauncher {
         if (isUpdatingAppList) {
             return;
         }
-
         final CountDownLatch countDownLock = new CountDownLatch(1);
         Runnable runnable = new Runnable() {
             @Override
             public void run () {
                 isUpdatingAppList = true;
                 countDownLock.countDown();
-
                 try {
                     ArrayList<AppInfo> tempAppList = new ArrayList<>();
                     PackageManager pManager = context.getApplicationContext().getPackageManager();
@@ -173,10 +180,8 @@ public class AppLauncherImpl implements IAppLauncher {
                 isUpdatingAppList = false;
             }
         };
-
         Thread thread = new Thread(runnable);
         thread.start();
-
         try {
             countDownLock.await();
         } catch (InterruptedException e) {
@@ -251,5 +256,4 @@ public class AppLauncherImpl implements IAppLauncher {
         }
         return appNameTmp;
     }
-
 }

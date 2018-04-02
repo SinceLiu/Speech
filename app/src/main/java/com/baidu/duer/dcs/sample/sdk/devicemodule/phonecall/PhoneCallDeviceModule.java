@@ -16,15 +16,13 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall;
 
-import android.util.Log;
-
-import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
-import com.baidu.duer.dcs.framework.BaseDeviceModule;
-import com.baidu.duer.dcs.framework.IMessageSender;
-import com.baidu.duer.dcs.framework.message.ClientContext;
-import com.baidu.duer.dcs.framework.message.Directive;
-import com.baidu.duer.dcs.framework.message.Header;
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.HandleDirectiveException;
+import com.baidu.duer.dcs.api.BaseDeviceModule;
+import com.baidu.duer.dcs.api.IMessageSender;
+import com.baidu.duer.dcs.util.message.ClientContext;
+import com.baidu.duer.dcs.util.message.Directive;
+import com.baidu.duer.dcs.util.message.Header;
+import com.baidu.duer.dcs.util.message.Payload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.PhonecallByNamePayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.PhonecallByNumberPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.SelectCalleePayload;
@@ -38,7 +36,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 
 public class PhoneCallDeviceModule extends BaseDeviceModule {
-    private static final String TAG = "PhoneCallDeviceModule";
 
     private List<IPhoneCallListener> listeners;
 
@@ -66,7 +63,6 @@ public class PhoneCallDeviceModule extends BaseDeviceModule {
     public void handleDirective (Directive directive) throws HandleDirectiveException {
         String headerName = directive.getName();
         Payload payload = directive.getPayload();
-        Log.e(TAG, "handleDirective: headerName = " + headerName + ", payload = " + payload);
         if (ApiConstants.Directives.PhonecallByName.NAME.equals(headerName)) {
             fireOnPhonecallByName((PhonecallByNamePayload) payload);
         } else if (ApiConstants.Directives.SelectCallee.NAME.equals(headerName)) {

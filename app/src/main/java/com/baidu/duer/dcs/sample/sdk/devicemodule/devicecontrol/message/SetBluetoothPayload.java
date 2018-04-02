@@ -16,7 +16,7 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -47,5 +47,13 @@ public class SetBluetoothPayload extends Payload {
 
     public void setBluetooth (Boolean bluetooth) {
         this.bluetooth = bluetooth;
+    }
+
+    @Override
+    public String toString() {
+        return "SetBluetoothPayload{" +
+                "target='" + target + '\'' +
+                ", bluetooth=" + bluetooth +
+                '}';
     }
 }

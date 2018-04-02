@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.media.AudioManager;
@@ -21,43 +20,43 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.baidu.duer.dcs.androidsystemimpl.AudioRecordImpl;
-import com.baidu.duer.dcs.androidsystemimpl.player.MediaPlayerImpl;
-import com.baidu.duer.dcs.androidsystemimpl.wakeup.kitt.KittWakeUpImpl;
 import com.baidu.duer.dcs.api.DcsSdkBuilder;
 import com.baidu.duer.dcs.api.IConnectionStatusListener;
 import com.baidu.duer.dcs.api.IDcsSdk;
 import com.baidu.duer.dcs.api.IDialogStateListener;
+import com.baidu.duer.dcs.api.IFinishedDirectiveListener;
+import com.baidu.duer.dcs.api.IMessageSender;
+import com.baidu.duer.dcs.api.IVoiceRequestListener;
+import com.baidu.duer.dcs.api.asroffline.ASROffLineConfig;
+import com.baidu.duer.dcs.api.asroffline.IASROffLineConfigProvider;
+import com.baidu.duer.dcs.api.config.DefaultSdkConfigProvider;
+import com.baidu.duer.dcs.api.config.SdkConfigProvider;
+import com.baidu.duer.dcs.api.player.ITTSPositionInfoListener;
+import com.baidu.duer.dcs.api.recorder.AudioRecordImpl;
+import com.baidu.duer.dcs.api.recorder.BaseAudioRecorder;
+import com.baidu.duer.dcs.api.wakeup.BaseWakeup;
+import com.baidu.duer.dcs.api.wakeup.IWakeupAgent;
+import com.baidu.duer.dcs.api.wakeup.IWakeupProvider;
+import com.baidu.duer.dcs.api.wakeup.WakeUpConfig;
+import com.baidu.duer.dcs.api.wakeup.WakeUpException;
+import com.baidu.duer.dcs.api.wakeup.WakeUpWord;
+import com.baidu.duer.dcs.componentapi.IDcsClient;
+import com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants;
+import com.baidu.duer.dcs.devicemodule.audioplayer.AudioPlayerDeviceModule;
 import com.baidu.duer.dcs.devicemodule.audioplayer.message.AudioPlayerPayload;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload;
+import com.baidu.duer.dcs.devicemodule.custominteraction.CustomUserInteractionDeviceModule;
 import com.baidu.duer.dcs.devicemodule.form.Form;
 import com.baidu.duer.dcs.devicemodule.playbackcontroller.PlaybackControllerDeviceModule;
 import com.baidu.duer.dcs.framework.DcsSdkImpl;
-import com.baidu.duer.dcs.framework.HttpProxy;
 import com.baidu.duer.dcs.framework.ILoginListener;
-import com.baidu.duer.dcs.framework.IMessageSender;
 import com.baidu.duer.dcs.framework.InternalApi;
-import com.baidu.duer.dcs.framework.internalapi.IASROffLineConfigProvider;
-import com.baidu.duer.dcs.framework.internalapi.IDcsRequestBodySentListener;
+import com.baidu.duer.dcs.framework.internalapi.IDirectiveReceivedListener;
 import com.baidu.duer.dcs.framework.internalapi.IErrorListener;
-import com.baidu.duer.dcs.framework.internalapi.IWakeupAgent;
-import com.baidu.duer.dcs.framework.internalapi.IWakeupProvider;
 import com.baidu.duer.dcs.framework.location.Location;
-import com.baidu.duer.dcs.framework.message.DcsRequestBody;
-import com.baidu.duer.dcs.framework.message.Event;
-import com.baidu.duer.dcs.framework.message.Header;
-import com.baidu.duer.dcs.framework.message.MessageIdHeader;
-import com.baidu.duer.dcs.framework.message.Payload;
 import com.baidu.duer.dcs.framework.upload.contact.IUpload;
-import com.baidu.duer.dcs.framework.upload.contact.UploadPreference;
-import com.baidu.duer.dcs.oauth.api.credentials.BaiduOauthClientCredentialsImpl;
-import com.baidu.duer.dcs.oauth.api.grant.BaiduOauthImplicitGrantIml;
-import com.baidu.duer.dcs.offline.asr.bean.ASROffLineConfig;
-import com.baidu.duer.dcs.sample.sdk.devicemodule.alarms.AlarmsDeviceModule;
-import com.baidu.duer.dcs.sample.sdk.devicemodule.alarms.message.SetAlarmPayload;
-import com.baidu.duer.dcs.sample.sdk.devicemodule.alarms.message.SetTimerPayload;
-import com.baidu.duer.dcs.sample.sdk.devicemodule.alarms.message.ShowAlarmsPayload;
-import com.baidu.duer.dcs.sample.sdk.devicemodule.alarms.message.ShowTimersPayload;
+import com.baidu.duer.dcs.location.ILocation;
+import com.baidu.duer.dcs.location.LocationImpl;
+import com.baidu.duer.dcs.oauth.api.silent.SilentLoginImpl;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.applauncher.AppLauncherDeviceModule;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.applauncher.AppLauncherImpl;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.applauncher.message.LaunchAppPayload;
@@ -89,29 +88,43 @@ import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.PhonecallByN
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.PhonecallByNumberPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.SelectCalleePayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.ScreenDeviceModule;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.ScreenExtendDeviceModule;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.message.RenderAudioListPlayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.message.RenderPlayerInfoPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.HtmlPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderCardPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderHintPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderVoiceInputTextPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.sms.SmsDeviceModule;
-import com.baidu.duer.dcs.sample.sdk.location.ILocation;
-import com.baidu.duer.dcs.sample.sdk.location.LocationImpl;
 import com.baidu.duer.dcs.sample.sdk.util.ContactsUtils;
-import com.baidu.duer.dcs.systeminterface.BaseAudioRecorder;
-import com.baidu.duer.dcs.systeminterface.BaseWakeup;
+import com.baidu.duer.dcs.sample.sdk.util.UploadPreference;
 import com.baidu.duer.dcs.systeminterface.IOauth;
-import com.baidu.duer.dcs.util.ContactsChoiceUtil;
+import com.baidu.duer.dcs.util.AsrType;
+import com.baidu.duer.dcs.util.HttpProxy;
+import com.baidu.duer.dcs.util.api.IDcsRequestBodySentListener;
+import com.baidu.duer.dcs.util.dispatcher.DialogRequestIdHandler;
+import com.baidu.duer.dcs.util.message.DcsRequestBody;
+import com.baidu.duer.dcs.util.message.Directive;
+import com.baidu.duer.dcs.util.message.Event;
+import com.baidu.duer.dcs.util.message.Header;
+import com.baidu.duer.dcs.util.message.MessageIdHeader;
+import com.baidu.duer.dcs.util.message.Payload;
+import com.baidu.duer.kitt.KittWakeUpImpl;
+import com.baidu.speech.asr.SpeechConstant;
+import com.readboy.watch.speech.media.MediaPlayerImpl;
 import com.readboy.watch.speech.util.NetworkUtils;
 import com.readboy.watch.speech.util.ToastUtils;
 
 import org.json.JSONException;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -128,22 +141,122 @@ public abstract class BaseDcsActivity extends Activity {
      */
     private static final String CLIENT_ID = "WwhkTgFmkKC3jYgATjV6KESf9ZfeSwti";
 
+    private static final String APP_ID = "dm48A7EB63F5AC1C63";
+    private static final String APP_KEY = "628F0F98221FDFA1CDCF3E53B8AC57F0";
+
     private static final String CLIENT_SECRET = "OjmUyrFKnjqvyn2gb8i6rbrwUxDXlo55";
 
     /**
      * 唤醒词,可以改为你自己的唤醒词,比如："茄子"
      */
     private static final String WAKEUP_WORD = "小度小度";
+
+    // 唤醒配置
+    private static final String WAKEUP_RES_PATH = "snowboy/common.res";
+    private static final String WAKEUP_UMDL_PATH = "snowboy/xiaoduxiaodu_all_11272017.umdl";
+    private static final String WAKEUP_SENSITIVITY = "0.35,0.35,0.40";
+    private static final String WAKEUP_HIGH_SENSITIVITY = "0.45,0.45,0.55";
     /**
      * 唤醒成功后是否需要播放提示音
      */
     private static final boolean ENABLE_PLAY_WARNING = true;
     private static final int REQUEST_CODE = 123;
+
+    private static final String AUDIO_PLAYER_NAMESPACE = ApiConstants.NAMESPACE;
+
     protected IDcsSdk dcsSdk;
     protected ScreenDeviceModule screenDeviceModule;
     private ContentObserver mContractsObserver;
 
     private ILocation location;
+    /**
+     * for dcs统计-demo
+     */
+    private long duerResultT;
+    protected boolean isPlaying;
+    /**
+     * 用于停止音乐
+     */
+    protected boolean isPlayingAudio;
+    protected boolean isLoginSucceed;
+    protected IConnectionStatusListener.ConnectionStatus connectionStatus = IConnectionStatusListener.ConnectionStatus.DISCONNECTED;
+    protected boolean isLogging = true;
+    private boolean isReleased = false;
+
+    protected MediaPlayerImpl mMediaPlayer;
+    private AudioManager.OnAudioFocusChangeListener mAudioListener;
+    private boolean mPausedByTransientLossOfFocus = false;
+    private boolean hadAudioFocus = false;
+
+    private AudioPlayerDeviceModule audioPlayerDeviceModule;
+    private Method clearAudioListMethod;
+
+    private IWakeupAgent.IWakeupAgentListener wakeupAgentListener;
+    protected IDialogStateListener dialogStateListener;
+    private PhoneCallDeviceModule.IPhoneCallListener phoneCallListener;
+    private SmsDeviceModule.ISmsListener smsListener;
+    private AppLauncherDeviceModule.IAppLauncherListener appLauncherListener;
+    private LocalAudioPlayerDeviceModule.ILocalAudioPlayerListener localAudioPlayerListener;
+    private ContactsDeviceModule.IContactsListener contactsListener;
+    private PhoneCallDeviceModule phoneCallDeviceModule;
+    private SmsDeviceModule smsDeviceModule;
+    private AppLauncherDeviceModule appLauncherDeviceModule;
+    private DeviceControlDeviceModule.IDeviceControlListener deviceControlListener;
+    private DeviceControlDeviceModule deviceControlDeviceModule;
+    private LocalAudioPlayerDeviceModule localAudioPlayerDeviceModule;
+    private ContactsDeviceModule contactsDeviceModule;
+
+    protected IDialogStateListener.DialogState currentDialogState = IDialogStateListener.DialogState.IDLE;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+//        if (RequestPermissionsActivity.startPermissionActivity(this)) {
+//            finish();
+//        }
+        initPermission();
+
+        initSdk();
+        sdkRun();
+
+        initListener();
+        initLocation();
+
+        mMediaPlayer = new MediaPlayerImpl(this);
+
+        registerContentObserver();
+
+    }
+
+    protected void initListener() {
+        // 设置各种监听器
+        dcsSdk.addConnectionStatusListener(connectionStatusListener);
+        // 错误
+        getInternalApi().addErrorListener(errorListener);
+        // event发送
+        getInternalApi().addRequestBodySentListener(dcsRequestBodySentListener);
+        // 需要定位后赋值，目前是写死的北京的
+        getInternalApi().setLocationHandler(locationHandler);
+        // 语音文本同步
+        initTTSPositionInfoListener();
+        // 唤醒
+        if (Config.WAKEUP_ENABLE) {
+            initWakeUpAgentListener();
+        }
+        // 所有指令透传，建议在各自的DeviceModule中处理
+        addDirectiveReceivedListener();
+        // 指令执行完毕回调
+//        initFinishedDirectiveListener();
+        // 语音音量回调监听
+        initVolumeListener();
+    }
+
+    private void initLocation() {
+        // 定位
+        location = new LocationImpl(getApplicationContext());
+        location.requestLocation(false);
+    }
+
     protected Location.LocationHandler locationHandler = new Location.LocationHandler() {
         @Override
         public double getLongitude() {
@@ -162,45 +275,10 @@ public abstract class BaseDcsActivity extends Activity {
 
         @Override
         public Location.EGeoCoordinateSystem getGeoCoordinateSystem() {
-            return Location.EGeoCoordinateSystem.WGS84;
+            return Location.EGeoCoordinateSystem.BD09LL;
         }
     };
-    /**
-     * for dcs统计-demo
-     */
-    private long duerResultT;
-    protected boolean isPlaying;
-    /**
-     * 用于停止音乐
-     */
-    protected boolean isPlayingAudio;
-    protected boolean isStopListenReceiving;
-    protected boolean isLoginSucceed;
-    protected IConnectionStatusListener.ConnectionStatus connectionStatus = IConnectionStatusListener.ConnectionStatus.DISCONNECTED;
-    protected boolean isLogging = true;
-    private boolean isReleased = false;
 
-    protected MediaPlayerImpl mMediaPlayer;
-    private AudioManager.OnAudioFocusChangeListener mAudioListener;
-    private boolean mPausedByTransientLossOfFocus = false;
-    private boolean hadAudioFocus = false;
-
-    private IWakeupAgent.IWakeupAgentListener wakeupAgentListener;
-    protected IDialogStateListener dialogStateListener;
-    private PhoneCallDeviceModule.IPhoneCallListener phoneCallListener;
-    private SmsDeviceModule.ISmsListener smsListener;
-    private AppLauncherDeviceModule.IAppLauncherListener appLauncherListener;
-    private LocalAudioPlayerDeviceModule.ILocalAudioPlayerListener localAudioPlayerListener;
-    private DeviceControlDeviceModule.IDeviceControlListener deviceControlListener;
-    private AlarmsDeviceModule.IAlarmDirectiveListener alarmListener;
-    private ContactsDeviceModule.IContactsListener contactsListener;
-    private PhoneCallDeviceModule phoneCallDeviceModule;
-    private SmsDeviceModule smsDeviceModule;
-    private AppLauncherDeviceModule appLauncherDeviceModule;
-    private DeviceControlDeviceModule deviceControlDeviceModule;
-    private AlarmsDeviceModule alarmsDeviceModule;
-    private LocalAudioPlayerDeviceModule localAudioPlayerDeviceModule;
-    private ContactsDeviceModule contactsDeviceModule;
     private ScreenDeviceModule.IScreenListener screenListener = new ScreenDeviceModule.IScreenListener() {
         @Override
         public void onRenderVoiceInputText(RenderVoiceInputTextPayload payload) {
@@ -209,20 +287,20 @@ public abstract class BaseDcsActivity extends Activity {
         }
 
         @Override
-        public void onHtmlPayload(HtmlPayload htmlPayload, int id) {
-            Log.e(TAG, "onHtmlPayload() called with: htmlPayload = " + htmlPayload + ", id = " + id + "");
+        public void onHtmlPayload(HtmlPayload htmlPayload) {
+            Log.e(TAG, "onHtmlPayload() called with: htmlPayload = " + htmlPayload);
             handleHtmlPayload(htmlPayload);
         }
 
         @Override
-        public void onRenderCard(RenderCardPayload renderCardPayload, int id) {
+        public void onRenderCard(RenderCardPayload renderCardPayload) {
             Log.e(TAG, "onRenderCard: title = " + renderCardPayload.title +
                     ", content = " + renderCardPayload.content + ", token = " + renderCardPayload.token);
             handleRenderCard(renderCardPayload);
         }
 
         @Override
-        public void onRenderHint(RenderHintPayload renderHintPayload, int id) {
+        public void onRenderHint(RenderHintPayload renderHintPayload) {
             Log.e(TAG, "onRenderHint: " + Arrays.toString(renderHintPayload.cueWords.toArray()));
         }
     };
@@ -280,6 +358,26 @@ public abstract class BaseDcsActivity extends Activity {
                 } else {
                     ToastUtils.showShort(BaseDcsActivity.this, getString(R.string.error_no_network3));
                 }
+            } else if (errorCode == ErrorCode.NETWORK_EXCEPTION) {
+                Toast.makeText(BaseDcsActivity.this,
+                        "网络超时",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            } else if (errorCode == ErrorCode.SDK_VOICE_EXCEPTION) {
+                Toast.makeText(BaseDcsActivity.this,
+                        "SDK语音错误",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            } else if (errorCode == ErrorCode.SDK_SERVER_EXCEPTION) {
+                Toast.makeText(BaseDcsActivity.this,
+                        "SDK语音Server错误",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            } else if (errorCode == ErrorCode.SDK_VOICE_UNKNOWN_EXCEPTION) {
+                Toast.makeText(BaseDcsActivity.this,
+                        "SDK语音未知错误",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
         }
     };
@@ -305,143 +403,28 @@ public abstract class BaseDcsActivity extends Activity {
         }
     };
 
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-//        if (RequestPermissionsActivity.startPermissionActivity(this)) {
-//            finish();
-//        }
-        initPermission();
-
-        initSdk();
-        sdkRun();
-
-        // 设置各种监听器
-        dcsSdk.addConnectionStatusListener(connectionStatusListener);
-        // 指令接受
-        // 错误
-        getInternalApi().addErrorListener(errorListener);
-        // event发送
-        getInternalApi().addRequestBodySentListener(dcsRequestBodySentListener);
-        // 需要定位后赋值，目前是写死的北京的
-        getInternalApi().setLocationHandler(locationHandler);
-        // 唤醒
-//        initWakeUpListener();
-
-        mMediaPlayer = new MediaPlayerImpl();
-
-        registerContentObserver();
-
+    /**
+     * tts文字同步
+     */
+    private void initTTSPositionInfoListener() {
+        getInternalApi().addTTSPositionInfoListener(new ITTSPositionInfoListener() {
+            @Override
+            public void onPositionInfo(long pos, long playTimeMs, long mark) {
+                Log.i(TAG, "pos:" + pos + ",playTimeMs:" + playTimeMs + ",mark:" + mark);
+            }
+        });
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(TAG, "onRestart");
-        // 恢复tts，音乐等有关播放
-//        getInternalApi().resumeSpeaker();
-        // 如果有唤醒，则恢复唤醒
-//        getInternalApi().startWakeup();
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.e(TAG, "onResume: ");
-        requestAudioFocus();
-
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause");
-        // 停止tts，音乐等有关播放.
-//        getInternalApi().pauseSpeaker();
-        // 如果有唤醒，则停止唤醒
-//        getInternalApi().stopWakeup();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        Log.d(TAG, "onDestroy");
-        // dcsWebView
-
-        release();
-    }
-
-    private void registerContentObserver() {
-        if (mContractsObserver == null) {
-            mContractsObserver = new ContractsObserver(new Handler(Looper.getMainLooper()));
-        }
-//        getContentResolver().registerContentObserver(ContactsContract.Data.CONTENT_URI, true, mContractsObserver);
-        getContentResolver().registerContentObserver(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                true, mContractsObserver);
-    }
-
-    protected void release() {
-        Log.e(TAG, "release: ");
-        if (isReleased) {
-            Log.e(TAG, "release: had release.");
-            return;
-        }
-        isReleased = true;
-
-        Log.e(TAG, "release: state = " + mMediaPlayer.getPlayState());
-        mMediaPlayer.stop();
-        mMediaPlayer.release();
-
-        getContentResolver().unregisterContentObserver(mContractsObserver);
-        abandonAudioFocus();
-
-        getInternalApi().pauseSpeaker();
-
-        sendExitEvent();
-
-        if (screenDeviceModule != null) {
-            screenDeviceModule.removeScreenListener(screenListener);
-        }
-        screenListener = null;
-
-        dcsSdk.getVoiceRequest().removeDialogStateListener(dialogStateListener);
-        dialogStateListener = null;
-
-        dcsSdk.removeConnectionStatusListener(connectionStatusListener);
-        connectionStatusListener = null;
-
-        getInternalApi().removeErrorListener(errorListener);
-        errorListener = null;
-
-        getInternalApi().removeRequestBodySentListener(dcsRequestBodySentListener);
-        dcsRequestBodySentListener = null;
-
-        getInternalApi().setLocationHandler(null);
-        locationHandler = null;
-
-        IWakeupAgent wakeupAgent = getInternalApi().getWakeupAgent();
-        if (wakeupAgent != null) {
-            wakeupAgent.removeWakeupAgentListener(wakeupAgentListener);
-        }
-
-        // 第3步，释放sdk
-        dcsSdk.release();
-    }
-
-    private void sendExitEvent() {
-        Header header = new MessageIdHeader("ai.dueros.device_interface.system", "Exited");
-
-        Event event = new Event(header, null);
-        if (getInternalApi().getMessageSender() != null) {
-            getInternalApi().getMessageSender().sendEvent(event);
-        }
-    }
-
-    public InternalApi getInternalApi() {
-        return ((DcsSdkImpl) dcsSdk).getInternalApi();
+    /**
+     * 语音音量回调监听
+     */
+    private void initVolumeListener() {
+        getInternalApi().getDcsClient().addVolumeListener(new IDcsClient.IVolumeListener() {
+            @Override
+            public void onVolume(int volume, int percent) {
+                Log.e(TAG, "onVolume() called with: volume = " + volume + ", percent = " + percent + "");
+            }
+        });
     }
 
     /**
@@ -490,28 +473,26 @@ public abstract class BaseDcsActivity extends Activity {
         // 第一步初始化sdk
         // BaseAudioRecorder audioRecorder = new PcmAudioRecorderImpl(); pcm 输入方式
         BaseAudioRecorder audioRecorder = new AudioRecordImpl();
-        audioRecorder.addRecorderListener(new BaseAudioRecorder.SimpleRecorderListener() {
-            @Override
-            public void onData(byte[] data) {
-//                int volume = calculateVolume(data);
-//                Log.d(TAG, "onVolumeChange:" + volume);
-            }
-        });
-        IOauth oauth = getOath();
 
-//        IOauth oauth = new DlpOauth(this);
+        IOauth oauth = getOath();
 
         // 离线识别配置
         final ASROffLineConfig asrOffLineConfig = new ASROffLineConfig();
         // 应用的AppId
-        asrOffLineConfig.asrAppId = "9889421";
+        asrOffLineConfig.asrAppId = APP_ID;
         // 应用的AppKey
-        asrOffLineConfig.asrAppKey = "BPAivB6HFuThw4o6Wm60xN0N";
+        asrOffLineConfig.asrAppKey = APP_KEY;
         // 应用的SecretKey
-        asrOffLineConfig.asrSecretKey = "78de6d7293de9f8421ef1e1880f0b702";
+        asrOffLineConfig.asrSecretKey = CLIENT_SECRET;
         // 设置离线grammer语法文件位置
         // 离线grammer的内容为Url编码
         asrOffLineConfig.grammerPath = "assets:///baidu_speech_grammar.bsg";
+
+        // 下面这个参数固定
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(SpeechConstant.ASR_AUDIO_COMPRESSION_TYPE, 1);
+        asrOffLineConfig.params = params;
+
         // 动态替换原来的槽位数据，即grammerPath中的配置槽位
         // 如果不需要动态配置，就不需要设置offlineAsrSlots字段即可
         // 关于结构内容可以Url解码后查看
@@ -534,40 +515,52 @@ public abstract class BaseDcsActivity extends Activity {
 
         // proxyIp 为代理IP
         // proxyPort  为代理port
-        HttpProxy httpProxy = new HttpProxy("172.24.184.92", 8888);
+        HttpProxy httpProxy = new HttpProxy("172.24.194.28", 8888);
 
-        // 定位
-        location = new LocationImpl(getApplicationContext());
-        location.requestLocation(false);
+        SdkConfigProvider sdkConfigProvider = getSdkConfigProvider();
 
         // 构造dcs sdk
         DcsSdkBuilder builder = new DcsSdkBuilder();
-        dcsSdk = builder.withClientId(CLIENT_ID)
+        dcsSdk = builder.withSdkConfig(sdkConfigProvider)
                 .withOauth(oauth)
                 .withAudioRecorder(audioRecorder)
-                // 设置音乐播放器的实现，MediaPlayerImpl为内部sdk的实现
-//                 .withMediaPlayer(new MediaPlayerImpl())
-                // .withHttpProxy(turbonetHttpProxy)
+                // 设置音乐播放器的实现，sdk 内部默认实现为MediaPlayerImpl
+                // .withMediaPlayer(new MediaPlayerImpl(AudioManager.STREAM_MUSIC))
+                // .withHttpProxy(httpProxy)
+                // 打开debug模式，重要日志写入文件和打印到控制台
+                .withOpenDebug(true)
                 .build();
 
         // ！！！！临时配置需要在run之前设置！！！！
         // 临时配置开始
         // 暂时没有定的API接口，可以通过getInternalApi设置后使用
-        getInternalApi().setDebug(true);
+        // 设置唤醒参数后，初始化唤醒
+
         getInternalApi().setAsrMode(getAsrMode());
         getInternalApi().setAsrOffLineConfigProvider(asrOffLineConfigProvider);
 
         //唤醒功能
-//        initWakeup();
+        if (Config.WAKEUP_ENABLE) {
+            initWakeup(audioRecorder);
+        }
 
         // 临时配置结束
+        // dbp平台
+        // getInternalApi().setDebugBot("f15be387-1348-b71b-2ae5-8f19f2375ea1");
 
         // 第二步：可以按需添加内置端能力和用户自定义端能力（需要继承BaseDeviceModule）
         // 屏幕展示
         IMessageSender messageSender = getInternalApi().getMessageSender();
+
+        // 上屏
         screenDeviceModule = new ScreenDeviceModule(messageSender);
         screenDeviceModule.addScreenListener(screenListener);
         dcsSdk.putDeviceModule(screenDeviceModule);
+
+        ScreenExtendDeviceModule screenExtendDeviceModule = new ScreenExtendDeviceModule(messageSender);
+        screenExtendDeviceModule.addExtensionListener(mScreenExtensionListener);
+        dcsSdk.putDeviceModule(screenExtendDeviceModule);
+
         // 打电话
         phoneCallDeviceModule = new PhoneCallDeviceModule(messageSender);
         initPhoneCallListener();
@@ -581,8 +574,9 @@ public abstract class BaseDcsActivity extends Activity {
 //        initAppLauncher(messageSender);
         // 设置
         deviceControlDeviceModule = new DeviceControlDeviceModule(messageSender);
-        initDeviceControlListener();
-//        deviceControlDeviceModule.addDeviceControlListener(deviceControlListener);
+//        initDeviceControlListener();
+        deviceControlListener = new DeviceControlDeviceModule.SimpleDeviceControlListener(this);
+        deviceControlDeviceModule.addDeviceControlListener(deviceControlListener);
         dcsSdk.putDeviceModule(deviceControlDeviceModule);
         // 本地闹钟
 //        alarmsDeviceModule = new AlarmsDeviceModule(messageSender);
@@ -613,8 +607,229 @@ public abstract class BaseDcsActivity extends Activity {
 //            alertsDeviceModule.setAlarmSource("assets://ding.wav");
 //        }
 
+        // 在线返回文本的播报，eg:你好，返回你好的播报
+        DialogRequestIdHandler dialogRequestIdHandler =
+                ((DcsSdkImpl) dcsSdk).getProvider().getDialogRequestIdHandler();
+        CustomUserInteractionDeviceModule customUserInteractionDeviceModule =
+                new CustomUserInteractionDeviceModule(messageSender, dialogRequestIdHandler);
+        dcsSdk.putDeviceModule(customUserInteractionDeviceModule);
+
+        // 扩展自定义DeviceModule,eg...
         addOtherDeviceModule(dcsSdk, messageSender);
 
+        audioPlayerDeviceModule = (AudioPlayerDeviceModule) getInternalApi().getDeviceModule(AUDIO_PLAYER_NAMESPACE);
+    }
+
+    private void initWakeup(BaseAudioRecorder audioRecorder) {
+        // 唤醒
+        final BaseWakeup wakeup = new KittWakeUpImpl(audioRecorder);
+        // 百度语音团队的离线asr和百度语音团队的唤醒，2个so库冲突，暂时不要用WakeupImpl实现的唤醒功能！！
+//        final BaseWakeup wakeup = new WakeupImpl();
+        final IWakeupProvider wakeupProvider = new IWakeupProvider() {
+            @Override
+            public WakeUpConfig wakeUpConfig() {
+                // 添加多唤醒词和索引
+                // 此处传入的index需要和Snowboy唤醒模型文件一致
+                // 例：模型文件中有3个唤醒词，分别为不同语速的"小度小度"，index分别为1-3，则需要按照以下格式添加
+                // 唤醒成功后，回调中会包含被唤醒的WakeUpWord
+                List<WakeUpWord> wakeupWordList = new ArrayList<>();
+                wakeupWordList.add(new WakeUpWord(1, "小度小度"));
+                wakeupWordList.add(new WakeUpWord(2, "小度小度"));
+                wakeupWordList.add(new WakeUpWord(3, "小度小度"));
+                final List<String> umdlPaths = new ArrayList<>();
+                umdlPaths.add(WAKEUP_UMDL_PATH);
+                return new WakeUpConfig.Builder()
+                        .resPath(WAKEUP_RES_PATH)
+                        .umdlPath(umdlPaths)
+                        .sensitivity(WAKEUP_SENSITIVITY)
+                        .highSensitivity(WAKEUP_HIGH_SENSITIVITY)
+                        .wakeUpWords(wakeupWordList)
+                        .build();
+            }
+
+            @Override
+            public boolean enableWarning() {
+                return ENABLE_PLAY_WARNING;
+            }
+
+            @Override
+            public String warningSource() {
+                // 每次在播放唤醒提示音前调用该方法
+                // assets目录下的以assets://开头
+                // sd文件为绝对路径
+                return "assets://ding.wav";
+            }
+
+            @Override
+            public float volume() {
+                // 每次在播放唤醒提示音前调用该方法
+                // [0-1]
+                return 0.8f;
+            }
+
+            @Override
+            public boolean wakeAlways() {
+                return BaseDcsActivity.this.enableWakeUp();
+            }
+
+            @Override
+            public BaseWakeup wakeupImpl() {
+                return wakeup;
+            }
+
+            @Override
+            public int audioType() {
+                // 用户自定义类型
+                return AudioManager.STREAM_SYSTEM;
+            }
+        };
+        getInternalApi().setWakeupProvider(wakeupProvider);
+        getInternalApi().initWakeUp();
+    }
+
+    protected void addOtherDeviceModule(IDcsSdk dcsSdk, IMessageSender messageSender) {
+
+    }
+
+    protected SdkConfigProvider getSdkConfigProvider() {
+        return new DefaultSdkConfigProvider() {
+            @Override
+            public String clientId() {
+                return CLIENT_ID;
+            }
+
+            @Override
+            public int pid() {
+                return 729;
+            }
+        };
+    }
+
+    private String mRenderPlayerInfoToken = null;
+    private String mPlayToken = null;
+    private ScreenExtendDeviceModule.IScreenExtensionListener mScreenExtensionListener = new ScreenExtendDeviceModule
+            .IScreenExtensionListener() {
+
+
+        @Override
+        public void onRenderPlayerInfo(RenderPlayerInfoPayload renderPlayerInfoPayload) {
+            // handleRenderPlayerInfoPayload(renderPlayerInfoPayload);
+            Log.e(TAG, "onRenderPlayerInfo: content = " + renderPlayerInfoPayload.getContent());
+        }
+
+        @Override
+        public void onRenderAudioList(RenderAudioListPlayload renderAudioListPlayload) {
+            Log.e(TAG, "onRenderAudioList: title = " + renderAudioListPlayload.getTitle());
+        }
+    };
+
+    protected void sdkRun() {
+        // 第三步，将sdk跑起来
+        Log.e(TAG, "sdkRun: ");
+        isLogging = true;
+        ((DcsSdkImpl) dcsSdk).getInternalApi().login(new ILoginListener() {
+            @Override
+            public void onSucceed(String accessToken) {
+                dcsSdk.run();
+                isLoginSucceed = true;
+                isLogging = false;
+                Log.e(TAG, "onSucceed() called with: accessToken = " + accessToken + "");
+//                Toast.makeText(BaseDcsActivity.this.getApplicationContext(), "登录成功", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailed(String errorMessage) {
+                Log.e(TAG, "onFailed() called with: errorMessage = " + errorMessage + "");
+                if (NetworkUtils.isConnected(BaseDcsActivity.this)) {
+                    ToastUtils.showShort(BaseDcsActivity.this.getApplicationContext(), "登录失败, 请检查网络");
+                } else {
+                    ToastUtils.showShort(BaseDcsActivity.this.getApplicationContext(), getString(R.string.error_no_network3));
+                }
+
+                isLoginSucceed = false;
+                isLogging = false;
+//                finish();
+            }
+
+            @Override
+            public void onCancel() {
+                Log.e(TAG, "onCancel() called");
+                isLogging = false;
+                isLoginSucceed = false;
+                Toast.makeText(BaseDcsActivity.this.getApplicationContext(), "登录被取消", Toast.LENGTH_SHORT).show();
+//                finish();
+            }
+        });
+    }
+
+    public InternalApi getInternalApi() {
+        return ((DcsSdkImpl) dcsSdk).getInternalApi();
+    }
+
+    private void initWakeUpAgentListener() {
+        IWakeupAgent wakeupAgent = getInternalApi().getWakeupAgent();
+        if (wakeupAgent != null) {
+            wakeupAgentListener = new IWakeupAgent.SimpleWakeUpAgentListener() {
+                @Override
+                public void onWakeupSucceed(WakeUpWord wakeUpWord) {
+                    Toast.makeText(BaseDcsActivity.this,
+                            "唤醒成功，唤醒词是：" + wakeUpWord.getWord(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            };
+            wakeupAgent.addWakeupAgentListener(wakeupAgentListener);
+        }
+    }
+
+    protected void beginVoiceRequest(final boolean vad) {
+        Log.e(TAG, "beginVoiceRequest() called with: vad = " + vad + "");
+        // 必须先调用cancel
+        dcsSdk.getVoiceRequest().cancelVoiceRequest(new com.baidu.duer.dcs.api.IVoiceRequestListener() {
+            @Override
+            public void onSucceed() {
+                dcsSdk.getVoiceRequest().beginVoiceRequest(vad);
+            }
+        });
+    }
+
+    private void addDirectiveReceivedListener() {
+        getInternalApi().addDirectiveReceivedListener(new IDirectiveReceivedListener() {
+            @Override
+            public void onDirective(Directive directive) {
+                if (directive == null) {
+                    return;
+                }
+                Log.i(TAG, "name = " + directive.getName());
+                if ("Play".equals(directive.getName())) {
+                    Payload mPayload = directive.getPayload();
+                    if (mPayload instanceof com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload) {
+                        com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload.Stream stream =
+                                ((com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload) mPayload)
+                                        .audioItem.stream;
+                        if (stream != null) {
+                            mPlayToken = ((com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload) mPayload)
+                                    .audioItem.stream.token;
+                            Log.i(TAG, "  directive mToken = " + mPlayToken);
+                        }
+                    }
+                } else if ("RenderPlayerInfo".equals(directive.getName())) {
+                    Payload mPayload = directive.getPayload();
+                    if (mPayload instanceof RenderPlayerInfoPayload) {
+                        mRenderPlayerInfoToken = ((RenderPlayerInfoPayload) mPayload).getToken();
+                    }
+                }
+            }
+        });
+    }
+
+    private void initFinishedDirectiveListener() {
+        // 所有指令执行完毕的回调监听
+        getInternalApi().addFinishedDirectiveListener(new IFinishedDirectiveListener() {
+            @Override
+            public void onFinishedDirective() {
+                Log.d(TAG, "所有指令执行完毕");
+            }
+        });
     }
 
     private void uploadContacts() {
@@ -624,19 +839,19 @@ public abstract class BaseDcsActivity extends Activity {
         }
         Log.e(TAG, "uploadContacts: ");
         try {
-            String contactsJson = ContactsChoiceUtil.getAllContacts(this);
+            String contactsJson = ContactsUtils.getAllContacts(this);
             Log.e(TAG, "initSdk: contactsJson = " + contactsJson);
             String lastContactsJson = UploadPreference.getLastUploadPhoneContacts(this);
             if (contactsJson != null && !contactsJson.equals(lastContactsJson)) {
-                ((DcsSdkImpl) dcsSdk).getUpload().uploadPhoneContacts(this, contactsJson, new IUpload.IUploadListener() {
+                getInternalApi().getUpload().uploadPhoneContacts(contactsJson,false, new IUpload.IUploadListener() {
                     @Override
                     public void onSucceed(int i) {
-                        Log.e(TAG, "onSucceed() called with: i = " + i + "");
+                        Log.e(TAG, "uploadContacts onSucceed() called with: i = " + i + "");
                     }
 
                     @Override
                     public void onFailed() {
-                        Log.e(TAG, "onFailed() called");
+                        Log.e(TAG, "uploadContacts onFailed() called");
                     }
                 });
             }
@@ -653,71 +868,10 @@ public abstract class BaseDcsActivity extends Activity {
     }
 
     private void initAppLauncher(IMessageSender messageSender) {
-        appLauncherDeviceModule = new AppLauncherDeviceModule(messageSender, new AppLauncherImpl(this));
+        appLauncherDeviceModule = new AppLauncherDeviceModule(messageSender, AppLauncherImpl.getInstance(this));
         initAppLauncherListener();
         appLauncherDeviceModule.addAppLauncherListener(appLauncherListener);
         dcsSdk.putDeviceModule(appLauncherDeviceModule);
-    }
-
-    private void initWakeup() {
-        // 唤醒
-        final BaseWakeup wakeup = new KittWakeUpImpl();
-        // 百度语音团队的离线asr和百度语音团队的唤醒，2个so库冲突，暂时不要用WakeupImpl实现的唤醒功能！！
-//        final BaseWakeup wakeup = new WakeupImpl();
-        IWakeupProvider wakeupProvider = new IWakeupProvider() {
-            @Override
-            public String wakeupWords() {
-                return WAKEUP_WORD;
-            }
-
-            @Override
-            public boolean enableWarning() {
-                return ENABLE_PLAY_WARNING;
-            }
-
-            @Override
-            public String warningSource() {
-                // assets目录下的以assets://开头
-                // sd文件为绝对路径
-                return "assets://ding.wav";
-            }
-
-            @Override
-            public float volume() {
-                return 0.8f;
-            }
-
-            @Override
-            public boolean wakeAlways() {
-                return BaseDcsActivity.this.enableWakeUp();
-            }
-
-            @Override
-            public BaseWakeup wakeupImpl() {
-                return wakeup;
-            }
-        };
-        getInternalApi().setWakeupProvider(wakeupProvider);
-    }
-
-    private void initWakeUpListener() {
-        IWakeupAgent wakeupAgent = getInternalApi().getWakeupAgent();
-        if (wakeupAgent != null) {
-            wakeupAgentListener = new IWakeupAgent.IWakeupAgentListener() {
-                @Override
-                public void onWakeupSucceed() {
-                    Toast.makeText(BaseDcsActivity.this, "唤醒成功",
-                            Toast.LENGTH_SHORT)
-                            .show();
-                }
-
-                @Override
-                public void onWarningCompleted() {
-
-                }
-            };
-            wakeupAgent.addWakeupAgentListener(wakeupAgentListener);
-        }
     }
 
     private void initPhoneCallListener() {
@@ -769,6 +923,7 @@ public abstract class BaseDcsActivity extends Activity {
             @Override
             public void onLaunchApp(LaunchAppPayload payload) {
                 // 优先打开deepLink，然后是packageName、appName
+                Log.e(TAG, "onLaunchApp: name = " + payload.getAppName() + ", package = " + payload.getPackageName());
                 if (!TextUtils.isEmpty(payload.getDeepLink())) {
                     appLauncherDeviceModule.getAppLauncher().launchAppByDeepLink(BaseDcsActivity.this,
                             payload.getDeepLink());
@@ -868,31 +1023,6 @@ public abstract class BaseDcsActivity extends Activity {
         };
     }
 
-    private void initAlarmListener() {
-        // 闹钟、定制器指令监听
-        alarmListener = new AlarmsDeviceModule.IAlarmDirectiveListener() {
-            @Override
-            public void onSetAlarmDirectiveReceived(SetAlarmPayload setAlarmPayload) {
-                Toast.makeText(BaseDcsActivity.this, "设置闹钟指令", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onShowAlarmsDirectiveReceived(ShowAlarmsPayload showAlarmsPayload) {
-                Toast.makeText(BaseDcsActivity.this, "查看闹钟指令", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onSetTimerDirectiveReceived(SetTimerPayload setTimerPayload) {
-                Toast.makeText(BaseDcsActivity.this, "设置定时器指令", Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onShowTimersDirectiveReceived(ShowTimersPayload showTimersPayload) {
-                Toast.makeText(BaseDcsActivity.this, "查看定时器指令", Toast.LENGTH_LONG).show();
-            }
-        };
-    }
-
     private void initContactsListener() {
         // 联系人指令监听
         contactsListener = new ContactsDeviceModule.IContactsListener() {
@@ -908,25 +1038,183 @@ public abstract class BaseDcsActivity extends Activity {
         };
     }
 
-    protected void addOtherDeviceModule(IDcsSdk dcsSdk, IMessageSender messageSender) {
+    protected void endVoiceRequest() {
+        dcsSdk.getVoiceRequest().endVoiceRequest(new IVoiceRequestListener() {
+            @Override
+            public void onSucceed() {
+                Log.e(TAG, "endVoiceRequest onSucceed: ");
+            }
+        });
+    }
 
+    protected void cancelVoiceRequest() {
+        dcsSdk.getVoiceRequest().cancelVoiceRequest(new IVoiceRequestListener() {
+            @Override
+            public void onSucceed() {
+                Log.d(TAG, "cancelVoiceRequest onSucceed");
+            }
+        });
+    }
+
+    private int calculateVolume(byte[] buffer) {
+        short[] audioData = new short[buffer.length / 2];
+        ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(audioData);
+        double sum = 0;
+        // 将 buffer 内容取出，进行平方和运算
+        for (int i = 0; i < audioData.length; i++) {
+            sum += audioData[i] * audioData[i];
+        }
+        // 平方和除以数据总长度，得到音量大小
+        double mean = sum / (double) audioData.length;
+        final double volume = 10 * Math.log10(mean);
+        return (int) volume;
+    }
+
+    private void wakeUp() {
+        try {
+            getInternalApi().startWakeup();
+        } catch (WakeUpException e) {
+            e.printStackTrace();
+            Log.e(TAG, "WakeUp not initialized!");
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart");
+        // 恢复tts，音乐等有关播放
+//        getInternalApi().resumeSpeaker();
+        // 如果有唤醒，则恢复唤醒
+//        getInternalApi().startWakeup();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume: ");
+        requestAudioFocus();
+
+        if (Config.WAKEUP_ENABLE) {
+            wakeUp();
+        }
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+        // 停止tts，音乐等有关播放.
+//        getInternalApi().pauseSpeaker();
+        // 如果有唤醒，则停止唤醒
+        if (Config.WAKEUP_ENABLE) {
+            getInternalApi().stopWakeup(null);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG, "onDestroy");
+        release();
+    }
+
+    private void registerContentObserver() {
+        if (mContractsObserver == null) {
+            mContractsObserver = new ContractsObserver(new Handler(Looper.getMainLooper()));
+        }
+//        getContentResolver().registerContentObserver(ContactsContract.Data.CONTENT_URI, true, mContractsObserver);
+        getContentResolver().registerContentObserver(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                true, mContractsObserver);
+    }
+
+    protected void release() {
+        Log.e(TAG, "release: ");
+        if (isReleased) {
+            Log.e(TAG, "release: had release.");
+            return;
+        }
+        isReleased = true;
+
+        Log.e(TAG, "release: state = " + mMediaPlayer.getPlayState());
+        mMediaPlayer.stop();
+        mMediaPlayer.release();
+
+        getContentResolver().unregisterContentObserver(mContractsObserver);
+        abandonAudioFocus();
+
+        getInternalApi().pauseSpeaker();
+
+        sendExitEvent();
+
+        if (screenDeviceModule != null) {
+            screenDeviceModule.removeScreenListener(screenListener);
+        }
+        screenListener = null;
+
+        dcsSdk.getVoiceRequest().removeDialogStateListener(dialogStateListener);
+        dialogStateListener = null;
+
+        dcsSdk.removeConnectionStatusListener(connectionStatusListener);
+        connectionStatusListener = null;
+
+        getInternalApi().removeErrorListener(errorListener);
+        errorListener = null;
+
+        getInternalApi().removeRequestBodySentListener(dcsRequestBodySentListener);
+        dcsRequestBodySentListener = null;
+
+        getInternalApi().setLocationHandler(null);
+        locationHandler = null;
+        location.release();
+
+        deviceControlDeviceModule.removeDeviceControlListener(deviceControlListener);
+
+        IWakeupAgent wakeupAgent = getInternalApi().getWakeupAgent();
+        if (wakeupAgent != null) {
+            wakeupAgent.removeWakeupAgentListener(wakeupAgentListener);
+        }
+
+        // 第3步，释放sdk
+        dcsSdk.release();
+    }
+
+    private void sendExitEvent() {
+        Header header = new MessageIdHeader("ai.dueros.device_interface.system", "Exited");
+
+        Event event = new Event(header, null);
+        if (getInternalApi().getMessageSender() != null) {
+            getInternalApi().getMessageSender().sendEvent(event, null);
+        }
     }
 
     protected void pauseOrPlayMusic() {
         Log.e(TAG, "pauseOrPlayMusic: isPlaying = " + isPlaying);
-        if (isStopListenReceiving) {
+        if (currentDialogState != IDialogStateListener.DialogState.IDLE) {
+            Log.e(TAG, "pauseOrPlayMusic: result, dialog state = " + currentDialogState);
             return;
         }
-        if (isPlaying) {
-            Log.e(TAG, "pauseOrPlayMusic: pause audio.");
-            getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule.CommandIssued
-                    .CommandIssuedPause);
+
+        if (TextUtils.isEmpty(mRenderPlayerInfoToken) || !mRenderPlayerInfoToken.equals(mPlayToken)) {
+            if (isPlaying) {
+                Log.e(TAG, "pauseOrPlayMusic: pause audio.");
+                getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule
+                        .CommandIssued
+                        .CommandIssuedPause);
+
+            } else {
+                Log.e(TAG, "pauseOrPlayMusic: play audio.");
+                getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule
+                        .CommandIssued
+                        .CommandIssuedPlay);
+            }
+            isPlaying = !isPlaying;
         } else {
-            Log.e(TAG, "pauseOrPlayMusic: play audio.");
-            getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule.CommandIssued
-                    .CommandIssuedPlay);
+            getInternalApi().postEvent(Form.playPauseButtonClicked(mRenderPlayerInfoToken), null);
         }
-        isPlaying = !isPlaying;
     }
 
     protected void stopMusic() {
@@ -942,7 +1230,7 @@ public abstract class BaseDcsActivity extends Activity {
     /**
      *
      */
-    protected void clearAudioList(){
+    protected void clearAudioList() {
         DcsSdkImpl sdk = (DcsSdkImpl) dcsSdk;
         try {
             Field audioPlayerField = sdk.getClass().getDeclaredField("audioPlayerDeviceModule");
@@ -960,7 +1248,46 @@ public abstract class BaseDcsActivity extends Activity {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
+    }
 
+    /**
+     * 通过反射清除播放列表
+     */
+    protected void clearAudioList2(){
+        if (clearAudioListMethod == null){
+            clearAudioListMethod = getClearAudioListMethod();
+        }
+        if (clearAudioListMethod != null){
+            try {
+                clearAudioListMethod.invoke(audioPlayerDeviceModule);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }else {
+            Log.e(TAG, "clearAudioList2: clearAudioListMethod = null.");
+        }
+    }
+
+    protected Method getClearAudioListMethod() {
+        if (audioPlayerDeviceModule == null) {
+            Log.e(TAG, "clearAudioList2: audioPlayerDeviceModule = null.");
+        }
+        try {
+            Method method = audioPlayerDeviceModule.getClass().getDeclaredMethod("clearAll");
+            method.setAccessible(true);
+            method.invoke(audioPlayerDeviceModule);
+            return method;
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        Log.e(TAG, "getClearAudioListMethod: get method fail.");
+        return null;
     }
 
     protected void stopPlayerByToken(String token) {
@@ -971,51 +1298,9 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().pauseSpeaker();
     }
 
-    protected void sdkRun() {
-        // 第三步，将sdk跑起来
-        Log.e(TAG, "sdkRun: ");
-        isLogging = true;
-        ((DcsSdkImpl) dcsSdk).getInternalApi().login(new ILoginListener() {
-            @Override
-            public void onSucceed(String accessToken) {
-                dcsSdk.run();
-                isLoginSucceed = true;
-                isLogging = false;
-                Log.e(TAG, "onSucceed() called with: accessToken = " + accessToken + "");
-//                Toast.makeText(BaseDcsActivity.this.getApplicationContext(), "登录成功", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailed(String errorMessage) {
-                Log.e(TAG, "onFailed() called with: errorMessage = " + errorMessage + "");
-                if (NetworkUtils.isConnected(BaseDcsActivity.this)) {
-                    ToastUtils.showShort(BaseDcsActivity.this.getApplicationContext(), "登录失败, 请检查网络");
-                } else {
-                    ToastUtils.showShort(BaseDcsActivity.this.getApplicationContext(), getString(R.string.error_no_network3));
-                }
-
-                isLoginSucceed = false;
-                isLogging = false;
-//                finish();
-            }
-
-            @Override
-            public void onCancel() {
-                Log.e(TAG, "onCancel() called");
-                isLogging = false;
-                isLoginSucceed = false;
-                Toast.makeText(BaseDcsActivity.this.getApplicationContext(), "登录被取消", Toast.LENGTH_SHORT).show();
-//                finish();
-            }
-        });
-    }
 
     protected IOauth getOath() {
-        if (isSilentLogin()) {
-            return new BaiduOauthClientCredentialsImpl(CLIENT_ID, CLIENT_SECRET);
-        } else {
-            return new BaiduOauthImplicitGrantIml(CLIENT_ID, this);
-        }
+        return new SilentLoginImpl(CLIENT_ID);
     }
 
     /**
@@ -1037,14 +1322,14 @@ public abstract class BaseDcsActivity extends Activity {
      *
      * @return
      */
-    public abstract int getAsrType();
+    public abstract AsrType getAsrType();
 
-    /**
-     * 登录模式
-     *
-     * @return
-     */
-    public abstract boolean isSilentLogin();
+//    /**
+//     * 登录模式
+//     *
+//     * @return
+//     */
+//    public abstract boolean isSilentLogin();
 
     /**
      * asr结果回调，比如显示界面
@@ -1084,6 +1369,10 @@ public abstract class BaseDcsActivity extends Activity {
 
     protected boolean isConnected() {
         return connectionStatus == IConnectionStatusListener.ConnectionStatus.CONNECTED;
+    }
+
+    protected boolean isListening() {
+        return currentDialogState == IDialogStateListener.DialogState.LISTENING;
     }
 
     private int requestAudioFocus() {

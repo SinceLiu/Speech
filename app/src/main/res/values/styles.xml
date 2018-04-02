@@ -52,4 +52,10 @@
         <item name="android:gravity">center</item>
     </style>
 
+    <style name="RecordButton">
+        <item name="android:paddingBottom">@dimen/record_padding_bottom</item>
+        <item name="android:paddingTop">@dimen/record_padding</item>
+        <item name="android:layout_gravity">center_horizontal|bottom</item>
+    </style>
+
 </resources>

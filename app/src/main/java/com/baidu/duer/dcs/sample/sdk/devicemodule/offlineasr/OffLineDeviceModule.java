@@ -15,15 +15,15 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.offlineasr;
 
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
-import com.baidu.duer.dcs.framework.BaseDeviceModule;
-import com.baidu.duer.dcs.framework.message.ClientContext;
-import com.baidu.duer.dcs.framework.message.Directive;
+import com.baidu.duer.dcs.api.BaseDeviceModule;
 import com.baidu.duer.dcs.framework.message.OffLineAsrDirective;
-import com.baidu.duer.dcs.util.SystemServiceManager;
+import com.baidu.duer.dcs.util.message.ClientContext;
+import com.baidu.duer.dcs.util.message.Directive;
+import com.baidu.duer.dcs.util.message.HandleDirectiveException;
 
 import java.util.HashMap;
 
@@ -35,9 +35,12 @@ import java.util.HashMap;
 public class OffLineDeviceModule extends BaseDeviceModule {
     public static final String TAG = "OffLineDeviceModule";
 
-    public OffLineDeviceModule() {
+    private Context context;
+
+    public OffLineDeviceModule(Context context) {
         // 名字固定的
         super(ApiConstants.NAMESPACE);
+        this.context = context;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class OffLineDeviceModule extends BaseDeviceModule {
             Log.d(TAG, "handleDirective: " + offLineAsrDirective.offLineData);
             // 最终结果时提示一下，表示离线真的成功了。
             if (offLineAsrDirective.type == 2) {
-                Toast.makeText(SystemServiceManager.getAppContext(), "离线识别成功.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "离线识别成功.", Toast.LENGTH_SHORT).show();
             }
         } else {
             String message = "No device to handle the directive";

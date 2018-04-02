@@ -15,25 +15,25 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.screen;
 
-import android.util.Log;
-
-import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
-import com.baidu.duer.dcs.duerlink.DlpSdk;
-import com.baidu.duer.dcs.framework.BaseDeviceModule;
-import com.baidu.duer.dcs.framework.IMessageSender;
-import com.baidu.duer.dcs.framework.message.ClientContext;
-import com.baidu.duer.dcs.framework.message.Directive;
-import com.baidu.duer.dcs.framework.message.Event;
-import com.baidu.duer.dcs.framework.message.Header;
-import com.baidu.duer.dcs.framework.message.MessageIdHeader;
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.util.FileUtil;
+import com.baidu.duer.dcs.util.message.HandleDirectiveException;
+//import com.baidu.duer.dcs.duerlink.DlpSdk;
+import com.baidu.duer.dcs.api.BaseDeviceModule;
+import com.baidu.duer.dcs.api.IMessageSender;
+import com.baidu.duer.dcs.util.message.ClientContext;
+import com.baidu.duer.dcs.util.message.Directive;
+import com.baidu.duer.dcs.util.message.Event;
+import com.baidu.duer.dcs.util.message.Header;
+import com.baidu.duer.dcs.util.message.MessageIdHeader;
+import com.baidu.duer.dcs.util.message.Payload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.message.RenderAudioListPlayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.message.RenderPlayerInfoPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.HtmlPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.LinkClickedPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderCardPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderHintPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderVoiceInputTextPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.ViewStatePayload;
-import com.baidu.duer.dcs.util.FileUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,8 +45,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by wuruisheng on 2017/5/31.
  */
 public class ScreenDeviceModule extends BaseDeviceModule {
-    private static final String TAG = "dcs_ScreenDeviceModule";
-
     private List<IScreenListener> listeners;
     private String token = "";
 
@@ -67,15 +65,14 @@ public class ScreenDeviceModule extends BaseDeviceModule {
     @Override
     public void handleDirective(Directive directive) throws HandleDirectiveException {
         String name = directive.header.getName();
-        Log.e(TAG, "handleDirective: name = " + name);
         if (name.equals(ApiConstants.Directives.HtmlView.NAME)) {
-            handleHtmlPayload(directive.getPayload(), directive.id);
+            handleHtmlPayload(directive.getPayload());
         } else if (name.equals(ApiConstants.Directives.RenderVoiceInputText.NAME)) {
             fireRenderVoiceInputText((RenderVoiceInputTextPayload) directive.getPayload());
         } else if (name.equals(ApiConstants.Directives.RenderCard.NAME)) {
-            fireOnRenderCard((RenderCardPayload) directive.getPayload(), directive.id);
+            fireOnRenderCard((RenderCardPayload) directive.getPayload());
         } else if (name.equals(ApiConstants.Directives.RenderHint.NAME)) {
-            fireOnRenderHint((RenderHintPayload) directive.getPayload(), directive.id);
+            fireOnRenderHint((RenderHintPayload) directive.getPayload());
         } else {
             String message = "VoiceOutput cannot handle the directive";
             throw (new HandleDirectiveException(
@@ -92,18 +89,19 @@ public class ScreenDeviceModule extends BaseDeviceModule {
     public HashMap<String, Class<?>> supportPayload() {
         HashMap<String, Class<?>> map = new HashMap<>();
         map.put(getNameSpace() + ApiConstants.Directives.HtmlView.NAME, HtmlPayload.class);
-        map.put(getNameSpace() + ApiConstants.Directives.RenderVoiceInputText.NAME, RenderVoiceInputTextPayload.class);
+        map.put(getNameSpace() + ApiConstants.Directives.RenderVoiceInputText.NAME,
+                RenderVoiceInputTextPayload.class);
         map.put(getNameSpace() + ApiConstants.Directives.RenderCard.NAME, RenderCardPayload.class);
         map.put(getNameSpace() + ApiConstants.Directives.RenderHint.NAME, RenderHintPayload.class);
         return map;
     }
 
-    private void handleHtmlPayload(Payload payload, int id) {
+    private void handleHtmlPayload(Payload payload) {
         if (payload instanceof HtmlPayload) {
             HtmlPayload htmlPayload = (HtmlPayload) payload;
-            DlpSdk.screenToken = htmlPayload.getToken();
+//            DlpSdk.screenToken = htmlPayload.getToken();
             token = htmlPayload.getToken();
-            fireOnHtmlView(htmlPayload, id);
+            fireOnHtmlView(htmlPayload);
         }
     }
 
@@ -114,7 +112,7 @@ public class ScreenDeviceModule extends BaseDeviceModule {
         LinkClickedPayload linkClickedPayload = new LinkClickedPayload(url);
         Event event = new Event(header, linkClickedPayload);
         if (messageSender != null) {
-            messageSender.sendEvent(event);
+            messageSender.sendEvent(event, null);
         }
     }
 
@@ -126,9 +124,9 @@ public class ScreenDeviceModule extends BaseDeviceModule {
         listeners.remove(listener);
     }
 
-    private void fireOnHtmlView(HtmlPayload payload, int id) {
+    private void fireOnHtmlView(HtmlPayload payload) {
         for (IScreenListener listener : listeners) {
-            listener.onHtmlPayload(payload, id);
+            listener.onHtmlPayload(payload);
         }
     }
 
@@ -143,15 +141,15 @@ public class ScreenDeviceModule extends BaseDeviceModule {
         }
     }
 
-    private void fireOnRenderCard(RenderCardPayload renderCardPayload, int id) {
+    private void fireOnRenderCard(RenderCardPayload renderCardPayload) {
         for (IScreenListener listener : listeners) {
-            listener.onRenderCard(renderCardPayload, id);
+            listener.onRenderCard(renderCardPayload);
         }
     }
 
-    private void fireOnRenderHint(RenderHintPayload payload, int id) {
+    private void fireOnRenderHint(RenderHintPayload payload) {
         for (IScreenListener listener : listeners) {
-            listener.onRenderHint(payload, id);
+            listener.onRenderHint(payload);
         }
     }
 
@@ -171,25 +169,29 @@ public class ScreenDeviceModule extends BaseDeviceModule {
          * 接收到HtmlView指令时回调
          *
          * @param htmlPayload 内容
-         * @param id          统计id（ 语音请求的id）
          */
-        void onHtmlPayload(HtmlPayload htmlPayload, int id);
+        void onHtmlPayload(HtmlPayload htmlPayload);
 
 
         /**
          * 接收到RenderCard指令回调
          *
          * @param renderCardPayload
-         * @param id
          */
-        void onRenderCard(RenderCardPayload renderCardPayload, int id);
+        void onRenderCard(RenderCardPayload renderCardPayload);
 
         /**
          * 接收到Hint指令
          *
          * @param renderHintPayload
-         * @param id
          */
-        void onRenderHint(RenderHintPayload renderHintPayload, int id);
+        void onRenderHint(RenderHintPayload renderHintPayload);
+    }
+
+    public interface IScreenExtensionListener {
+
+        void onRenderPlayerInfo(RenderPlayerInfoPayload renderPlayerInfoPayload);
+
+        void onRenderAudioList(RenderAudioListPlayload renderAudioListPlayload);
     }
 }

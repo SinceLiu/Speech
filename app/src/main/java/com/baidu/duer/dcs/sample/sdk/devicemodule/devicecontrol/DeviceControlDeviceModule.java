@@ -16,12 +16,17 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol;
 
-import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
-import com.baidu.duer.dcs.framework.BaseDeviceModule;
-import com.baidu.duer.dcs.framework.IMessageSender;
-import com.baidu.duer.dcs.framework.message.ClientContext;
-import com.baidu.duer.dcs.framework.message.Directive;
-import com.baidu.duer.dcs.framework.message.Payload;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.baidu.duer.dcs.util.message.HandleDirectiveException;
+import com.baidu.duer.dcs.api.BaseDeviceModule;
+import com.baidu.duer.dcs.api.IMessageSender;
+import com.baidu.duer.dcs.util.message.ClientContext;
+import com.baidu.duer.dcs.util.message.Directive;
+import com.baidu.duer.dcs.util.message.Payload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.AdjustBrightnessPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetAssistiveTouchPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetBluetoothPayload;
@@ -38,6 +43,7 @@ import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetSynch
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetVibrationPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetVpnPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetWifiPayload;
+import com.readboy.watch.speech.util.ToastUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +54,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 
 public class DeviceControlDeviceModule extends BaseDeviceModule {
+    private static final String TAG = "DCS_header_DeviceCont";
 
     private List<IDeviceControlListener> listeners;
 
@@ -169,24 +176,46 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
     }
 
     public static class SimpleDeviceControlListener implements IDeviceControlListener {
+
+        private Activity context;
+
+        public SimpleDeviceControlListener(Activity context){
+            this.context = context;
+        }
+
         @Override
         public void onAdjustBrightness(AdjustBrightnessPayload payload) {
+            Log.e(TAG, "onAdjustBrightness: payload = " + payload.toString());
+
 
         }
 
         @Override
         public void onSetAssistiveTouch(SetAssistiveTouchPayload payload) {
-
+            Log.e(TAG, "onSetAssistiveTouch: payload = " + payload.toString());
         }
 
         @Override
         public void onSetBluetooth(SetBluetoothPayload payload) {
-
+            Log.e(TAG, "onSetBluetooth: payload = " + payload.toString());
+            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+            if (adapter != null) {
+                if (payload.getBluetooth()&& !adapter.isEnabled()) {
+                    //蓝牙未启用，提示用户打开它
+//                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                    context.startActivityForResult(intent, 1);
+                    Log.e(TAG, "onSetBluetooth: open bluetooth result = " + adapter.enable());
+                } else if (!payload.getBluetooth()){
+                    Log.e(TAG, "onSetBluetooth: close buletooth reuslt = " + adapter.disable());
+                }
+            }else {
+                Toast.makeText(context, "不支持蓝牙", Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
         public void onSetBrightness(SetBrightnessPayload payload) {
-
+            Log.e(TAG, "onSetBrightness: payload = " + payload.toString());
         }
 
         @Override
@@ -236,7 +265,7 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
 
         @Override
         public void onSetVibration(SetVibrationPayload payload) {
-
+            Log.e(TAG, "onSetVibration: payload = " + payload.toString());
         }
 
         @Override
@@ -246,7 +275,7 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
 
         @Override
         public void onSetWifi(SetWifiPayload payload) {
-
+            Log.e(TAG, "onSetWifi: payload = " + payload.toString());
         }
     }
 }

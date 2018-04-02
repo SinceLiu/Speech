@@ -16,6 +16,7 @@
     <string name="error_internal">小Wa累了，需要休息一会</string>
     <string name="error_no_result1">噢，你可以再说一遍吗？</string>
     <string name="error_no_result2">对不起，没有听清，能再说一遍吗？</string>
+    <string name="error_no_asr_result">抱歉，我不太确定你说了什么</string>
     <string name="error_useless_result">这个问题有点难，你可以去问问你爸爸噢！</string>
     <!--比如我们这边的网络被网管禁止了-->
     <!--asr,tts服务器出问题了-->
@@ -77,6 +78,14 @@
     <string name="audio_permission_error_msg">录音权限失败</string>
     <string name="send_edit_hint">输入你要查询的内容</string>
     <string name="adjust_volume">调整音量</string>
+    <string name="tts_info_volume_hint">声音大小（0&#8211;9）</string>
+    <string name="tts_info_speed_hint">语速（0&#8211;9）</string>
+    <string name="tts_info_pitch_hint">语调（0&#8211;9）</string>
+    <string name="tts_info_speaker_hint">声音类型（0&#8211;4）</string>
+    <string name="tts_info_aue_hint">音频格式</string>
+    <string name="tts_info_rate_hint">码率</string>
+    <string name="tts_info_xml_hint">是否为xml</string>
+    <string name="tts_info_reset_hint">重置</string>
     <string name="cancel_recognition">取消识别</string>
 
     <string name="logging_toast">正在加载中,请稍后</string>

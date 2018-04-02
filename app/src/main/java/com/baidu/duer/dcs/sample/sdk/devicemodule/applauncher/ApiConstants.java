@@ -33,8 +33,7 @@ public class ApiConstants {
 
     public static final class Directives {
         public static final class LaunchApp {
-//            public static final String NAME = LaunchApp.class.getSimpleName();
-            public static final String NAME = "app";
+            public static final String NAME = LaunchApp.class.getSimpleName();
         }
 
         public static final class TryLaunchApp{

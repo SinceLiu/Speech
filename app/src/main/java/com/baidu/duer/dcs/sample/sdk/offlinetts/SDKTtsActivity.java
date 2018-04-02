@@ -24,8 +24,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.baidu.duer.dcs.framework.internalapi.DcsConfig;
+import com.baidu.duer.dcs.api.config.DcsConfig;
 import com.baidu.duer.dcs.sample.sdk.SDKBaseActivity;
+import com.baidu.duer.dcs.util.AsrType;
 import com.readboy.watch.speech.R;
 
 /**
@@ -86,7 +87,7 @@ public class SDKTtsActivity extends SDKBaseActivity {
             textInput.getEditableText().clear();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(textInput.getWindowToken(), 0);
-            getInternalApi().speakOfflineQuery(inputText);
+            getInternalApi().speakOfflineRequest(inputText);
         }
     };
 
@@ -101,12 +102,8 @@ public class SDKTtsActivity extends SDKBaseActivity {
     }
 
     @Override
-    public int getAsrType() {
-        return DcsConfig.ASR_TYPE_AUTO;
+    public AsrType getAsrType() {
+        return AsrType.AUTO;
     }
 
-    @Override
-    public boolean isSilentLogin() {
-        return true;
-    }
 }

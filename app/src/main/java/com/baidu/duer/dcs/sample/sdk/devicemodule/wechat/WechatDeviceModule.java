@@ -15,13 +15,13 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.wechat;
 
-import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
+import com.baidu.duer.dcs.util.message.HandleDirectiveException;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.wechat.message.ReadWechatMessagePayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.wechat.message.SendWechatByNamePayload;
-import com.baidu.duer.dcs.framework.BaseDeviceModule;
-import com.baidu.duer.dcs.framework.message.ClientContext;
-import com.baidu.duer.dcs.framework.message.Directive;
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.api.BaseDeviceModule;
+import com.baidu.duer.dcs.util.message.ClientContext;
+import com.baidu.duer.dcs.util.message.Directive;
+import com.baidu.duer.dcs.util.message.Payload;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,12 +35,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WechatDeviceModule extends BaseDeviceModule {
     public static final String MESSAGE_TYPE_TEXT = "TEXT";
     public static final String MESSAGE_TYPE_MY_LOCATION = "MY_LOCATION";
-    private final List<IWechatListener> wechatListeners;
+    private final List<WechatDeviceModule.IWechatListener> wechatListeners;
     private IWechatListener wechatListener;
 
     public WechatDeviceModule() {
         super(ApiConstants.NAMESPACE);
-        this.wechatListeners = new CopyOnWriteArrayList<IWechatListener>();
+        this.wechatListeners = new CopyOnWriteArrayList<WechatDeviceModule.IWechatListener>();
     }
 
     @Override
@@ -94,22 +94,22 @@ public class WechatDeviceModule extends BaseDeviceModule {
 
     private void fireOnReceiveSendWechatByName(String messageType, String contactName,
                                                String messageContent, String token) {
-        for (IWechatListener listener : wechatListeners) {
+        for (WechatDeviceModule.IWechatListener listener : wechatListeners) {
             listener.onReceiveSendWechatByName(messageType, contactName, messageContent, token);
         }
     }
 
     private void fireOnReceiveReadWechatMessage(String contactName) {
-        for (IWechatListener listener : wechatListeners) {
+        for (WechatDeviceModule.IWechatListener listener : wechatListeners) {
             listener.onReceiveReadWechatMessage(contactName);
         }
     }
 
-    public void addWechatListener(IWechatListener listener) {
+    public void addWechatListener(WechatDeviceModule.IWechatListener listener) {
         this.wechatListeners.add(listener);
     }
 
-    public void removeWechatListener(IWechatListener listener) {
+    public void removeWechatListener(WechatDeviceModule.IWechatListener listener) {
         wechatListeners.remove(listener);
     }
 

@@ -12,6 +12,10 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * 打电话，手机通信录相关工具类
  * @author oubin
@@ -20,6 +24,35 @@ import android.util.Log;
 
 public final class ContactsUtils {
     private static final String TAG = "ContactsUtils";
+
+    public static String getAllContacts(Context context) throws JSONException {
+        JSONArray array = new JSONArray();
+        ContentResolver resolver = context.getContentResolver();
+        Cursor phoneCursor = null;
+
+        try {
+            phoneCursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, new String[]{"_id", "display_name"}, (String) null, (String[]) null, (String) null);
+            if (phoneCursor != null) {
+                int column = phoneCursor.getColumnIndex("display_name");
+
+                while (phoneCursor.moveToNext() && column > -1) {
+                    String displayName = phoneCursor.getString(column);
+                    if (!TextUtils.isEmpty(displayName)) {
+                        JSONObject object = new JSONObject();
+                        object.put("name", displayName);
+                        array.put(object);
+                    }
+                }
+            }
+        } finally {
+            if (null != phoneCursor) {
+                phoneCursor.close();
+            }
+
+        }
+
+        return array.toString();
+    }
 
     public static boolean callByName(Context context, String name) {
         String number = getNumByName(context, name);

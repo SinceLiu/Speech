@@ -16,7 +16,7 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -47,5 +47,13 @@ public class SetVibrationPayload extends Payload {
 
     public void setVibration (Boolean vibration) {
         this.vibration = vibration;
+    }
+
+    @Override
+    public String toString() {
+        return "SetVibrationPayload{" +
+                "target='" + target + '\'' +
+                ", vibration=" + vibration +
+                '}';
     }
 }

@@ -1,10 +1,10 @@
 package com.baidu.duer.dcs.sample.sdk.devicemodule.video;
 
-import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
-import com.baidu.duer.dcs.framework.BaseDeviceModule;
-import com.baidu.duer.dcs.framework.IMessageSender;
-import com.baidu.duer.dcs.framework.message.ClientContext;
-import com.baidu.duer.dcs.framework.message.Directive;
+import com.baidu.duer.dcs.util.message.HandleDirectiveException;
+import com.baidu.duer.dcs.api.BaseDeviceModule;
+import com.baidu.duer.dcs.api.IMessageSender;
+import com.baidu.duer.dcs.util.message.ClientContext;
+import com.baidu.duer.dcs.util.message.Directive;
 
 import java.util.ArrayList;
 import java.util.HashMap;

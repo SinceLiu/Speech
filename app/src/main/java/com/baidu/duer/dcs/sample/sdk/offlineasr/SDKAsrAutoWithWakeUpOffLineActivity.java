@@ -16,8 +16,9 @@
  */
 package com.baidu.duer.dcs.sample.sdk.offlineasr;
 
-import com.baidu.duer.dcs.framework.internalapi.DcsConfig;
+import com.baidu.duer.dcs.api.config.DcsConfig;
 import com.baidu.duer.dcs.sample.sdk.SDKBaseActivity;
+import com.baidu.duer.dcs.util.AsrType;
 
 /**
  * 离线识别
@@ -36,12 +37,9 @@ public class SDKAsrAutoWithWakeUpOffLineActivity extends SDKBaseActivity {
     }
 
     @Override
-    public int getAsrType() {
-        return DcsConfig.ASR_TYPE_AUTO;
+    public AsrType getAsrType() {
+        return AsrType.AUTO;
     }
 
-    @Override
-    public boolean isSilentLogin() {
-        return true;
-    }
+
 }

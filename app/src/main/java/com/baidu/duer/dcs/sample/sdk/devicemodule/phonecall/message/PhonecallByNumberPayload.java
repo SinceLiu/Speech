@@ -16,7 +16,7 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 
 /**
  * Created by caoyushu01 on 2017/7/18.
@@ -65,15 +65,5 @@ public class PhonecallByNumberPayload extends Payload {
 
     public void setToken (String token) {
         this.token = token;
-    }
-
-    @Override
-    public String toString() {
-        return "PhonecallByNumberPayload{" +
-                "callee=" + callee +
-                ", useSimIndex='" + useSimIndex + '\'' +
-                ", useCarrier='" + useCarrier + '\'' +
-                ", token='" + token + '\'' +
-                '}';
     }
 }

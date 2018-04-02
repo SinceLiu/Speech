@@ -16,7 +16,7 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
@@ -59,5 +59,14 @@ public class SetPhoneModePayload extends Payload {
 
     public void setPhoneMode (Boolean phoneMode) {
         this.phoneMode = phoneMode;
+    }
+
+    @Override
+    public String toString() {
+        return "SetPhoneModePayload{" +
+                "target='" + target + '\'' +
+                ", mode='" + mode + '\'' +
+                ", phoneMode=" + phoneMode +
+                '}';
     }
 }

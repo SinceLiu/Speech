@@ -24,18 +24,19 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.baidu.duer.dcs.api.IDialogStateListener;
-import com.baidu.duer.dcs.framework.internalapi.DcsConfig;
+import com.baidu.duer.dcs.api.IVoiceRequestListener;
+import com.baidu.duer.dcs.api.config.DcsConfig;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.HtmlPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderCardPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderVoiceInputTextPayload;
-import com.baidu.duer.dcs.systeminterface.IMediaPlayer;
-import com.baidu.duer.dcs.util.CommonUtil;
-import com.baidu.duer.dcs.util.NetWorkUtil;
+import com.baidu.duer.dcs.util.AsrType;
+import com.baidu.duer.dcs.util.util.CommonUtil;
+import com.baidu.duer.dcs.util.util.NetWorkUtil;
+import com.readboy.watch.speech.media.IMediaPlayer;
 import com.readboy.watch.speech.util.NetworkUtils;
 import com.readboy.watch.speech.util.PreferencesUtils;
 import com.readboy.watch.speech.util.ToastUtils;
@@ -70,7 +71,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private static final int DELAYED_SHOW_HELLO_MILLIS = 20 * 1000;
 
     private TextView mMessageTv;
-    private Button mHoldRecord;
+    private ImageView mHoldRecord;
     private ImageView mRecordingIv;
     private ImageView mRecordingIv2;
     private AnimationDrawable mRecordAnimator;
@@ -84,6 +85,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private boolean hasNetwork = false;
     private boolean firstBlood = true;
     private boolean mEnable = true;
+    private boolean isActivated = false;
 
     private boolean interrupt = true;
     private boolean started = false;
@@ -115,7 +117,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     startRecordAnim2();
                     break;
                 case HANDLER_WHAT_LOADING_TIME_OUT:
-                    dcsSdk.getVoiceRequest().cancelVoiceRequest();
+                    cancelVoiceRequest();
                     showConnectTimeOut();
                 default:
                     break;
@@ -133,7 +135,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         init();
         stopAudioPlayback();
 
-        initVoiceRequestListener();
+        initDialogStateListener();
 
         registerReceiver();
 
@@ -157,6 +159,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "onResume: ");
+        isActivated = true;
     }
 
     @Override
@@ -167,13 +170,14 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //        正在打电话停止播放
 //        TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 //        Log.e(TAG, "onPause: telephony state = " + manager.getCallState());
-        Log.e(TAG, "onPause: isStopListenReceiving = " + isStopListenReceiving);
-        if (isStopListenReceiving) {
-            dcsSdk.getVoiceRequest().cancelVoiceRequest();
+        Log.e(TAG, "onPause: dialog state = " + currentDialogState);
+        if (isListening()) {
+            cancelVoiceRequest();
             showHello3();
         }
 
         overridePendingTransition(R.anim.activity_bottom_enter, R.anim.activity_bottom_exit);
+        isActivated = false;
     }
 
     @Override
@@ -195,16 +199,16 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //        overridePendingTransition(R.anim.activity_bottom_enter, R.anim.activity_bottom_exit);
     }
 
-    private void initVoiceRequestListener() {
+    private void initDialogStateListener() {
         // 添加会话状态监听
         dialogStateListener = new IDialogStateListener() {
             @Override
             public void onDialogStateChanged(DialogState dialogState) {
                 Log.e(TAG, "onDialogStateChanged() called with: dialogState = " + dialogState + "");
+                currentDialogState = dialogState;
                 switch (dialogState) {
                     case IDLE:
                         mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
-                        isStopListenReceiving = false;
                         //TODO 点击说话
                         stopRecordAnim();
                         showMessage(null);
@@ -212,12 +216,16 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         break;
                     case LISTENING:
                         keepScreenOn();
-                        isStopListenReceiving = true;
                         startRecordAnim();
 //                        showWaveform();
                         break;
                     case SPEAKING:
-                        showMessage(null);
+                        keepScreenOn();
+                        if (TextUtils.isEmpty(mMessageTv.getText())) {
+                            showMessage(R.string.error_no_asr_result);
+                        } else {
+                            showMessage(null);
+                        }
                         break;
                     case THINKING:
                         showLoading();
@@ -243,13 +251,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     @Override
-    public int getAsrType() {
-        return DcsConfig.ASR_TYPE_AUTO;
-    }
-
-    @Override
-    public boolean isSilentLogin() {
-        return true;
+    public AsrType getAsrType() {
+        return AsrType.AUTO;
     }
 
     @Override
@@ -354,7 +357,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         speech.setOnClickListener(this);
         help = LayoutInflater.from(this).inflate(R.layout.help, null);
         mMessageTv = (TextView) speech.findViewById(R.id.message_tv);
-        mHoldRecord = (Button) speech.findViewById(R.id.hold_record);
+        mHoldRecord = (ImageView) speech.findViewById(R.id.hold_record);
         mHoldRecord.setOnClickListener(this);
         mLoading = speech.findViewById(R.id.loading_pb);
 //        mLoadingAnimator = () mLoading.getBackground();
@@ -364,10 +367,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHoldRecord.setActivated(true);
         mRecordingIv = (ImageView) speech.findViewById(R.id.recording_iv);
         mRecordingIv.setOnClickListener(this);
-        mRecordAnimator = (AnimationDrawable) mRecordingIv.getBackground();
+        mRecordAnimator = (AnimationDrawable) mRecordingIv.getDrawable();
         mRecordingIv2 = (ImageView) speech.findViewById(R.id.recording_iv2);
         mRecordingIv2.setOnClickListener(this);
-        mRecordAnimator2 = (AnimationDrawable) mRecordingIv2.getBackground();
+        mRecordAnimator2 = (AnimationDrawable) mRecordingIv2.getDrawable();
         mDialog = findViewById(R.id.dialog_main);
         DragFrameLayout dragFrameLayout = (DragFrameLayout) findViewById(R.id.drag_layout);
         dragFrameLayout.setOnDismissListener(new DragFrameLayout.OnDismissListener() {
@@ -398,6 +401,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void init() {
+
     }
 
     private void checkNetwork() {
@@ -765,33 +769,42 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void startRecord() {
 //        showWaveform();
-        if (getAsrMode() == DcsConfig.ASR_MODE_ONLINE) {
-            if (!NetWorkUtil.isNetworkConnected(this)) {
-//                Toast.makeText(this, getResources().getString(R.string.err_net_msg), Toast.LENGTH_SHORT).show();
-                showNoNetwork();
-                return;
-            }
-        }
         if (CommonUtil.isFastDoubleClick()) {
+            Log.e(TAG, "startRecord: is fast double click.");
             return;
         }
-        if (isStopListenReceiving) {
-            dcsSdk.getVoiceRequest().endVoiceRequest();
-            isStopListenReceiving = false;
+
+        if (isListening()) {
+            dcsSdk.getVoiceRequest().endVoiceRequest(new IVoiceRequestListener() {
+                @Override
+                public void onSucceed() {
+                }
+            });
 //            showHello3();
             return;
         }
         startRecordAnim();
         showMessage("");
-        isStopListenReceiving = true;
-//        voiceButton.setText("录音中...");
         mMessageTv.setText("");
-        Log.e(TAG, "startRecord: begin voice request.");
-        dcsSdk.getVoiceRequest().beginVoiceRequest(getAsrType() == DcsConfig.ASR_TYPE_AUTO);
+        // 为了解决频繁的点击 而服务器没有时间返回结果造成的不能点击的bug
+        if (isListening()) {
+            dcsSdk.getVoiceRequest().endVoiceRequest(new IVoiceRequestListener() {
+                @Override
+                public void onSucceed() {
+
+                }
+            });
+        } else {
+            beginVoiceRequest(getAsrType() == AsrType.AUTO);
+        }
     }
 
     @Override
     public void onClick(View v) {
+        if (!isActivated) {
+            Log.e(TAG, "onClick: is not activated.");
+            return;
+        }
         switch (v.getId()) {
             case R.id.speech:
                 Log.e(TAG, "onClick: speech, pauseSpeaker()");
@@ -802,6 +815,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //                }else {
 //                    getInternalApi().resumeSpeaker();
 //                }
+
+                if (CommonUtil.isFastDoubleClick()) {
+                    Log.e(TAG, "onClick: is fast double click.");
+                    return;
+                }
+
                 //暂停点播内容
                 if (isPlayingAudio) {
                     pauseOrPlayMusic();
@@ -813,10 +832,19 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             case R.id.hold_record:
                 stopCustomMediaPlayer();
                 Log.e(TAG, "onClick: mEnable = " + mEnable);
-                if (!mEnable) {
+                if (!mEnable || !isActivated) {
                     return;
 //                stopMusic()
                 }
+
+                if (getAsrMode() == DcsConfig.ASR_MODE_ONLINE) {
+                    if (!NetWorkUtil.isNetworkConnected(this)) {
+//                Toast.makeText(this, getResources().getString(R.string.err_net_msg), Toast.LENGTH_SHORT).show();
+                        showNoNetwork();
+                        return;
+                    }
+                }
+
                 if (!checkLoginState()) {
                     return;
                 }
@@ -826,14 +854,17 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
                 stopMusic();
                 isPlayingAudio = false;
-                clearAudioList();
+                clearAudioList2();
                 startRecord();
                 break;
             case R.id.recording_iv:
             case R.id.recording_iv2:
-                if (isStopListenReceiving){
-                    dcsSdk.getVoiceRequest().endVoiceRequest();
-                    isStopListenReceiving = false;
+                if (CommonUtil.isFastDoubleClick()){
+                    Log.e(TAG, "onClick: recording is fast double Click.");
+                    return;
+                }
+                if (isListening()) {
+                    cancelVoiceRequest();
                 }
                 break;
             default:
@@ -923,8 +954,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     release();
                     finish();
                 } else if (ACTION_CHARGING_ANIM_DISPLAY.equals(action)) {
-                    if (isStopListenReceiving) {
-                        dcsSdk.getVoiceRequest().cancelVoiceRequest();
+                    if (isListening()) {
+                        cancelVoiceRequest();
                         showHello3();
                     }
                 }

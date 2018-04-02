@@ -15,7 +15,7 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 
 /**
  * LinkClicked事件对应的payload结构

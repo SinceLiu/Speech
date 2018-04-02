@@ -17,14 +17,14 @@ package com.baidu.duer.dcs.sample.sdk.devicemodule.imagerecognition;
 
 import com.baidu.duer.dcs.sample.sdk.devicemodule.imagerecognition.message.StartUploadScreenShotPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.imagerecognition.message.UploadScreenShotPayload;
-import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
-import com.baidu.duer.dcs.framework.BaseDeviceModule;
-import com.baidu.duer.dcs.framework.IMessageSender;
-import com.baidu.duer.dcs.framework.message.ClientContext;
-import com.baidu.duer.dcs.framework.message.Directive;
-import com.baidu.duer.dcs.framework.message.Event;
-import com.baidu.duer.dcs.framework.message.MessageIdHeader;
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.HandleDirectiveException;
+import com.baidu.duer.dcs.api.BaseDeviceModule;
+import com.baidu.duer.dcs.api.IMessageSender;
+import com.baidu.duer.dcs.util.message.ClientContext;
+import com.baidu.duer.dcs.util.message.Directive;
+import com.baidu.duer.dcs.util.message.Event;
+import com.baidu.duer.dcs.util.message.MessageIdHeader;
+import com.baidu.duer.dcs.util.message.Payload;
 
 import java.util.HashMap;
 import java.util.List;
@@ -90,7 +90,7 @@ public class ImageRecognitionDeviceModule extends BaseDeviceModule {
         MessageIdHeader header = new MessageIdHeader(namespace, name);
         Payload payload = new StartUploadScreenShotPayload(token, type, url);
         Event event = new Event(header, payload);
-        messageSender.sendEvent(event);
+        messageSender.sendEvent(event, null);
     }
 
     @Override

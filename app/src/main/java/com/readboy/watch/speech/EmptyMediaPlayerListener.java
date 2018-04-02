@@ -1,7 +1,7 @@
 package com.readboy.watch.speech;
 
 
-import com.baidu.duer.dcs.systeminterface.IMediaPlayer;
+import com.readboy.watch.speech.media.IMediaPlayer;
 
 /**
  *
@@ -65,13 +65,4 @@ public class EmptyMediaPlayerListener implements IMediaPlayer.IMediaPlayerListen
 
     }
 
-    @Override
-    public void onDuration(long l) {
-
-    }
-
-    @Override
-    public void onUpdateProgress(int i) {
-
-    }
 }

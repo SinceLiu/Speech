@@ -16,7 +16,7 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message;
 
-import com.baidu.duer.dcs.framework.message.Payload;
+import com.baidu.duer.dcs.util.message.Payload;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -47,5 +47,13 @@ public class SetWifiPayload extends Payload {
 
     public void setWifi (Boolean wifi) {
         this.wifi = wifi;
+    }
+
+    @Override
+    public String toString() {
+        return "SetWifiPayload{" +
+                "target='" + target + '\'' +
+                ", wifi=" + wifi +
+                '}';
     }
 }

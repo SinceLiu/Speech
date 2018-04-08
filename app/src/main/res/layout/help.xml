@@ -23,9 +23,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white_dark"
-            android:layout_marginTop="10px"
-            android:lineSpacingExtra="12px"
-            android:textSize="@dimen/text_size_normal"
+            android:layout_marginTop="6px"
+            android:lineSpacingExtra="6px"
+            android:textSize="22px"
             android:text="@string/help_content" />
 
     </LinearLayout>

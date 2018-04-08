@@ -2,14 +2,13 @@ package com.readboy.watch.speech;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
@@ -20,6 +19,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.baidu.dcs.acl.AsrParam;
 import com.baidu.duer.dcs.api.DcsSdkBuilder;
 import com.baidu.duer.dcs.api.IConnectionStatusListener;
 import com.baidu.duer.dcs.api.IDcsSdk;
@@ -112,11 +112,13 @@ import com.baidu.duer.dcs.util.message.Payload;
 import com.baidu.duer.kitt.KittWakeUpImpl;
 import com.baidu.speech.asr.SpeechConstant;
 import com.readboy.watch.speech.media.MediaPlayerImpl;
+import com.readboy.watch.speech.util.FileUtils;
 import com.readboy.watch.speech.util.NetworkUtils;
 import com.readboy.watch.speech.util.ToastUtils;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -133,9 +135,19 @@ import java.util.List;
  */
 
 public abstract class BaseDcsActivity extends Activity {
-    public static final String TAG = "DCS-BaseDcsActivity";
+    public static final String TAG = "header-BaseDcsActivity";
 
-    public static final String ACTION_POWER_PRESS_EXIT = "com.readboy.ACITON_POWER_PRESS_EXIT";
+    static {
+        AsrParam.ASR_VAD_RES_FILE_PATH = getLibvadPath();
+    }
+
+    private static String getLibvadPath() {
+        return Environment.getExternalStorageDirectory().getAbsolutePath()
+                + "/baidu/dueros" + File.separator;
+//        return "system/res/";
+//        return "assets:///";
+    }
+
     /**
      * 正式client_id
      */
@@ -145,6 +157,12 @@ public abstract class BaseDcsActivity extends Activity {
     private static final String APP_KEY = "628F0F98221FDFA1CDCF3E53B8AC57F0";
 
     private static final String CLIENT_SECRET = "OjmUyrFKnjqvyn2gb8i6rbrwUxDXlo55";
+
+    public static final String MFE_DNN_DAT_FILE = "mfe_dnn_dat_file";
+    public static final String MFE_CMVN_DAT_FILE = "mfe_cmvn_dat_file";
+    public static final String ASR_VAD_RES_PATH = "vad.res-path";
+    public static final String ASR_OFFLINE_ENGINE_DAT_FILE_PATH = "asr-base-file-path";
+    public static final String ASR_VAD_RES_FILE_PATH = "vad.res-file";
 
     /**
      * 唤醒词,可以改为你自己的唤醒词,比如："茄子"
@@ -182,6 +200,7 @@ public abstract class BaseDcsActivity extends Activity {
     protected IConnectionStatusListener.ConnectionStatus connectionStatus = IConnectionStatusListener.ConnectionStatus.DISCONNECTED;
     protected boolean isLogging = true;
     private boolean isReleased = false;
+    private boolean isPausedSpeaker = false;
 
     protected MediaPlayerImpl mMediaPlayer;
     private AudioManager.OnAudioFocusChangeListener mAudioListener;
@@ -215,7 +234,7 @@ public abstract class BaseDcsActivity extends Activity {
 //            finish();
 //        }
         initPermission();
-
+        copyLibvab();
         initSdk();
         sdkRun();
 
@@ -226,13 +245,30 @@ public abstract class BaseDcsActivity extends Activity {
 
         registerContentObserver();
 
+        test();
+    }
+
+    private void copyLibvab() {
+        String vad = "libvad.dnn.so";
+        File file = new File(getLibvadPath() + vad);
+
+        if (!file.exists()) {
+            Log.e(TAG, "copyLibvab: file not exit");
+            FileUtils.copyAssets(this, vad, file.getAbsolutePath());
+        }
+    }
+
+    private void test() {
+        File file = new File(getLibvadPath());
+        Log.e(TAG, "test: file exist = " + file.exists() + ", can read = " + file.canRead()
+                + ", can write = " + file.canWrite());
     }
 
     protected void initListener() {
         // 设置各种监听器
         dcsSdk.addConnectionStatusListener(connectionStatusListener);
-        // 错误
-        getInternalApi().addErrorListener(errorListener);
+        // 错误，使用addErrorListener()
+//        getInternalApi().addErrorListener(errorListener);
         // event发送
         getInternalApi().addRequestBodySentListener(dcsRequestBodySentListener);
         // 需要定位后赋值，目前是写死的北京的
@@ -248,7 +284,7 @@ public abstract class BaseDcsActivity extends Activity {
         // 指令执行完毕回调
 //        initFinishedDirectiveListener();
         // 语音音量回调监听
-        initVolumeListener();
+//        initVolumeListener();
     }
 
     private void initLocation() {
@@ -309,7 +345,7 @@ public abstract class BaseDcsActivity extends Activity {
         @Override
         public void onDcsRequestBody(DcsRequestBody dcsRequestBody) {
             String eventName = dcsRequestBody.getEvent().getHeader().getName();
-            Log.v(TAG, "eventName:" + eventName);
+            Log.e(TAG, "eventName:" + eventName);
             if (PlaybackEvent.PLAYBACK_STOPPED.equals(eventName)
                     || PlaybackEvent.PLAYBACK_FINISHED.equals(eventName)) {
                 handlePlaybackStopped();
@@ -333,54 +369,7 @@ public abstract class BaseDcsActivity extends Activity {
             }
         }
     };
-    private IErrorListener errorListener = new IErrorListener() {
-        @Override
-        public void onErrorCode(ErrorCode errorCode) {
-            Log.e(TAG, "onErrorCode:" + errorCode);
-            if (errorCode == ErrorCode.VOICE_REQUEST_FAILED) {
-                Toast.makeText(BaseDcsActivity.this,
-                        getResources().getString(R.string.voice_err_msg),
-                        Toast.LENGTH_SHORT)
-                        .show();
-            } else if (errorCode == ErrorCode.NETWORK_UNAVIABLE) {
-                //  网络不可用
-                Toast.makeText(BaseDcsActivity.this,
-                        "网络不可用",
-                        Toast.LENGTH_SHORT)
-                        .show();
-            } else if (errorCode == ErrorCode.LOGIN_FAILED) {
-                // 未登录
-                if (NetworkUtils.isConnected(BaseDcsActivity.this)) {
-                    Toast.makeText(BaseDcsActivity.this,
-                            getString(R.string.no_login),
-                            Toast.LENGTH_SHORT)
-                            .show();
-                } else {
-                    ToastUtils.showShort(BaseDcsActivity.this, getString(R.string.error_no_network3));
-                }
-            } else if (errorCode == ErrorCode.NETWORK_EXCEPTION) {
-                Toast.makeText(BaseDcsActivity.this,
-                        "网络超时",
-                        Toast.LENGTH_SHORT)
-                        .show();
-            } else if (errorCode == ErrorCode.SDK_VOICE_EXCEPTION) {
-                Toast.makeText(BaseDcsActivity.this,
-                        "SDK语音错误",
-                        Toast.LENGTH_SHORT)
-                        .show();
-            } else if (errorCode == ErrorCode.SDK_SERVER_EXCEPTION) {
-                Toast.makeText(BaseDcsActivity.this,
-                        "SDK语音Server错误",
-                        Toast.LENGTH_SHORT)
-                        .show();
-            } else if (errorCode == ErrorCode.SDK_VOICE_UNKNOWN_EXCEPTION) {
-                Toast.makeText(BaseDcsActivity.this,
-                        "SDK语音未知错误",
-                        Toast.LENGTH_SHORT)
-                        .show();
-            }
-        }
-    };
+    private IErrorListener errorListener;
 
     /**
      * ConnectionStatus|DISCONNECTED（长连接断开）,PENDING(长连接正在连接中),CONNECTED(长连接连接正常)
@@ -410,7 +399,7 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().addTTSPositionInfoListener(new ITTSPositionInfoListener() {
             @Override
             public void onPositionInfo(long pos, long playTimeMs, long mark) {
-                Log.i(TAG, "pos:" + pos + ",playTimeMs:" + playTimeMs + ",mark:" + mark);
+//                Log.i(TAG, "pos:" + pos + ",playTimeMs:" + playTimeMs + ",mark:" + mark);
             }
         });
     }
@@ -422,7 +411,7 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().getDcsClient().addVolumeListener(new IDcsClient.IVolumeListener() {
             @Override
             public void onVolume(int volume, int percent) {
-                Log.e(TAG, "onVolume() called with: volume = " + volume + ", percent = " + percent + "");
+//                Log.e(TAG, "onVolume() called with: volume = " + volume + ", percent = " + percent + "");
             }
         });
     }
@@ -491,6 +480,11 @@ public abstract class BaseDcsActivity extends Activity {
         // 下面这个参数固定
         HashMap<String, Object> params = new HashMap<>();
         params.put(SpeechConstant.ASR_AUDIO_COMPRESSION_TYPE, 1);
+//        params.put(MFE_DNN_DAT_FILE, "assets://libvad.dnn.so");
+//        params.put(MFE_CMVN_DAT_FILE, "assets://libglobal.cmvn.so");
+//        params.put(ASR_VAD_RES_PATH, SystemServiceManager.getAppContext().getFilesDir().getAbsolutePath());
+//        params.put(ASR_OFFLINE_ENGINE_DAT_FILE_PATH, "assets:///libbd_easr_s1_merge_normal_20151216.dat.so");
+//        params.put(ASR_VAD_RES_FILE_PATH, "assets://libvad.dnn.so");
         asrOffLineConfig.params = params;
 
         // 动态替换原来的槽位数据，即grammerPath中的配置槽位
@@ -766,6 +760,10 @@ public abstract class BaseDcsActivity extends Activity {
         return ((DcsSdkImpl) dcsSdk).getInternalApi();
     }
 
+    public DcsSdkImpl getDcsSdkImpl() {
+        return (DcsSdkImpl) dcsSdk;
+    }
+
     private void initWakeUpAgentListener() {
         IWakeupAgent wakeupAgent = getInternalApi().getWakeupAgent();
         if (wakeupAgent != null) {
@@ -788,8 +786,11 @@ public abstract class BaseDcsActivity extends Activity {
             @Override
             public void onSucceed() {
                 dcsSdk.getVoiceRequest().beginVoiceRequest(vad);
+//                dcsSdk.getVoiceRequest().beginVoiceRequest(false);
             }
         });
+//        dcsSdk.getVoiceRequest().beginVoiceRequest(false);
+//        cancelVoiceRequest();
     }
 
     private void addDirectiveReceivedListener() {
@@ -799,7 +800,7 @@ public abstract class BaseDcsActivity extends Activity {
                 if (directive == null) {
                     return;
                 }
-                Log.i(TAG, "name = " + directive.getName());
+                Log.e(TAG, "onDirective name = " + directive.getName());
                 if ("Play".equals(directive.getName())) {
                     Payload mPayload = directive.getPayload();
                     if (mPayload instanceof com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload) {
@@ -809,12 +810,15 @@ public abstract class BaseDcsActivity extends Activity {
                         if (stream != null) {
                             mPlayToken = ((com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload) mPayload)
                                     .audioItem.stream.token;
-                            Log.i(TAG, "  directive mToken = " + mPlayToken);
+                            Log.e(TAG, "  directive mToken = " + mPlayToken);
                         }
                     }
-                } else if ("RenderPlayerInfo".equals(directive.getName())) {
+                } else if ("Stop".equals(directive.getName())){
+                    isPlaying = false;
+                }else if ("RenderPlayerInfo".equals(directive.getName())) {
                     Payload mPayload = directive.getPayload();
                     if (mPayload instanceof RenderPlayerInfoPayload) {
+                        Log.e(TAG, "onDirective: RenderPlayerInfo " + ((RenderPlayerInfoPayload) mPayload).getContent());
                         mRenderPlayerInfoToken = ((RenderPlayerInfoPayload) mPayload).getToken();
                     }
                 }
@@ -843,7 +847,7 @@ public abstract class BaseDcsActivity extends Activity {
             Log.e(TAG, "initSdk: contactsJson = " + contactsJson);
             String lastContactsJson = UploadPreference.getLastUploadPhoneContacts(this);
             if (contactsJson != null && !contactsJson.equals(lastContactsJson)) {
-                getInternalApi().getUpload().uploadPhoneContacts(contactsJson,false, new IUpload.IUploadListener() {
+                getInternalApi().getUpload().uploadPhoneContacts(contactsJson, false, new IUpload.IUploadListener() {
                     @Override
                     public void onSucceed(int i) {
                         Log.e(TAG, "uploadContacts onSucceed() called with: i = " + i + "");
@@ -1080,26 +1084,20 @@ public abstract class BaseDcsActivity extends Activity {
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(TAG, "onRestart");
-        // 恢复tts，音乐等有关播放
-//        getInternalApi().resumeSpeaker();
-        // 如果有唤醒，则恢复唤醒
-//        getInternalApi().startWakeup();
-
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "onResume: ");
         requestAudioFocus();
+        // 恢复tts，音乐等有关播放。策略一，恢复状态，恢复声音。
+        resumeSpeaker();
+        // 恢复tts，音乐等有关播放。策略二：只恢复状态，不恢复声音。
+        //调用getInternalApi().pauseSpeaker()会让其标志位为true。
+        //恢复内部播放状态，如果该标志位为true（），则会导致没有声音。
+//        getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
 
         if (Config.WAKEUP_ENABLE) {
             wakeUp();
         }
-
     }
 
     @Override
@@ -1213,6 +1211,7 @@ public abstract class BaseDcsActivity extends Activity {
             }
             isPlaying = !isPlaying;
         } else {
+            Log.e(TAG, "pauseOrPlayMusic: playPauseButtonClicked..");
             getInternalApi().postEvent(Form.playPauseButtonClicked(mRenderPlayerInfoToken), null);
         }
     }
@@ -1253,11 +1252,11 @@ public abstract class BaseDcsActivity extends Activity {
     /**
      * 通过反射清除播放列表
      */
-    protected void clearAudioList2(){
-        if (clearAudioListMethod == null){
+    protected void clearAudioList2() {
+        if (clearAudioListMethod == null) {
             clearAudioListMethod = getClearAudioListMethod();
         }
-        if (clearAudioListMethod != null){
+        if (clearAudioListMethod != null) {
             try {
                 clearAudioListMethod.invoke(audioPlayerDeviceModule);
             } catch (IllegalAccessException e) {
@@ -1265,7 +1264,7 @@ public abstract class BaseDcsActivity extends Activity {
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
-        }else {
+        } else {
             Log.e(TAG, "clearAudioList2: clearAudioListMethod = null.");
         }
     }
@@ -1294,8 +1293,35 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().postEvent(Form.playPauseButtonClicked(token), null);
     }
 
-    private void stopVoiceOutput() {
+    private void pauseVoiceOutput() {
+        Log.e(TAG, "pauseVoiceOutput: ");
         getInternalApi().pauseSpeaker();
+        isPausedSpeaker = true;
+        isPlaying = false;
+    }
+
+    private void resumeSpeaker() {
+        Log.e(TAG, "resumeSpeaker: isPauseSpeaker = " + isPausedSpeaker);
+        if (Config.RESUME_SPEAKER_SOUND) {
+            resumeSpeakerStateAndSound();
+        } else {
+            resumeSpeakerState();
+        }
+    }
+
+    private void resumeSpeakerStateAndSound() {
+        if (isPausedSpeaker) {
+            getInternalApi().resumeSpeaker();
+            isPausedSpeaker = false;
+        }
+    }
+
+    private void resumeSpeakerState() {
+        Log.e(TAG, "resumeSpeakerState: isPauseSpeaker = " + isPausedSpeaker);
+        if (isPausedSpeaker) {
+            getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
+            isPausedSpeaker = false;
+        }
     }
 
 
@@ -1367,6 +1393,15 @@ public abstract class BaseDcsActivity extends Activity {
      */
     protected abstract void handlePlaybackStarted();
 
+    protected void addErrorListener(IErrorListener listener) {
+        if (errorListener != null) {
+            getInternalApi().removeErrorListener(errorListener);
+            errorListener = null;
+        }
+        this.errorListener = listener;
+        getInternalApi().addErrorListener(listener);
+    }
+
     protected boolean isConnected() {
         return connectionStatus == IConnectionStatusListener.ConnectionStatus.CONNECTED;
     }
@@ -1418,8 +1453,8 @@ public abstract class BaseDcsActivity extends Activity {
                     Log.e(TAG, "onAudioFocusChange: audio focus loss");
                     mPausedByTransientLossOfFocus = false;
                     hadAudioFocus = false;
-                    stopVoiceOutput();
-                    stopMusic();
+                    pauseVoiceOutput();
+//                    stopMusic();
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                     //-3
@@ -1431,23 +1466,10 @@ public abstract class BaseDcsActivity extends Activity {
                     if (mPausedByTransientLossOfFocus) {
                         mPausedByTransientLossOfFocus = false;
                     }
-
+                    resumeSpeaker();
                     break;
                 default:
                     Log.e(TAG, "onAudioFocusChange: Unknown audio focus change code, focusChange = " + focusChange);
-            }
-        }
-    }
-
-    private class PowerPressReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.e(TAG, "onReceive: action = " + action);
-            if (ACTION_POWER_PRESS_EXIT.equals(action)) {
-                release();
-                finish();
             }
         }
     }
@@ -1467,7 +1489,7 @@ public abstract class BaseDcsActivity extends Activity {
         public void onChange(boolean selfChange, Uri uri) {
             super.onChange(selfChange, uri);
             Log.e(TAG, "onChange() called with: selfChange = " + selfChange + ", uri = " + uri + "");
-
+            uploadContacts();
         }
     }
 }

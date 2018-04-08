@@ -26,10 +26,11 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.duer.dcs.api.IDialogStateListener;
-import com.baidu.duer.dcs.api.IVoiceRequestListener;
 import com.baidu.duer.dcs.api.config.DcsConfig;
+import com.baidu.duer.dcs.framework.internalapi.IErrorListener;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.HtmlPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderCardPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderVoiceInputTextPayload;
@@ -52,6 +53,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private static final String TAG = "DCS_Main2Activity";
 
     private static final String ACTION_CHARGING_ANIM_DISPLAY = "android.intent.action.ACTION_CHARGING_ANIM_DISPLAY";
+    private static final String ACTION_POWER_PRESS_EXIT = "com.readboy.ACITON_POWER_PRESS_EXIT";
 
     private static final boolean IS_TEST_MODE = false;
     private static final int HANDLER_WHAT_STOP_RECORD = 1;
@@ -188,15 +190,23 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     @Override
     protected void onDestroy() {
+        removeAllMessages();
         super.onDestroy();
         Log.e(TAG, "onDestroy: ");
         stopAll();
-        removeMessages();
         unregisterReceiver(mBroadcastReceiver);
         mBroadcastReceiver = null;
 //        ToastUtils.cancel();
 
 //        overridePendingTransition(R.anim.activity_bottom_enter, R.anim.activity_bottom_exit);
+    }
+
+    private void removeAllMessages(){
+        mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
+        mHandler.removeMessages(HANDLER_WHAT_FINISH);
+        mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
+        mHandler.removeMessages(HANDLER_WHAT_RECORD_ANIMATION);
+        mHandler.removeMessages(HANDLER_WHAT_SHOW_HELLO);
     }
 
     private void initDialogStateListener() {
@@ -317,12 +327,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         }
     }
 
-    private void removeMessages() {
-        mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
-        mHandler.removeMessages(HANDLER_WHAT_FINISH);
-        mHandler.removeMessages(HANDLER_WHAT_SHOW_HELLO);
-    }
-
     private void removeShowHelloMessage() {
         if (mHandler.hasMessages(HANDLER_WHAT_SHOW_HELLO)) {
             mHandler.removeMessages(HANDLER_WHAT_SHOW_HELLO);
@@ -401,7 +405,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void init() {
-
+        addErrorListener(new ErrorListenerSample());
     }
 
     private void checkNetwork() {
@@ -556,6 +560,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         showMessage(getString(R.string.error_no_network2), "assets://network.mp3");
     }
 
+    private void showListeningTimeout(){
+        String text = getString(R.string.error_no_asr_result);
+        getInternalApi().speakRequest(text);
+        showMessage(text);
+    }
+
     private void showUnknownHost() {
         if (!NetworkUtils.isConnected(this)) {
             operateNoNetwork();
@@ -574,7 +584,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void showRecognitionError() {
         Log.e(TAG, "showRecognitionError: " + getString(R.string.error_no_result1));
-        if (Math.random() > 0.5) {
+        if (Math.random() > 0.5F) {
             showMessage(getString(R.string.error_no_result1), Contracts.NO_RESULT_FILE1);
         } else {
             showMessage(getString(R.string.error_no_result2), Contracts.NO_RESULT_FILE2);
@@ -775,11 +785,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         }
 
         if (isListening()) {
-            dcsSdk.getVoiceRequest().endVoiceRequest(new IVoiceRequestListener() {
-                @Override
-                public void onSucceed() {
-                }
-            });
+            endVoiceRequest();
 //            showHello3();
             return;
         }
@@ -788,12 +794,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mMessageTv.setText("");
         // 为了解决频繁的点击 而服务器没有时间返回结果造成的不能点击的bug
         if (isListening()) {
-            dcsSdk.getVoiceRequest().endVoiceRequest(new IVoiceRequestListener() {
-                @Override
-                public void onSucceed() {
-
-                }
-            });
+            endVoiceRequest();
         } else {
             beginVoiceRequest(getAsrType() == AsrType.AUTO);
         }
@@ -864,7 +865,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     return;
                 }
                 if (isListening()) {
-                    cancelVoiceRequest();
+                    endVoiceRequest();
                 }
                 break;
             default:
@@ -960,6 +961,57 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     }
                 }
 
+            }
+        }
+    }
+
+    private class ErrorListenerSample implements IErrorListener{
+        @Override
+        public void onErrorCode(ErrorCode errorCode) {
+            Log.e(TAG, "onErrorCode:" + errorCode);
+            if (errorCode == ErrorCode.VOICE_REQUEST_FAILED) {
+//                Toast.makeText(BaseDcsActivity.this,
+//                        getResources().getString(R.string.voice_err_msg),
+//                        Toast.LENGTH_SHORT)
+//                        .show();
+//                showRecognitionError();
+                showListeningTimeout();
+            } else if (errorCode == ErrorCode.NETWORK_UNAVIABLE) {
+                //  网络不可用
+                Toast.makeText(Main2Activity.this,
+                        "网络不可用",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            } else if (errorCode == ErrorCode.LOGIN_FAILED) {
+                // 未登录
+                if (NetworkUtils.isConnected(Main2Activity.this)) {
+                    Toast.makeText(Main2Activity.this,
+                            getString(R.string.no_login),
+                            Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    ToastUtils.showShort(Main2Activity.this, getString(R.string.error_no_network3));
+                }
+            } else if (errorCode == ErrorCode.NETWORK_EXCEPTION) {
+                Toast.makeText(Main2Activity.this,
+                        "网络超时",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            } else if (errorCode == ErrorCode.SDK_VOICE_EXCEPTION) {
+                Toast.makeText(Main2Activity.this,
+                        "SDK语音错误",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            } else if (errorCode == ErrorCode.SDK_SERVER_EXCEPTION) {
+                Toast.makeText(Main2Activity.this,
+                        "SDK语音Server错误",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            } else if (errorCode == ErrorCode.SDK_VOICE_UNKNOWN_EXCEPTION) {
+                Toast.makeText(Main2Activity.this,
+                        "SDK语音未知错误",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
         }
     }

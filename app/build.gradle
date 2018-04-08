@@ -7,8 +7,8 @@ android {
         applicationId "com.readboy.watch.speech"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        versionCode 180402001
+        versionName "2.0.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -69,8 +69,8 @@ dependencies {
     compile files('libs/bugly_crash_release.jar')
     compile project(':swipeback')
     // 可选
-    compile name: 'dlp-1.0.0', ext: 'aar'
-    compile name: 'bdplayer-1.0.0', ext: 'aar'
+    //    compile name: 'dlp-1.0.0', ext: 'aar'
+    //    compile name: 'bdplayer-1.0.0', ext: 'aar'
     //    compile name: 'ijkmedia-1.0.0', ext: 'aar'
     //    compile 'tv.danmaku.ijk.media:ijkplayer-java:0.8.4'
     def jacksonVersion = '2.9.1'
@@ -87,7 +87,8 @@ dependencies {
     //    compile files('libs/jlayer-1.0.1.jar')
     //    compile 'javazoom:jlayer:1.0.1'
     compile files('libs/turbonet.jar')
-    compile files('libs/dcssdk-1.2.0.jar')
+    compile files('libs/dcssdk-1.5.0.jar')
     //    compile files('libs/localtts-2.3.1.jar')
     compile files('libs/BaiduLBS_Android.jar')
+    compile files('libs/fastjson-1.2.46.jar')
 }

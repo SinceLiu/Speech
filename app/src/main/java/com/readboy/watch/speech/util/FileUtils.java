@@ -1,5 +1,6 @@
 package com.readboy.watch.speech.util;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -106,6 +107,56 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean copyAssets(Context context, String oldPath, String newPath) {
+        Log.e(TAG, "copyAssets: start.");
+        // 获取assets目录下的所有文件及目录名
+        String[] fileNames;
+        try {
+            fileNames = context.getAssets().list(oldPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        Log.e(TAG, "copyAssets: length = " + fileNames.length);
+        if (fileNames.length > 0) {
+            // 如果是目录
+            File file = new File(newPath);
+            if (!file.mkdirs()) {
+                return false;
+            }
+            // 如果文件夹不存在，则递归
+            for (String fileName : fileNames) {
+                copyAssets(context, oldPath + "/" + fileName, newPath + "/" + fileName);
+            }
+        } else {
+            // 如果是文件
+            InputStream is = null;
+            FileOutputStream fos = null;
+            try {
+                is = context.getAssets().open(oldPath);
+                fos = new FileOutputStream(new File(newPath));
+                byte[] buffer = new byte[1024];
+                int byteCount = 0;
+                while ((byteCount = is.read(buffer)) != -1) {
+                    // 循环从输入流读取
+                    // buffer字节
+                    fos.write(buffer, 0, byteCount);
+                    // 将读取的输入流写入到输出流
+                }
+                // 刷新缓冲区
+                fos.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            } finally {
+                closeIO(is);
+                closeIO(fos);
+            }
+        }
+        Log.e(TAG, "copyAssets: end.");
+        return true;
     }
 
     public static File pullXml(InputStream is, String fileName) throws IOException {

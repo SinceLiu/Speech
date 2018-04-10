@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
-import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,10 +48,11 @@ import java.io.File;
  * @date 2018/2/1
  */
 public class Main2Activity extends BaseDcsActivity implements View.OnClickListener {
-    private static final String TAG = "DCS_Main2Activity";
+    private static final String TAG = "header_Main2Activity";
 
     private static final String ACTION_CHARGING_ANIM_DISPLAY = "android.intent.action.ACTION_CHARGING_ANIM_DISPLAY";
     private static final String ACTION_POWER_PRESS_EXIT = "com.readboy.ACITON_POWER_PRESS_EXIT";
+    public static final String READBOY_ACTION_CLASS_DISABLE_CHANGED = "readboy.acion.CLASS_DISABLE_CHANGED";
 
     private static final boolean IS_TEST_MODE = false;
     private static final int HANDLER_WHAT_STOP_RECORD = 1;
@@ -110,7 +109,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     //TODO 超时停止录音
                     ToastUtils.showShort(Main2Activity.this,
                             getString(R.string.toast_max_record_time));
-                    stopTouchEvent();
                     break;
                 case HANDLER_WHAT_SHOW_HELLO:
                     showHello3();
@@ -180,12 +178,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
         overridePendingTransition(R.anim.activity_bottom_enter, R.anim.activity_bottom_exit);
         isActivated = false;
-    }
-
-    @Override
-    public void finishAndRemoveTask() {
-        super.finishAndRemoveTask();
-        Log.e(TAG, "finishAndRemoveTask: ");
+        cancelScreenOn();
     }
 
     @Override
@@ -201,7 +194,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //        overridePendingTransition(R.anim.activity_bottom_enter, R.anim.activity_bottom_exit);
     }
 
-    private void removeAllMessages(){
+    private void removeAllMessages() {
         mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
         mHandler.removeMessages(HANDLER_WHAT_FINISH);
         mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
@@ -227,9 +220,11 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     case LISTENING:
                         keepScreenOn();
                         startRecordAnim();
+                        mMessageTv.setText("");
 //                        showWaveform();
                         break;
                     case SPEAKING:
+                        mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
                         keepScreenOn();
                         if (TextUtils.isEmpty(mMessageTv.getText())) {
                             showMessage(R.string.error_no_asr_result);
@@ -323,6 +318,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             mBroadcastReceiver = new MyBroadcastReceiver();
             IntentFilter filter = new IntentFilter(ACTION_POWER_PRESS_EXIT);
             filter.addAction(ACTION_CHARGING_ANIM_DISPLAY);
+//            filter.addAction(READBOY_ACTION_CLASS_DISABLE_CHANGED);
             registerReceiver(mBroadcastReceiver, filter);
         }
     }
@@ -444,7 +440,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void showMessage(String message) {
         hideLoading();
-        hideWaveform();
         mMessageTv.setVisibility(View.VISIBLE);
         if (message != null) {
             setMessage(message);
@@ -515,9 +510,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mMessageTv.setVisibility(View.GONE);
     }
 
-    private void hideWaveform() {
-    }
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
 //        Log.e(TAG, "dispatchTouchEvent: event = " + event.getAction()
@@ -548,7 +540,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private void stopAll() {
         stopService();
         hideLoading();
-        hideWaveform();
     }
 
     private void stopService() {
@@ -560,7 +551,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         showMessage(getString(R.string.error_no_network2), "assets://network.mp3");
     }
 
-    private void showListeningTimeout(){
+    private void showListeningTimeout() {
         String text = getString(R.string.error_no_asr_result);
         getInternalApi().speakRequest(text);
         showMessage(text);
@@ -579,7 +570,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
      * 网络连接超时，或者服务器出问题
      */
     private void showConnectTimeOut() {
-        showMessage(getString(R.string.connect_time_out), "timeout.mp3");
+        showMessage(getString(R.string.connect_time_out), "assets://timeout.mp3");
     }
 
     private void showRecognitionError() {
@@ -697,86 +688,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHandler.removeMessages(HANDLER_WHAT_RECORD_ANIMATION);
     }
 
-    //    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private class NetworkCallback extends ConnectivityManager.NetworkCallback {
-        @Override
-        public void onAvailable(Network network) {
-            super.onAvailable(network);
-            if (!hasNetwork && !firstBlood) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        operateNetwork();
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void onLost(Network network) {
-            super.onLost(network);
-            if (hasNetwork) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        operateNoNetwork();
-                    }
-                });
-            }
-        }
-    }
-
-    private class RecordTouchListener implements View.OnTouchListener {
-        private static final float THRESHOLD_STOP = 20;
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (!mEnable) {
-                return false;
-            }
-            int action = event.getAction();
-            switch (action) {
-                case MotionEvent.ACTION_DOWN:
-                    stopAll();
-                    removeShowHelloMessage();
-                    mDownX = event.getX();
-                    mDownY = event.getY();
-                    if (mEnable) {
-                        showHello2();
-                    }
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    if (started && ((Math.abs(mDownX - event.getX()) > THRESHOLD_STOP
-                            || Math.abs(mDownY - event.getY()) > THRESHOLD_STOP))) {
-                        stopTouchEvent();
-                        interrupt = true;
-                    }
-                    break;
-                case MotionEvent.ACTION_CANCEL:
-                case MotionEvent.ACTION_UP:
-                    stopTouchEvent();
-                    break;
-                default:
-                    Log.e(TAG, "onTouch: other action = " + action);
-                    break;
-            }
-            return false;
-        }
-
-    }
-
-    private void stopTouchEvent() {
-        if (!started) {
-            return;
-        }
-        mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
-        if (started) {
-            showLoading();
-        }
-        started = false;
-        stopRecordAnim();
-    }
-
     private void startRecord() {
 //        showWaveform();
         if (CommonUtil.isFastDoubleClick()) {
@@ -791,7 +702,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         }
         startRecordAnim();
         showMessage("");
-        mMessageTv.setText("");
+//        mMessageTv.setText("");
         // 为了解决频繁的点击 而服务器没有时间返回结果造成的不能点击的bug
         if (isListening()) {
             endVoiceRequest();
@@ -810,22 +721,16 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             case R.id.speech:
                 Log.e(TAG, "onClick: speech, pauseSpeaker()");
                 //暂停,ai.dueros.device_interface.voice_output内容
-//                if (isPlaying) {
-//                    getInternalApi().pauseSpeaker();
-//
-//                }else {
-//                    getInternalApi().resumeSpeaker();
-//                }
-
                 if (CommonUtil.isFastDoubleClick()) {
                     Log.e(TAG, "onClick: is fast double click.");
                     return;
                 }
 
                 //暂停点播内容
-                if (isPlayingAudio) {
-                    pauseOrPlayMusic();
-                }
+//                if (isPlayingAudio) {
+//                    pauseOrPlayMusic();
+//                }
+                pauseOrResumeSpeaker();
                 stopCustomMediaPlayer();
 //                if (CommonUtil.isFastDoubleClick()){
 //                }
@@ -854,13 +759,13 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 }
 
                 stopMusic();
-                isPlayingAudio = false;
                 clearAudioList2();
+                isPlayingAudio = false;
                 startRecord();
                 break;
             case R.id.recording_iv:
             case R.id.recording_iv2:
-                if (CommonUtil.isFastDoubleClick()){
+                if (CommonUtil.isFastDoubleClick()) {
                     Log.e(TAG, "onClick: recording is fast double Click.");
                     return;
                 }
@@ -932,18 +837,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    private class RecordLongClickListener implements View.OnLongClickListener {
-
-        @Override
-        public boolean onLongClick(View v) {
-            Log.e(TAG, "onLongClick: start record");
-            if (mEnable) {
-                startRecord();
-            }
-            return false;
-        }
-    }
-
     private class MyBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -954,6 +847,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 if (ACTION_POWER_PRESS_EXIT.equals(action)) {
                     release();
                     finish();
+                } else if (READBOY_ACTION_CLASS_DISABLE_CHANGED.equals(action)) {
+
                 } else if (ACTION_CHARGING_ANIM_DISPLAY.equals(action)) {
                     if (isListening()) {
                         cancelVoiceRequest();
@@ -965,16 +860,11 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         }
     }
 
-    private class ErrorListenerSample implements IErrorListener{
+    private class ErrorListenerSample implements IErrorListener {
         @Override
         public void onErrorCode(ErrorCode errorCode) {
             Log.e(TAG, "onErrorCode:" + errorCode);
             if (errorCode == ErrorCode.VOICE_REQUEST_FAILED) {
-//                Toast.makeText(BaseDcsActivity.this,
-//                        getResources().getString(R.string.voice_err_msg),
-//                        Toast.LENGTH_SHORT)
-//                        .show();
-//                showRecognitionError();
                 showListeningTimeout();
             } else if (errorCode == ErrorCode.NETWORK_UNAVIABLE) {
                 //  网络不可用

@@ -48,4 +48,12 @@ public class SetPortraitLockPayload extends Payload {
     public void setPortraitLock (Boolean portraitLock) {
         this.portraitLock = portraitLock;
     }
+
+    @Override
+    public String toString() {
+        return "SetPortraitLockPayload{" +
+                "target='" + target + '\'' +
+                ", portraitLock=" + portraitLock +
+                '}';
+    }
 }

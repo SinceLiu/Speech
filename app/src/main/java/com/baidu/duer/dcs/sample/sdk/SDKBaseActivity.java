@@ -347,13 +347,6 @@ public abstract class SDKBaseActivity extends Activity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[]
-            grantResults) {
-        // 此处为android 6.0以上动态授权的回调，用户自行实现。
-
-    }
-
-    @Override
     public void onBackPressed() {
         try {
             super.onBackPressed();

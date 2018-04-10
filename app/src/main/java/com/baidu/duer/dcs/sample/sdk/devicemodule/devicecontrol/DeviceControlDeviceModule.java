@@ -18,6 +18,7 @@ package com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -43,6 +44,7 @@ import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetSynch
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetVibrationPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetVpnPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetWifiPayload;
+import com.readboy.watch.speech.util.SettingsUtils;
 import com.readboy.watch.speech.util.ToastUtils;
 
 import java.util.HashMap;
@@ -58,18 +60,18 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
 
     private List<IDeviceControlListener> listeners;
 
-    public DeviceControlDeviceModule (IMessageSender messageSender) {
+    public DeviceControlDeviceModule(IMessageSender messageSender) {
         super(ApiConstants.NAMESPACE, messageSender);
         listeners = new CopyOnWriteArrayList<>();
     }
 
     @Override
-    public ClientContext clientContext () {
+    public ClientContext clientContext() {
         return null;
     }
 
     @Override
-    public void handleDirective (Directive directive) throws HandleDirectiveException {
+    public void handleDirective(Directive directive) throws HandleDirectiveException {
         fireOnDirectiveReceived(directive);
     }
 
@@ -96,13 +98,13 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
     }
 
     @Override
-    public void release () {
+    public void release() {
         listeners.clear();
     }
 
     private void fireOnDirectiveReceived(Directive directive) throws HandleDirectiveException {
         String name = directive.getName();
-        Payload payload =  directive.getPayload();
+        Payload payload = directive.getPayload();
         for (IDeviceControlListener listener : listeners) {
             if (name.equals(ApiConstants.Directives.AdjustBrightness.NAME)) {
                 listener.onAdjustBrightness((AdjustBrightnessPayload) payload);
@@ -134,7 +136,7 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
                 listener.onSetVibration((SetVibrationPayload) payload);
             } else if (name.equals(ApiConstants.Directives.SetVpn.NAME)) {
                 listener.onSetVpn((SetVpnPayload) payload);
-            } else if (name.equals(ApiConstants.Directives.SetWifi.NAME) ) {
+            } else if (name.equals(ApiConstants.Directives.SetWifi.NAME)) {
                 listener.onSetWifi((SetWifiPayload) payload);
             } else {
                 String message = "launch app cannot handle the directive";
@@ -158,20 +160,35 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
 
     public interface IDeviceControlListener {
         void onAdjustBrightness(AdjustBrightnessPayload payload);
+
         void onSetAssistiveTouch(SetAssistiveTouchPayload payload);
+
         void onSetBluetooth(SetBluetoothPayload payload);
+
         void onSetBrightness(SetBrightnessPayload payload);
+
         void onSetCellular(SetCellularPayload payload);
+
         void onSetCellularMode(SetCellularModePayload payload);
+
         void onSetGps(SetGpsPayload payload);
+
         void onSetHotspot(SetHotspotPayload payload);
+
         void onSetNfc(SetNfcPayload payload);
+
         void onSetPhoneMode(SetPhoneModePayload payload);
+
         void onSetPhonePower(SetPhonePowerPayload payload);
+
         void onSetPortraitLock(SetPortraitLockPayload payload);
+
         void onSetSynchronization(SetSynchronizationPayload payload);
+
         void onSetVibration(SetVibrationPayload payload);
+
         void onSetVpn(SetVpnPayload payload);
+
         void onSetWifi(SetWifiPayload payload);
     }
 
@@ -179,15 +196,14 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
 
         private Activity context;
 
-        public SimpleDeviceControlListener(Activity context){
+        public SimpleDeviceControlListener(Activity context) {
             this.context = context;
         }
 
         @Override
         public void onAdjustBrightness(AdjustBrightnessPayload payload) {
             Log.e(TAG, "onAdjustBrightness: payload = " + payload.toString());
-
-
+            SettingsUtils.setSystemBrightness(context, payload.getBrightness() * 10);
         }
 
         @Override
@@ -198,19 +214,7 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
         @Override
         public void onSetBluetooth(SetBluetoothPayload payload) {
             Log.e(TAG, "onSetBluetooth: payload = " + payload.toString());
-            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-            if (adapter != null) {
-                if (payload.getBluetooth()&& !adapter.isEnabled()) {
-                    //蓝牙未启用，提示用户打开它
-//                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                    context.startActivityForResult(intent, 1);
-                    Log.e(TAG, "onSetBluetooth: open bluetooth result = " + adapter.enable());
-                } else if (!payload.getBluetooth()){
-                    Log.e(TAG, "onSetBluetooth: close buletooth reuslt = " + adapter.disable());
-                }
-            }else {
-                Toast.makeText(context, "不支持蓝牙", Toast.LENGTH_SHORT).show();
-            }
+            SettingsUtils.bluetoothEnable(context, payload.getBluetooth());
         }
 
         @Override
@@ -250,17 +254,17 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
 
         @Override
         public void onSetPhonePower(SetPhonePowerPayload payload) {
-
+            Log.e(TAG, "onSetPhonePower: " + payload.toString());
         }
 
         @Override
         public void onSetPortraitLock(SetPortraitLockPayload payload) {
-
+            Log.e(TAG, "onSetPortraitLock: " + payload.toString());
         }
 
         @Override
         public void onSetSynchronization(SetSynchronizationPayload payload) {
-
+            Log.e(TAG, "onSetSynchronization: " + payload.toString());
         }
 
         @Override

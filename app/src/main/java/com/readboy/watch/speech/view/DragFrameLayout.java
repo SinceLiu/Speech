@@ -106,8 +106,8 @@ public class DragFrameLayout extends FrameLayout {
         @Override
         public void onViewReleased(View releasedChild, float xvel, float yvel) {
             super.onViewReleased(releasedChild, xvel, yvel);
-            Log.e(TAG, "onViewReleased: top = " + releasedChild.getTop()
-                    + "xvel = " + xvel + ", yvel = " + yvel);
+//            Log.e(TAG, "onViewReleased: top = " + releasedChild.getTop()
+//                    + "xvel = " + xvel + ", yvel = " + yvel);
             handlerViewReleased(releasedChild);
             int top = releasedChild.getTop();
             if (top < mMinDismissDistance && yvel > DISMISS_VELOCITY) {

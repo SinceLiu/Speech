@@ -141,6 +141,13 @@ public class RenderPlayerInfoPayload extends Payload implements Serializable {
             public void setSrc(String src) {
                 this.src = src;
             }
+
+            @Override
+            public String toString() {
+                return "ArtBean{" +
+                        "src='" + src + '\'' +
+                        '}';
+            }
         }
 
         public static class LyricBean {
@@ -162,6 +169,14 @@ public class RenderPlayerInfoPayload extends Payload implements Serializable {
 
             public void setUrl(String url) {
                 this.url = url;
+            }
+
+            @Override
+            public String toString() {
+                return "LyricBean{" +
+                        "format='" + format + '\'' +
+                        ", url='" + url + '\'' +
+                        '}';
             }
         }
 
@@ -198,6 +213,28 @@ public class RenderPlayerInfoPayload extends Payload implements Serializable {
                     this.src = src;
                 }
             }
+
+            @Override
+            public String toString() {
+                return "ProviderBean{" +
+                        "logo=" + logo +
+                        ", name='" + name + '\'' +
+                        '}';
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "ContentBean{" +
+                    "art=" + art +
+                    ", audioItemType='" + audioItemType + '\'' +
+                    ", lyric=" + lyric +
+                    ", mediaLengthInMilliseconds=" + mediaLengthInMilliseconds +
+                    ", provider=" + provider +
+                    ", title='" + title + '\'' +
+                    ", titleSubtext1='" + titleSubtext1 + '\'' +
+                    ", titleSubtext2='" + titleSubtext2 + '\'' +
+                    '}';
         }
     }
 
@@ -247,6 +284,17 @@ public class RenderPlayerInfoPayload extends Payload implements Serializable {
 
         public void setSelectedValue(String selectedValue) {
             this.selectedValue = selectedValue;
+        }
+
+        @Override
+        public String toString() {
+            return "ControlsBean{" +
+                    "enabled=" + enabled +
+                    ", name='" + name + '\'' +
+                    ", selected=" + selected +
+                    ", type='" + type + '\'' +
+                    ", selectedValue='" + selectedValue + '\'' +
+                    '}';
         }
     }
 }

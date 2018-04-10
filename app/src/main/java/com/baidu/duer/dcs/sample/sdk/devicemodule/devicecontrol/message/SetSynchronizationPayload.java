@@ -48,4 +48,12 @@ public class SetSynchronizationPayload extends Payload {
     public void setSynchronization (Boolean synchronization) {
         this.synchronization = synchronization;
     }
+
+    @Override
+    public String toString() {
+        return "SetSynchronizationPayload{" +
+                "target='" + target + '\'' +
+                ", synchronization=" + synchronization +
+                '}';
+    }
 }

@@ -26,6 +26,9 @@ public class FileUtils {
         throw new UnsupportedOperationException("u can't create me ...");
     }
 
+    /**
+     * @param file 文件夹
+     */
     public static boolean createOrExistsDir(File file) {
         return file != null && (file.exists() ? file.isDirectory() : file.mkdirs());
     }
@@ -110,33 +113,32 @@ public class FileUtils {
     }
 
     public static boolean copyAssets(Context context, String oldPath, String newPath) {
-        Log.e(TAG, "copyAssets: start.");
+        Log.e(TAG, "copyAssets: start.newPath = " + newPath);
         // 获取assets目录下的所有文件及目录名
-        String[] fileNames;
-        try {
-            fileNames = context.getAssets().list(oldPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        Log.e(TAG, "copyAssets: length = " + fileNames.length);
-        if (fileNames.length > 0) {
+        File file = new File(newPath);
+        if (file.isDirectory()) {
+            Log.e(TAG, "copyAssets: isDirectory.");
             // 如果是目录
-            File file = new File(newPath);
             if (!file.mkdirs()) {
                 return false;
             }
             // 如果文件夹不存在，则递归
+            String[] fileNames = file.list();
             for (String fileName : fileNames) {
                 copyAssets(context, oldPath + "/" + fileName, newPath + "/" + fileName);
             }
         } else {
             // 如果是文件
+            Log.e(TAG, "copyAssets: is file.");
             InputStream is = null;
             FileOutputStream fos = null;
             try {
                 is = context.getAssets().open(oldPath);
-                fos = new FileOutputStream(new File(newPath));
+                if (!createOrExistsDir(file.getParentFile())) {
+                    Log.e(TAG, "copyAssets: fail. can not create dir, dir = " + file.getParent());
+                    return false;
+                }
+                fos = new FileOutputStream(file);
                 byte[] buffer = new byte[1024];
                 int byteCount = 0;
                 while ((byteCount = is.read(buffer)) != -1) {
@@ -149,6 +151,7 @@ public class FileUtils {
                 fos.flush();
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.e(TAG, "copyAssets: e: " + e.toString());
                 return false;
             } finally {
                 closeIO(is);

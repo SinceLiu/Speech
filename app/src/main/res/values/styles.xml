@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Material.NoActionBar.Fullscreen">
+    <style name="AppTheme" parent="android:Theme.Holo.NoActionBar.Fullscreen">
         <!-- Customize your theme here. -->
         <item name="android:textSize">24px</item>
         <item name="android:textColor">@android:color/white</item>

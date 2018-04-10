@@ -48,4 +48,12 @@ public class AdjustBrightnessPayload extends Payload {
     public void setBrightness(Integer brightness) {
         this.brightness = brightness;
     }
+
+    @Override
+    public String toString() {
+        return "AdjustBrightnessPayload{" +
+                "target='" + target + '\'' +
+                ", brightness=" + brightness +
+                '}';
+    }
 }

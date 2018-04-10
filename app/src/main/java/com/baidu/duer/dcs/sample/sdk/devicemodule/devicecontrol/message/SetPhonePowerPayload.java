@@ -59,4 +59,13 @@ public class SetPhonePowerPayload extends Payload {
     public void setPhonePower (String phonePower) {
         this.phonePower = phonePower;
     }
+
+    @Override
+    public String toString() {
+        return "SetPhonePowerPayload{" +
+                "target='" + target + '\'' +
+                ", mode='" + mode + '\'' +
+                ", phonePower='" + phonePower + '\'' +
+                '}';
+    }
 }

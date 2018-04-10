@@ -26,6 +26,7 @@ import com.baidu.duer.dcs.api.IDcsSdk;
 import com.baidu.duer.dcs.api.IDialogStateListener;
 import com.baidu.duer.dcs.api.IFinishedDirectiveListener;
 import com.baidu.duer.dcs.api.IMessageSender;
+import com.baidu.duer.dcs.api.IResponseListener;
 import com.baidu.duer.dcs.api.IVoiceRequestListener;
 import com.baidu.duer.dcs.api.asroffline.ASROffLineConfig;
 import com.baidu.duer.dcs.api.asroffline.IASROffLineConfigProvider;
@@ -254,7 +255,9 @@ public abstract class BaseDcsActivity extends Activity {
 
         if (!file.exists()) {
             Log.e(TAG, "copyLibvab: file not exit");
-            FileUtils.copyAssets(this, vad, file.getAbsolutePath());
+            boolean result = FileUtils.copyAssets(this, vad, file.getAbsolutePath());
+            Log.e(TAG, "copyLibvab: result = " + result);
+            AsrParam.ASR_VAD_RES_FILE_PATH = getLibvadPath();
         }
     }
 
@@ -345,7 +348,7 @@ public abstract class BaseDcsActivity extends Activity {
         @Override
         public void onDcsRequestBody(DcsRequestBody dcsRequestBody) {
             String eventName = dcsRequestBody.getEvent().getHeader().getName();
-            Log.e(TAG, "eventName:" + eventName);
+            Log.e(TAG, "onDcsRequestBody eventName:" + eventName);
             if (PlaybackEvent.PLAYBACK_STOPPED.equals(eventName)
                     || PlaybackEvent.PLAYBACK_FINISHED.equals(eventName)) {
                 handlePlaybackStopped();
@@ -478,7 +481,7 @@ public abstract class BaseDcsActivity extends Activity {
         asrOffLineConfig.grammerPath = "assets:///baidu_speech_grammar.bsg";
 
         // 下面这个参数固定
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<String, Object>();
         params.put(SpeechConstant.ASR_AUDIO_COMPRESSION_TYPE, 1);
 //        params.put(MFE_DNN_DAT_FILE, "assets://libvad.dnn.so");
 //        params.put(MFE_CMVN_DAT_FILE, "assets://libglobal.cmvn.so");
@@ -626,11 +629,11 @@ public abstract class BaseDcsActivity extends Activity {
                 // 此处传入的index需要和Snowboy唤醒模型文件一致
                 // 例：模型文件中有3个唤醒词，分别为不同语速的"小度小度"，index分别为1-3，则需要按照以下格式添加
                 // 唤醒成功后，回调中会包含被唤醒的WakeUpWord
-                List<WakeUpWord> wakeupWordList = new ArrayList<>();
+                List<WakeUpWord> wakeupWordList = new ArrayList<WakeUpWord>();
                 wakeupWordList.add(new WakeUpWord(1, "小度小度"));
                 wakeupWordList.add(new WakeUpWord(2, "小度小度"));
                 wakeupWordList.add(new WakeUpWord(3, "小度小度"));
-                final List<String> umdlPaths = new ArrayList<>();
+                final List<String> umdlPaths = new ArrayList<String>();
                 umdlPaths.add(WAKEUP_UMDL_PATH);
                 return new WakeUpConfig.Builder()
                         .resPath(WAKEUP_RES_PATH)
@@ -785,6 +788,7 @@ public abstract class BaseDcsActivity extends Activity {
         dcsSdk.getVoiceRequest().cancelVoiceRequest(new com.baidu.duer.dcs.api.IVoiceRequestListener() {
             @Override
             public void onSucceed() {
+                resumeSpeakerState();
                 dcsSdk.getVoiceRequest().beginVoiceRequest(vad);
 //                dcsSdk.getVoiceRequest().beginVoiceRequest(false);
             }
@@ -810,7 +814,7 @@ public abstract class BaseDcsActivity extends Activity {
                         if (stream != null) {
                             mPlayToken = ((com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload) mPayload)
                                     .audioItem.stream.token;
-                            Log.e(TAG, "  directive mToken = " + mPlayToken);
+                            Log.e(TAG, "onDirective play mToken = " + mPlayToken);
                         }
                     }
                 } else if ("Stop".equals(directive.getName())){
@@ -1089,7 +1093,7 @@ public abstract class BaseDcsActivity extends Activity {
         Log.e(TAG, "onResume: ");
         requestAudioFocus();
         // 恢复tts，音乐等有关播放。策略一，恢复状态，恢复声音。
-        resumeSpeaker();
+//        resumeSpeaker();
         // 恢复tts，音乐等有关播放。策略二：只恢复状态，不恢复声音。
         //调用getInternalApi().pauseSpeaker()会让其标志位为true。
         //恢复内部播放状态，如果该标志位为true（），则会导致没有声音。
@@ -1144,7 +1148,6 @@ public abstract class BaseDcsActivity extends Activity {
         getContentResolver().unregisterContentObserver(mContractsObserver);
         abandonAudioFocus();
 
-        getInternalApi().pauseSpeaker();
 
         sendExitEvent();
 
@@ -1182,10 +1185,26 @@ public abstract class BaseDcsActivity extends Activity {
 
     private void sendExitEvent() {
         Header header = new MessageIdHeader("ai.dueros.device_interface.system", "Exited");
-
         Event event = new Event(header, null);
         if (getInternalApi().getMessageSender() != null) {
-            getInternalApi().getMessageSender().sendEvent(event, null);
+            getInternalApi().getMessageSender().sendEvent(event, new IResponseListener() {
+                @Override
+                public void onSucceed(int i) {
+                    Log.e(TAG, "sendExitEvent onSucceed: ");
+                }
+
+                @Override
+                public void onFailed(String s) {
+                    Log.e(TAG, "sendExitEvent onFailed: ");
+                }
+
+                @Override
+                public void onCancel() {
+                    Log.e(TAG, "sendExitEvent onCancel: ");
+                }
+            });
+        }else {
+            Log.e(TAG, "sendExitEvent: messageSender = null.");
         }
     }
 
@@ -1253,6 +1272,7 @@ public abstract class BaseDcsActivity extends Activity {
      * 通过反射清除播放列表
      */
     protected void clearAudioList2() {
+        Log.e(TAG, "clearAudioList2: isPlayingAudio = " + isPlayingAudio);
         if (clearAudioListMethod == null) {
             clearAudioListMethod = getClearAudioListMethod();
         }
@@ -1293,11 +1313,19 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().postEvent(Form.playPauseButtonClicked(token), null);
     }
 
-    private void pauseVoiceOutput() {
-        Log.e(TAG, "pauseVoiceOutput: ");
+    private void pauseSpeaker() {
+        Log.e(TAG, "pauseSpeaker: ");
         getInternalApi().pauseSpeaker();
         isPausedSpeaker = true;
         isPlaying = false;
+    }
+
+    protected void pauseOrResumeSpeaker(){
+        if (isPausedSpeaker){
+            resumeSpeakerStateAndSound();
+        }else{
+            pauseSpeaker();
+        }
     }
 
     private void resumeSpeaker() {
@@ -1310,6 +1338,7 @@ public abstract class BaseDcsActivity extends Activity {
     }
 
     private void resumeSpeakerStateAndSound() {
+        Log.e(TAG, "resumeSpeakerStateAndSound: isPausedSpeaker = " + isPausedSpeaker);
         if (isPausedSpeaker) {
             getInternalApi().resumeSpeaker();
             isPausedSpeaker = false;
@@ -1318,10 +1347,10 @@ public abstract class BaseDcsActivity extends Activity {
 
     private void resumeSpeakerState() {
         Log.e(TAG, "resumeSpeakerState: isPauseSpeaker = " + isPausedSpeaker);
-        if (isPausedSpeaker) {
+//        if (isPausedSpeaker) {
             getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
-            isPausedSpeaker = false;
-        }
+//            isPausedSpeaker = false;
+//        }
     }
 
 
@@ -1453,7 +1482,7 @@ public abstract class BaseDcsActivity extends Activity {
                     Log.e(TAG, "onAudioFocusChange: audio focus loss");
                     mPausedByTransientLossOfFocus = false;
                     hadAudioFocus = false;
-                    pauseVoiceOutput();
+                    pauseSpeaker();
 //                    stopMusic();
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
@@ -1466,7 +1495,7 @@ public abstract class BaseDcsActivity extends Activity {
                     if (mPausedByTransientLossOfFocus) {
                         mPausedByTransientLossOfFocus = false;
                     }
-                    resumeSpeaker();
+//                    resumeSpeaker();
                     break;
                 default:
                     Log.e(TAG, "onAudioFocusChange: Unknown audio focus change code, focusChange = " + focusChange);

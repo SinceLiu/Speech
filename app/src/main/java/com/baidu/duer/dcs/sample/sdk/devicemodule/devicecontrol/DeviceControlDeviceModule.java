@@ -220,6 +220,7 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
         @Override
         public void onSetBrightness(SetBrightnessPayload payload) {
             Log.e(TAG, "onSetBrightness: payload = " + payload.toString());
+            SettingsUtils.setSystemTargetBrightness(context, payload.getBrightness());
         }
 
         @Override

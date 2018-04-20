@@ -56,13 +56,15 @@ public final class SettingsUtils {
 
     /**
      * @param brightnessOffset 0-255
+     *                         W7手表：9-20-50-85
      */
     public static boolean setSystemBrightness(Context context, int brightnessOffset) {
         try {
             int brightness = Settings.System.getInt(context.getContentResolver(),
                     Settings.System.SCREEN_BRIGHTNESS);
+            Log.e(TAG, "setSystemBrightness: brightness = " + brightness);
             int offset = brightnessOffset + brightness;
-            int target = Math.min(255, Math.max(offset, 0));
+            int target = Math.min(85, Math.max(offset, 9));
             return Settings.System.putInt(context.getContentResolver(),
                     Settings.System.SCREEN_BRIGHTNESS, target);
         } catch (Settings.SettingNotFoundException e) {

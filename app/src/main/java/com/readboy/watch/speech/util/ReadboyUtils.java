@@ -27,9 +27,10 @@ public final class ReadboyUtils {
     /**
      * 判断data时间是否在上课禁用时间段内。
      *
-     * @param data 当前时间
+     * @param data 上课禁用时间戳
+     *             Settings.Global.getString(context.getContentResolver(), "class_disabled");
      */
-    private static boolean isTimeEnable(Context context, String data) {
+    public static boolean isTimeEnable(Context context, String data) {
         long time = System.currentTimeMillis();
         SimpleDateFormat mDateFormat = new SimpleDateFormat("HH:mm", Locale.CHINESE);
         boolean isEnable = false;

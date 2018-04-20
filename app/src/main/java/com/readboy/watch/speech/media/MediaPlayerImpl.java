@@ -52,12 +52,13 @@ public class MediaPlayerImpl implements IMediaPlayer {
     private static final String KEY_SP_MUTE = "isMute";
     private IMediaPlayer.PlayState mCurrentState = IMediaPlayer.PlayState.IDLE;
     private MediaPlayer mMediaPlayer;
-    private float currentVolume = 0.8f;                 // 默认音量80%
+    // 默认音量80%
     private boolean isMute;
+    private float currentVolume = 0.8f;
     private boolean isError38;
     private float currentPercent;
     private int currentSeekMilliseconds;
-    private IAudioStreamStore audioStreamStore;         // stream流数据保存
+    private IAudioStreamStore audioStreamStore;
     private List<IMediaPlayerListener> mediaPlayerListeners;
     private boolean isActive;
     private TelephonyManager telephonyManager;
@@ -86,9 +87,9 @@ public class MediaPlayerImpl implements IMediaPlayer {
         mediaPlayerListeners = Collections.synchronizedList(new LinkedList<IMediaPlayerListener>());
 
         // 来电监听
-        telephonyManager = (TelephonyManager)
-                context.getSystemService(Service.TELEPHONY_SERVICE);
-        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+//        telephonyManager = (TelephonyManager)
+//                context.getSystemService(Service.TELEPHONY_SERVICE);
+//        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
     private PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -271,6 +272,7 @@ public class MediaPlayerImpl implements IMediaPlayer {
             audioStreamStore.speakAfter();
         }
         mediaPlayerListeners.clear();
+        phoneStateListener = null;
     }
 
     @Override

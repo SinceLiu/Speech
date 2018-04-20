@@ -12,3 +12,7 @@
 /swipeback/build
 /app/build
 /**/build
+/**/libs
+/**/jniLibs
+/**.so
+/**.jar

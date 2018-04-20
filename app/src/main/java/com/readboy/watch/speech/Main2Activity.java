@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -36,10 +37,13 @@ import com.baidu.duer.dcs.util.AsrType;
 import com.baidu.duer.dcs.util.util.CommonUtil;
 import com.baidu.duer.dcs.util.util.NetWorkUtil;
 import com.readboy.watch.speech.media.IMediaPlayer;
+import com.readboy.watch.speech.util.ClickUtils;
 import com.readboy.watch.speech.util.NetworkUtils;
 import com.readboy.watch.speech.util.PreferencesUtils;
+import com.readboy.watch.speech.util.ReadboyUtils;
 import com.readboy.watch.speech.util.ToastUtils;
 import com.readboy.watch.speech.view.DragFrameLayout;
+import com.tencent.bugly.crashreport.BuglyLog;
 
 import java.io.File;
 
@@ -67,7 +71,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
      * 加载超时时间，单位毫秒
      */
     private static final int LOADING_TIME_OUT = 30000;
-    private static final int DELAYED_START_RECORD_ANIMATION = 1100;
+    private static final int DELAYED_START_RECORD_ANIMATION = 1300;
     private static final int DELAYED_FINISH_MILLIS = 4 * 1000;
     private static final int DELAYED_SHOW_HELLO_MILLIS = 20 * 1000;
 
@@ -189,6 +193,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         stopAll();
         unregisterReceiver(mBroadcastReceiver);
         mBroadcastReceiver = null;
+        releaseAnimation();
 //        ToastUtils.cancel();
 
 //        overridePendingTransition(R.anim.activity_bottom_enter, R.anim.activity_bottom_exit);
@@ -200,6 +205,15 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
         mHandler.removeMessages(HANDLER_WHAT_RECORD_ANIMATION);
         mHandler.removeMessages(HANDLER_WHAT_SHOW_HELLO);
+    }
+
+    private void releaseAnimation(){
+        mRecordAnimator.stop();
+        mRecordingIv.setImageDrawable(null);
+        mRecordAnimator = null;
+        mRecordAnimator2.stop();
+        mRecordingIv2.setImageDrawable(null);
+        mRecordAnimator2 = null;
     }
 
     private void initDialogStateListener() {
@@ -318,7 +332,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             mBroadcastReceiver = new MyBroadcastReceiver();
             IntentFilter filter = new IntentFilter(ACTION_POWER_PRESS_EXIT);
             filter.addAction(ACTION_CHARGING_ANIM_DISPLAY);
-//            filter.addAction(READBOY_ACTION_CLASS_DISABLE_CHANGED);
+            filter.addAction(READBOY_ACTION_CLASS_DISABLE_CHANGED);
             registerReceiver(mBroadcastReceiver, filter);
         }
     }
@@ -682,7 +696,14 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void stopRecordAnim() {
         mHoldRecord.setVisibility(View.VISIBLE);
-        mRecordAnimator.stop();
+        if (mRecordAnimator != null) {
+            mRecordAnimator.stop();
+        }else if(!isDestroyed()) {
+            BuglyLog.e(TAG, "stopRecordAnim: not destroyed and mRecordAnimator = null");
+        }
+        if (mRecordAnimator2 != null) {
+            mRecordAnimator2.stop();
+        }
         mRecordingIv.setVisibility(View.GONE);
         mRecordingIv2.setVisibility(View.GONE);
         mHandler.removeMessages(HANDLER_WHAT_RECORD_ANIMATION);
@@ -690,10 +711,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void startRecord() {
 //        showWaveform();
-        if (CommonUtil.isFastDoubleClick()) {
-            Log.e(TAG, "startRecord: is fast double click.");
-            return;
-        }
+//        if (ClickUtils.isFastMultiClick()) {
+//            Log.e(TAG, "startRecord: is fast double click.");
+//            return;
+//        }
 
         if (isListening()) {
             endVoiceRequest();
@@ -743,6 +764,11 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //                stopMusic()
                 }
 
+                if (ClickUtils.isFastMultiClick()){
+                    Log.e(TAG, "onClick: is fast multi click.");
+                    return;
+                }
+
                 if (getAsrMode() == DcsConfig.ASR_MODE_ONLINE) {
                     if (!NetWorkUtil.isNetworkConnected(this)) {
 //                Toast.makeText(this, getResources().getString(R.string.err_net_msg), Toast.LENGTH_SHORT).show();
@@ -765,7 +791,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 break;
             case R.id.recording_iv:
             case R.id.recording_iv2:
-                if (CommonUtil.isFastDoubleClick()) {
+                if (ClickUtils.isFastMultiClick()) {
                     Log.e(TAG, "onClick: recording is fast double Click.");
                     return;
                 }
@@ -848,7 +874,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     release();
                     finish();
                 } else if (READBOY_ACTION_CLASS_DISABLE_CHANGED.equals(action)) {
-
+                    String classState = Settings.Global.getString(context.getContentResolver(), "class_disabled");
+                    Log.e(TAG, "onReceive classState = " + classState);
+                    if (ReadboyUtils.isTimeEnable(Main2Activity.this, classState)) {
+                        release();
+                        finish();
+                    }
                 } else if (ACTION_CHARGING_ANIM_DISPLAY.equals(action)) {
                     if (isListening()) {
                         cancelVoiceRequest();

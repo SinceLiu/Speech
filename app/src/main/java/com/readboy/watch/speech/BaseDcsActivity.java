@@ -114,6 +114,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -177,7 +178,7 @@ public abstract class BaseDcsActivity extends Activity {
      * 用于停止音乐
      */
     protected boolean isPlayingAudio;
-    protected boolean isLoginSucceed;
+    protected boolean isLoginSucceed = false;
     protected IConnectionStatusListener.ConnectionStatus connectionStatus = IConnectionStatusListener.ConnectionStatus.DISCONNECTED;
     protected boolean isLogging = true;
     private boolean isReleased = false;
@@ -339,15 +340,7 @@ public abstract class BaseDcsActivity extends Activity {
                 isPlaying = false;
             } else if (PlaybackEvent.PLAYBACK_STARTED.equals(eventName)
                     || PlaybackEvent.PLAYBACK_RESUMED.equals(eventName)) {
-                if (PlaybackEvent.PLAYBACK_STARTED.equals(eventName)) {
-                    Log.e(TAG, "onDcsRequestBody: started playback.");
-                    isPlayingAudio = true;
-                    Payload payload = dcsRequestBody.getEvent().getPayload();
-                    Log.e(TAG, "onDcsRequestBody: payload = " + payload.getClass().getSimpleName());
-                    if (payload instanceof AudioPlayerPayload) {
-                        Log.e(TAG, "onDcsRequestBody: audio token = " + ((AudioPlayerPayload) payload).token);
-                    }
-                }
+                isPlayingAudio = true;
                 handlePlaybackStarted();
                 isPlaying = true;
             }
@@ -824,7 +817,6 @@ public abstract class BaseDcsActivity extends Activity {
             Log.e(TAG, "uploadContacts: no read contacts permission ");
             return;
         }
-        Log.e(TAG, "uploadContacts: ");
         try {
             String contactsJson = ContactsUtils.getAllContacts(this);
             Log.e(TAG, "uploadContacts: contactsJson = " + contactsJson);
@@ -1042,7 +1034,6 @@ public abstract class BaseDcsActivity extends Activity {
         pauseSpeaker();
 
         sendExitEvent();
-
     }
 
     private void sendExitEvent() {
@@ -1179,10 +1170,21 @@ public abstract class BaseDcsActivity extends Activity {
         }
         if (clearAudioListMethod != null) {
             try {
+                Field field = audioPlayerDeviceModule.getClass().getDeclaredField("playQueue");
+                field.setAccessible(true);
+                LinkedList playQueue = (LinkedList) field.get(audioPlayerDeviceModule);
+                if (playQueue != null) {
+                    Log.e(TAG, "clearAudioList2: size = " + playQueue.size());
+                }
                 clearAudioListMethod.invoke(audioPlayerDeviceModule);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            } catch (ClassCastException e) {
+                Log.e(TAG, "clearAudioList2: e : " + e.toString());
                 e.printStackTrace();
             }
         } else {

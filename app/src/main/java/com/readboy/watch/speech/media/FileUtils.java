@@ -70,7 +70,7 @@ public class FileUtils {
     private static final HashSet<String> VIDEO_EXTENSIONS_SET;
 
     static {
-        VIDEO_EXTENSIONS_SET = new HashSet<>(Arrays.asList(VIDEO_EXTENSIONS));
+        VIDEO_EXTENSIONS_SET = new HashSet<String>(Arrays.asList(VIDEO_EXTENSIONS));
     }
 
     private FileUtils() {

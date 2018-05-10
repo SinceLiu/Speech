@@ -374,6 +374,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHoldRecord = (ImageView) speech.findViewById(R.id.hold_record);
         mHoldRecord.setOnClickListener(this);
         mLoading = speech.findViewById(R.id.loading_pb);
+        mLoading.setOnClickListener(this);
 //        mLoadingAnimator = () mLoading.getBackground();
 //        speech.setOnTouchListener(new RecordTouchListener());
 //        speech.setOnLongClickListener(new RecordLongClickListener());
@@ -411,6 +412,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 }
             }
         });
+    }
+
+    private void intiOnClickListener(){
 
     }
 
@@ -517,11 +521,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHoldRecord.setVisibility(View.VISIBLE);
 //        mLoadingAnimator.stop();
         mLoading.setVisibility(View.GONE);
-    }
-
-    private void showWaveform() {
-        hideLoading();
-        mMessageTv.setVisibility(View.GONE);
     }
 
     @Override
@@ -799,6 +798,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     endVoiceRequest();
                 }
                 break;
+            case R.id.loading_pb:
+                if (ClickUtils.isFastMultiClick()){
+                    return;
+                }
+                cancelVoiceRequest();
+                break;
             default:
                 Log.e(TAG, "onClick: default = " + v.getId());
                 break;
@@ -871,12 +876,14 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 String action = intent.getAction();
                 Log.e(TAG, "MyBroadcastReceiver onReceive: action = " + action);
                 if (ACTION_POWER_PRESS_EXIT.equals(action)) {
+                    //需要及时关掉声音，finish后，可能很久才会调onDestroy()
                     release();
                     finish();
                 } else if (READBOY_ACTION_CLASS_DISABLE_CHANGED.equals(action)) {
                     String classState = Settings.Global.getString(context.getContentResolver(), "class_disabled");
                     Log.e(TAG, "onReceive classState = " + classState);
                     if (ReadboyUtils.isTimeEnable(Main2Activity.this, classState)) {
+                        //需要及时关掉声音
                         release();
                         finish();
                     }

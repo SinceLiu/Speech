@@ -17,7 +17,6 @@ package com.baidu.duer.dcs.sample.sdk.devicemodule.screen;
 
 import com.baidu.duer.dcs.util.util.FileUtil;
 import com.baidu.duer.dcs.util.message.HandleDirectiveException;
-//import com.baidu.duer.dcs.duerlink.DlpSdk;
 import com.baidu.duer.dcs.api.BaseDeviceModule;
 import com.baidu.duer.dcs.api.IMessageSender;
 import com.baidu.duer.dcs.util.message.ClientContext;

@@ -67,7 +67,7 @@ import com.baidu.duer.dcs.framework.internalapi.IErrorListener;
 import com.baidu.duer.dcs.framework.location.Location;
 import com.baidu.duer.dcs.location.ILocation;
 import com.baidu.duer.dcs.location.LocationImpl;
-import com.baidu.duer.dcs.oauth.api.code.OauthCodeImpl;
+import com.baidu.duer.dcs.oauth.api.silent.SilentLoginImpl;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.offlineasr.OffLineDeviceModule;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.ScreenDeviceModule;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.ScreenExtendDeviceModule;
@@ -104,13 +104,8 @@ import java.util.List;
  */
 public abstract class SDKBaseActivity extends Activity implements
         View.OnClickListener {
-    public static final String TAG = "DCS-SDK_header";
-
-    public static final String CLIENT_ID_SOURCE = "d8ITlI9aeTPaGcxKKsZit8tq";
-    public static final String CLIENT_ID_WATCH = "WwhkTgFmkKC3jYgATjV6KESf9ZfeSwti";
-    public static final String CLIENT_ID_ROBOT = "gpCETbzpHPex7ckTPdRMw2gfu4pSZEeH";
-    public static final String CLIENT_ID = CLIENT_ID_WATCH;
-
+    public static final String TAG = "DCS-SDK";
+    public static final String CLIENT_ID = "d8ITlI9aeTPaGcxKKsZit8tq";
     // 唤醒配置
     private static final String WAKEUP_RES_PATH = "snowboy/common.res";
     private static final String WAKEUP_UMDL_PATH = "snowboy/xiaoduxiaodu_all_11272017.umdl";
@@ -174,6 +169,7 @@ public abstract class SDKBaseActivity extends Activity implements
         initFinishedDirectiveListener();
         // 语音音量回调监听
         initVolumeListener();
+        initVoiceErrorListener();
     }
 
     private void initLocation() {
@@ -316,6 +312,18 @@ public abstract class SDKBaseActivity extends Activity implements
             public void onVolume(int volume, int percent) {
                 Log.d(TAG, "volume  ----->" + volume);
                 Log.d(TAG, "percent ----->" + percent);
+            }
+        });
+    }
+
+    /**
+     * 语音错误回调监听
+     */
+    private void initVoiceErrorListener() {
+        getInternalApi().getDcsClient().addVoiceErrorListener(new IDcsClient.IVoiceErrorListener() {
+            @Override
+            public void onVoiceError(int error, int subError) {
+                Log.d(TAG, "onVoiceError:" + error + " " + subError);
             }
         });
     }
@@ -952,7 +960,8 @@ public abstract class SDKBaseActivity extends Activity implements
     }
 
     protected IOauth getOauth() {
-        return new OauthCodeImpl(CLIENT_ID, this);
+        return new SilentLoginImpl(CLIENT_ID);
+//        return new OauthCodeImpl(CLIENT_ID, this);
     }
 
     // -------------------------abstract

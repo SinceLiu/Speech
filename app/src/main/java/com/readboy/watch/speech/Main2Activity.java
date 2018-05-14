@@ -52,7 +52,7 @@ import java.io.File;
  * @date 2018/2/1
  */
 public class Main2Activity extends BaseDcsActivity implements View.OnClickListener {
-    private static final String TAG = "header_Main2Activity";
+    private static final String TAG = "header_http_Mainy";
 
     private static final String ACTION_CHARGING_ANIM_DISPLAY = "android.intent.action.ACTION_CHARGING_ANIM_DISPLAY";
     private static final String ACTION_POWER_PRESS_EXIT = "com.readboy.ACITON_POWER_PRESS_EXIT";
@@ -412,9 +412,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 }
             }
         });
-    }
-
-    private void intiOnClickListener(){
 
     }
 
@@ -514,7 +511,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHoldRecord.setVisibility(View.GONE);
         mLoading.setVisibility(View.VISIBLE);
 //        mLoadingAnimator.start();
-        mMessageTv.setVisibility(View.GONE);
+//        mMessageTv.setVisibility(View.GONE);
     }
 
     private void hideLoading() {

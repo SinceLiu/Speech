@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.media.AudioManager;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -45,7 +44,6 @@ import com.baidu.duer.dcs.api.wakeup.WakeUpWord;
 import com.baidu.duer.dcs.componentapi.IDcsClient;
 import com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants;
 import com.baidu.duer.dcs.devicemodule.audioplayer.AudioPlayerDeviceModule;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.AudioPlayerPayload;
 import com.baidu.duer.dcs.devicemodule.custominteraction.CustomUserInteractionDeviceModule;
 import com.baidu.duer.dcs.devicemodule.form.Form;
 import com.baidu.duer.dcs.devicemodule.playbackcontroller.PlaybackControllerDeviceModule;
@@ -95,13 +93,11 @@ import com.baidu.duer.dcs.util.message.Header;
 import com.baidu.duer.dcs.util.message.MessageIdHeader;
 import com.baidu.duer.dcs.util.message.Payload;
 import com.baidu.duer.kitt.KittWakeUpImpl;
-import com.baidu.speech.asr.DcsManager;
 import com.baidu.speech.asr.SpeechConstant;
 import com.readboy.watch.speech.media.MediaPlayerImpl;
 import com.readboy.watch.speech.util.FileUtils;
 import com.readboy.watch.speech.util.NetworkUtils;
 import com.readboy.watch.speech.util.ToastUtils;
-import com.tencent.bugly.crashreport.BuglyLog;
 
 import org.json.JSONException;
 
@@ -123,7 +119,7 @@ import java.util.List;
  */
 
 public abstract class BaseDcsActivity extends Activity {
-    public static final String TAG = "header-BaseDcsActivity";
+    public static final String TAG = "header-http-Base";
 
     static {
         AsrParam.ASR_VAD_RES_FILE_PATH = getLibvadPath();
@@ -270,6 +266,8 @@ public abstract class BaseDcsActivity extends Activity {
 //        initFinishedDirectiveListener();
         // 语音音量回调监听
 //        initVolumeListener();
+
+        initVoiceErrorListener();
     }
 
     private void initLocation() {
@@ -420,6 +418,15 @@ public abstract class BaseDcsActivity extends Activity {
             @Override
             public void onVolume(int volume, int percent) {
 //                Log.e(TAG, "onVolume() called with: volume = " + volume + ", percent = " + percent + "");
+            }
+        });
+    }
+
+    private void initVoiceErrorListener() {
+        getInternalApi().getDcsClient().addVoiceErrorListener(new IDcsClient.IVoiceErrorListener() {
+            @Override
+            public void onVoiceError(int error, int subError) {
+                Log.d(TAG, "onVoiceError:" + error + " " + subError);
             }
         });
     }

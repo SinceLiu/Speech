@@ -52,7 +52,7 @@ import java.io.File;
  * @date 2018/2/1
  */
 public class Main2Activity extends BaseDcsActivity implements View.OnClickListener {
-    private static final String TAG = "header_http_Mainy";
+    private static final String TAG = "header_http_oubinMainy";
 
     private static final String ACTION_CHARGING_ANIM_DISPLAY = "android.intent.action.ACTION_CHARGING_ANIM_DISPLAY";
     private static final String ACTION_POWER_PRESS_EXIT = "com.readboy.ACITON_POWER_PRESS_EXIT";
@@ -64,7 +64,11 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private static final int HANDLER_WHAT_SHOW_HELLO = 3;
     private static final int HANDLER_WHAT_RECORD_ANIMATION = 4;
     private static final int HANDLER_WHAT_LOADING_TIME_OUT = 5;
-
+    /**
+     * 用于自动测试。
+     */
+    private static final int HANDLER_WHAT_TEST = 99;
+    private static boolean isTestMode = false;
 
     private static final int RECOGNITION_TIME_OUT = 3000;
     /**
@@ -91,6 +95,13 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private boolean firstBlood = true;
     private boolean mEnable = true;
     private boolean isActivated = false;
+    /**
+     * dcsSdk1.5.0.1版本对话状态由点混乱，为了兼容其状态。
+     */
+    private long mLastListeningTime = 0L;
+    private static final long LISTENING_IDLE_INTERVAL_TIME = 500L;
+    private long mLastSpeakingTime = 0L;
+    private static final long SPEAKING_LISTENING_INTERVAL_TIME = 500L;
 
     private boolean interrupt = true;
     private boolean started = false;
@@ -123,6 +134,17 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 case HANDLER_WHAT_LOADING_TIME_OUT:
                     cancelVoiceRequest();
                     showConnectTimeOut();
+                    break;
+                case HANDLER_WHAT_TEST:
+                    if (!isTestMode){
+                        return;
+                    }
+                    Log.d(TAG, "handleMessage: test, click mHoldRecord.");
+                    if (isListening()){
+                        onClick(mHoldRecord);
+                    }else if (isSpeaking()){
+                        onClick(mHoldRecord);
+                    }
                 default:
                     break;
             }
@@ -205,6 +227,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
         mHandler.removeMessages(HANDLER_WHAT_RECORD_ANIMATION);
         mHandler.removeMessages(HANDLER_WHAT_SHOW_HELLO);
+        mHandler.removeMessages(HANDLER_WHAT_TEST);
     }
 
     private void releaseAnimation(){
@@ -222,9 +245,16 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             @Override
             public void onDialogStateChanged(DialogState dialogState) {
                 Log.e(TAG, "onDialogStateChanged() called with: dialogState = " + dialogState + "");
+                DialogState lastState = currentDialogState;
                 currentDialogState = dialogState;
                 switch (dialogState) {
                     case IDLE:
+                        if (System.currentTimeMillis() - mLastListeningTime < LISTENING_IDLE_INTERVAL_TIME
+                                && lastState == DialogState.LISTENING){
+                            Log.d(TAG, "onDialogStateChanged: illegal dialog state.");
+                            currentDialogState = DialogState.LISTENING;
+                            break;
+                        }
                         mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
                         //TODO 点击说话
                         stopRecordAnim();
@@ -236,12 +266,16 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         startRecordAnim();
                         mMessageTv.setText("");
 //                        showWaveform();
+                        mLastListeningTime = System.currentTimeMillis();
+                        sendTestMessageDelayed(3000L);
                         break;
                     case SPEAKING:
+                        mLastSpeakingTime = System.currentTimeMillis();
                         mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
                         keepScreenOn();
                         if (TextUtils.isEmpty(mMessageTv.getText())) {
                             showMessage(R.string.error_no_asr_result);
+                            sendTestMessageDelayed(500L);
                         } else {
                             showMessage(null);
                         }
@@ -343,6 +377,21 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         }
     }
 
+    private void removeTestMessage(){
+        if (isTestMode) {
+            if (mHandler.hasMessages(HANDLER_WHAT_TEST)) {
+                mHandler.removeMessages(HANDLER_WHAT_TEST);
+            }
+        }
+    }
+
+    private void sendTestMessageDelayed(long delayedTime){
+        if (isTestMode) {
+            mHandler.removeMessages(HANDLER_WHAT_TEST);
+            mHandler.sendEmptyMessageDelayed(HANDLER_WHAT_TEST, delayedTime);
+        }
+    }
+
     private void initViewPager() {
         ViewPager mViewpager = (ViewPager) findViewById(R.id.viewpager);
         PagerAdapter adapter = new PagerAdapter() {
@@ -371,7 +420,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         speech.setOnClickListener(this);
         help = LayoutInflater.from(this).inflate(R.layout.help, null);
         mMessageTv = (TextView) speech.findViewById(R.id.message_tv);
-        mHoldRecord = (ImageView) speech.findViewById(R.id.hold_record);
+        mHoldRecord = (ImageView) speech.findViewById(R.id.voice_btn);
         mHoldRecord.setOnClickListener(this);
         mLoading = speech.findViewById(R.id.loading_pb);
         mLoading.setOnClickListener(this);
@@ -562,6 +611,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void showListeningTimeout() {
+        stopRecordAnim();
         String text = getString(R.string.error_no_asr_result);
         getInternalApi().speakRequest(text);
         showMessage(text);
@@ -680,6 +730,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHoldRecord.setVisibility(View.GONE);
         mRecordingIv.setVisibility(View.VISIBLE);
         mRecordAnimator.start();
+        mHandler.removeMessages(HANDLER_WHAT_RECORD_ANIMATION);
         mHandler.sendEmptyMessageDelayed(HANDLER_WHAT_RECORD_ANIMATION, DELAYED_START_RECORD_ANIMATION);
     }
 
@@ -706,24 +757,26 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void startRecord() {
+        removeTestMessage();
 //        showWaveform();
 //        if (ClickUtils.isFastMultiClick()) {
 //            Log.e(TAG, "startRecord: is fast double click.");
 //            return;
 //        }
 
-        if (isListening()) {
-            endVoiceRequest();
-//            showHello3();
-            return;
-        }
-        startRecordAnim();
-        showMessage("");
+//        if (isListening()) {
+//            endVoiceRequest();
+////            showHello3();
+//            return;
+//        }
+
 //        mMessageTv.setText("");
         // 为了解决频繁的点击 而服务器没有时间返回结果造成的不能点击的bug
         if (isListening()) {
             endVoiceRequest();
         } else {
+            startRecordAnim();
+            showMessage("");
             beginVoiceRequest(getAsrType() == AsrType.AUTO);
         }
     }
@@ -752,16 +805,16 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //                if (CommonUtil.isFastDoubleClick()){
 //                }
                 break;
-            case R.id.hold_record:
+            case R.id.voice_btn:
                 stopCustomMediaPlayer();
-                Log.e(TAG, "onClick: mEnable = " + mEnable);
+                Log.d(TAG, "onClick: mEnable = " + mEnable);
                 if (!mEnable || !isActivated) {
                     return;
 //                stopMusic()
                 }
 
                 if (ClickUtils.isFastMultiClick()){
-                    Log.e(TAG, "onClick: is fast multi click.");
+                    Log.w(TAG, "onClick: is fast multi click.");
                     return;
                 }
 
@@ -771,6 +824,13 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         showNoNetwork();
                         return;
                     }
+                }
+
+                if (System.currentTimeMillis() - mLastSpeakingTime < SPEAKING_LISTENING_INTERVAL_TIME
+                        && isSpeaking()){
+                    //sdk1.5.0.1存在这问题，过快进入.
+                    Log.w(TAG, "onClick: fast to start recording.");
+//                    return;
                 }
 
                 if (!checkLoginState()) {
@@ -787,15 +847,17 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 break;
             case R.id.recording_iv:
             case R.id.recording_iv2:
+                Log.d(TAG, "onClick: recording.");
                 if (ClickUtils.isFastMultiClick()) {
                     Log.e(TAG, "onClick: recording is fast double Click.");
                     return;
                 }
-                if (isListening()) {
+//                if (isListening()) {
                     endVoiceRequest();
-                }
+//                }
                 break;
             case R.id.loading_pb:
+                Log.d(TAG, "onClick: loading.");
                 if (ClickUtils.isFastMultiClick()){
                     return;
                 }
@@ -937,6 +999,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         "SDK语音未知错误",
                         Toast.LENGTH_SHORT)
                         .show();
+            }else if ("DECODER_FAILED".equals(errorCode)){
+                ToastUtils.showShort(Main2Activity.this, "录音出错");
             }
         }
     }

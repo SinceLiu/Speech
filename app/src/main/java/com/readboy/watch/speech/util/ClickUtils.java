@@ -16,7 +16,7 @@ public final class ClickUtils {
      * 记录多次点击时间差，有阀值。
      * 多次点击等于阀值，就返回。
      */
-    private static final long FAST_MULTI_CLICK_OFFSET = 300L;
+    private static final long FAST_MULTI_CLICK_OFFSET = 500L;
     private static long lastClickTime;
     private static long lastMultiClickTime;
     private static long lastMultiClickThresholdTime;

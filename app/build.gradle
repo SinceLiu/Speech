@@ -87,7 +87,7 @@ dependencies {
     //    compile files('libs/jlayer-1.0.1.jar')
     //    compile 'javazoom:jlayer:1.0.1'
     compile files('libs/turbonet.jar')
-    compile files('libs/dcssdk-1.5.0.jar')
+    compile files('libs/dcssdk-1.5.0.1.jar')
     //    compile files('libs/localtts-2.3.1.jar')
     compile files('libs/fastjson-1.2.46.jar')
 //    compile 'me.codeboy.android:align-text-view:2.3.2'

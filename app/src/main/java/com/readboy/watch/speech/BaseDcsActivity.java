@@ -67,7 +67,6 @@ import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.DeviceControlDev
 import com.baidu.duer.dcs.sample.sdk.devicemodule.offlineasr.OffLineDeviceModule;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.PhoneCallDeviceModule;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.CandidateCallee;
-import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.CandidateCalleeNumber;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.PhonecallByNamePayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.PhonecallByNumberPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.phonecall.message.SelectCalleePayload;
@@ -119,7 +118,7 @@ import java.util.List;
  */
 
 public abstract class BaseDcsActivity extends Activity {
-    public static final String TAG = "header-http-Base";
+    public static final String TAG = "header_http_oubinBase";
 
     static {
         AsrParam.ASR_VAD_RES_FILE_PATH = getLibvadPath();
@@ -328,7 +327,7 @@ public abstract class BaseDcsActivity extends Activity {
         @Override
         public void onDcsRequestBody(DcsRequestBody dcsRequestBody) {
             String eventName = dcsRequestBody.getEvent().getHeader().getName();
-            Log.e(TAG, "onDcsRequestBody eventName:" + eventName);
+            Log.d(TAG, "onDcsRequestBody eventName:" + eventName);
             if (PlaybackEvent.PLAYBACK_STOPPED.equals(eventName)
                     || PlaybackEvent.PLAYBACK_FINISHED.equals(eventName)) {
                 handlePlaybackStopped();
@@ -373,7 +372,7 @@ public abstract class BaseDcsActivity extends Activity {
             if (directive == null) {
                 return;
             }
-            Log.e(TAG, "onDirective name = " + directive.getName());
+            Log.e(TAG, "onDirective: name = " + directive.getName());
             if ("Play".equals(directive.getName())) {
                 Payload mPayload = directive.getPayload();
                 if (mPayload instanceof com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload) {
@@ -426,7 +425,15 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().getDcsClient().addVoiceErrorListener(new IDcsClient.IVoiceErrorListener() {
             @Override
             public void onVoiceError(int error, int subError) {
-                Log.d(TAG, "onVoiceError:" + error + " " + subError);
+                Log.d(TAG, "onVoiceError:" + error + ":" + subError);
+                if (error == -3005 && subError == 0){
+                    //主动提交录音内容，进行识别
+                }else if (error == 3 && subError == 3101){
+                    //拾音超时（10s）,过程都没有声音
+                }else {
+                    Log.d(TAG, "onVoiceError: other voice error : " + error + ":" + subError);
+//                    CrashReport.postCatchedException(new Exception("Voice Error, error = " + error + ":" + subError));
+                }
             }
         });
     }
@@ -985,7 +992,7 @@ public abstract class BaseDcsActivity extends Activity {
         // 恢复tts，音乐等有关播放。策略一，恢复状态，恢复声音。
 //        resumeSpeaker();
         // 恢复tts，音乐等有关播放。策略二：只恢复状态，不恢复声音。
-        //调用getInternalApi().pauseSpeaker()会让其标志位为true。
+        //调用getInternalApi().stopSpeaker()会让其标志位为true。
         //恢复内部播放状态，如果该标志位为true（），则会导致没有声音。
 //        getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
 
@@ -999,7 +1006,7 @@ public abstract class BaseDcsActivity extends Activity {
         super.onPause();
         Log.d(TAG, "onPause");
         // 停止tts，音乐等有关播放.
-//        getInternalApi().pauseSpeaker();
+//        getInternalApi().stopSpeaker();
         // 如果有唤醒，则停止唤醒
         if (Config.WAKEUP_ENABLE) {
             getInternalApi().stopWakeup(null);
@@ -1038,7 +1045,7 @@ public abstract class BaseDcsActivity extends Activity {
         getContentResolver().unregisterContentObserver(mContractsObserver);
         abandonAudioFocus();
 
-        pauseSpeaker();
+        stopSpeaker();
 
         sendExitEvent();
     }
@@ -1223,9 +1230,9 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().postEvent(Form.playPauseButtonClicked(token), null);
     }
 
-    private void pauseSpeaker() {
-        Log.e(TAG, "pauseSpeaker: ");
-        getInternalApi().pauseSpeaker();
+    private void stopSpeaker() {
+        Log.e(TAG, "stopSpeaker: ");
+        getInternalApi().stopSpeaker();
         isPausedSpeaker = true;
         isPlaying = false;
     }
@@ -1236,7 +1243,7 @@ public abstract class BaseDcsActivity extends Activity {
             if (isPausedSpeaker) {
                 resumeSpeakerStateAndSound();
             } else {
-                pauseSpeaker();
+                stopSpeaker();
             }
         } else {
             Log.e(TAG, "pauseOrResumeSpeaker: do nothing, dialogState = " + currentDialogState);
@@ -1401,7 +1408,7 @@ public abstract class BaseDcsActivity extends Activity {
                     Log.e(TAG, "onAudioFocusChange: audio focus loss");
                     mPausedByTransientLossOfFocus = false;
                     hadAudioFocus = false;
-                    pauseSpeaker();
+                    stopSpeaker();
                     mMediaPlayer.pause();
 //                    stopMusic();
                     break;

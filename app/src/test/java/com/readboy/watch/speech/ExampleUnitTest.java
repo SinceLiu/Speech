@@ -1,14 +1,9 @@
 package com.readboy.watch.speech;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.Test;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.Semaphore;
-
-import static org.junit.Assert.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -17,14 +12,27 @@ import static org.junit.Assert.*;
  */
 public class ExampleUnitTest {
     @Test
-    public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+    public void additionIsCorrect() throws Exception {
+//        assertEquals(4, 2 + 2);
+//
+//        Semaphore semaphore = new Semaphore(1, true);
+//        String jsonStr = "{name:[\"zhang\", \"ou\"]}";
+//        JSONObject object = new JSONObject(jsonStr);
+//        JSONArray names = object.optJSONArray("name");
 
-        Semaphore semaphore = new Semaphore(1, true);
-        String jsonStr = "{name:[\"zhang\", \"ou\"]}";
-        JSONObject object = new JSONObject(jsonStr);
-        JSONArray names = object.optJSONArray("name");
+        String imei = "jladfja@qq.com";
+        String regex = "/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\\.[a-zA-Z0-9_-])+$/";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(imei);
+        boolean result = matcher.find();
 
+
+
+
+    }
+
+    @Test
+    public void regexTest() throws Exception{
 
     }
 

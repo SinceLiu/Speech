@@ -4,6 +4,7 @@ package com.readboy.watch.speech.util;
 /**
  * @author oubin
  * @date 2018/4/11
+ * 警告：差值一定要取绝对值，防止修改了系统时间，System.currentTimeMillis()修改了基准值。
  */
 
 public final class ClickUtils {
@@ -28,7 +29,7 @@ public final class ClickUtils {
      */
     public static boolean isFastDoubleClick() {
         long var0 = System.currentTimeMillis();
-        if (var0 - lastClickTime < FAST_CLICK_OFFSET) {
+        if (Math.abs(var0 - lastClickTime) < FAST_CLICK_OFFSET) {
             return true;
         } else {
             lastClickTime = var0;
@@ -41,7 +42,7 @@ public final class ClickUtils {
      */
     public static boolean isFastMultiClick() {
         long current = System.currentTimeMillis();
-        if (current - lastMultiClickTime < FAST_MULTI_CLICK_OFFSET) {
+        if (Math.abs(current - lastMultiClickTime) < FAST_MULTI_CLICK_OFFSET) {
             lastMultiClickTime = current;
             return true;
         } else {
@@ -60,7 +61,7 @@ public final class ClickUtils {
             multiClickTime = 0;
         }
         long current = System.currentTimeMillis();
-        if (current - lastMultiClickThresholdTime < FAST_MULTI_CLICK_OFFSET) {
+        if (Math.abs(current - lastMultiClickThresholdTime) < FAST_MULTI_CLICK_OFFSET) {
             multiClickTime++;
             lastMultiClickThresholdTime = current;
             if (multiClickTime == threshold) {

@@ -44,6 +44,7 @@ import com.readboy.watch.speech.util.ReadboyUtils;
 import com.readboy.watch.speech.util.ToastUtils;
 import com.readboy.watch.speech.view.DragFrameLayout;
 import com.tencent.bugly.crashreport.BuglyLog;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import java.io.File;
 
@@ -99,7 +100,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
      * dcsSdk1.5.0.1版本对话状态由点混乱，为了兼容其状态。
      */
     private long mLastListeningTime = 0L;
-    private static final long LISTENING_IDLE_INTERVAL_TIME = 500L;
+    private static final long LISTENING_IDLE_INTERVAL_TIME = 400L;
     private long mLastSpeakingTime = 0L;
     private static final long SPEAKING_LISTENING_INTERVAL_TIME = 500L;
 
@@ -133,17 +134,20 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     break;
                 case HANDLER_WHAT_LOADING_TIME_OUT:
                     cancelVoiceRequest();
+                    stopRecordAnim();
                     showConnectTimeOut();
                     break;
                 case HANDLER_WHAT_TEST:
                     if (!isTestMode){
                         return;
                     }
-                    Log.d(TAG, "handleMessage: test, click mHoldRecord.");
+                    Log.d(TAG, "handleMessage: test, dialog state = " + currentDialogState);
                     if (isListening()){
+                        onClick(mRecordingIv);
+                    }else if (isDialogIdle()){
                         onClick(mHoldRecord);
-                    }else if (isSpeaking()){
-                        onClick(mHoldRecord);
+                    } else if (currentDialogState == IDialogStateListener.DialogState.THINKING){
+                        onClick(mLoading);
                     }
                 default:
                     break;
@@ -191,11 +195,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     protected void onPause() {
         super.onPause();
-        //非息屏停止播放， isInteractive = false 代表息屏
-//        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-//        正在打电话停止播放
-//        TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-//        Log.e(TAG, "onPause: telephony state = " + manager.getCallState());
         Log.e(TAG, "onPause: dialog state = " + currentDialogState);
         if (isListening()) {
             cancelVoiceRequest();
@@ -249,10 +248,11 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 currentDialogState = dialogState;
                 switch (dialogState) {
                     case IDLE:
-                        if (System.currentTimeMillis() - mLastListeningTime < LISTENING_IDLE_INTERVAL_TIME
+                        if (Math.abs(System.currentTimeMillis() - mLastListeningTime) < LISTENING_IDLE_INTERVAL_TIME
                                 && lastState == DialogState.LISTENING){
                             Log.d(TAG, "onDialogStateChanged: illegal dialog state.");
                             currentDialogState = DialogState.LISTENING;
+                            removeTestMessage();
                             break;
                         }
                         mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
@@ -260,6 +260,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         stopRecordAnim();
                         showMessage(null);
                         cancelScreenOn();
+                        sendTestMessageDelayed(2000);
                         break;
                     case LISTENING:
                         keepScreenOn();
@@ -267,7 +268,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         mMessageTv.setText("");
 //                        showWaveform();
                         mLastListeningTime = System.currentTimeMillis();
-                        sendTestMessageDelayed(3000L);
+                        sendTestMessageDelayed(900L);
                         break;
                     case SPEAKING:
                         mLastSpeakingTime = System.currentTimeMillis();
@@ -275,7 +276,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         keepScreenOn();
                         if (TextUtils.isEmpty(mMessageTv.getText())) {
                             showMessage(R.string.error_no_asr_result);
-                            sendTestMessageDelayed(500L);
+//                            sendTestMessageDelayed(500L);
                         } else {
                             showMessage(null);
                         }
@@ -283,6 +284,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     case THINKING:
                         showLoading();
                         mHandler.sendEmptyMessageDelayed(HANDLER_WHAT_LOADING_TIME_OUT, LOADING_TIME_OUT);
+//                        sendTestMessageDelayed(500L);
                         break;
                     default:
                         Log.e(TAG, "onDialogStateChanged: default state = " + dialogState);
@@ -417,12 +419,14 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void assignViews() {
         speech = LayoutInflater.from(this).inflate(R.layout.speech, null);
-        speech.setOnClickListener(this);
+//        speech.setOnClickListener(this);
         help = LayoutInflater.from(this).inflate(R.layout.help, null);
         mMessageTv = (TextView) speech.findViewById(R.id.message_tv);
+        mMessageTv.setOnClickListener(this);
         mHoldRecord = (ImageView) speech.findViewById(R.id.voice_btn);
         mHoldRecord.setOnClickListener(this);
         mLoading = speech.findViewById(R.id.loading_pb);
+        //需要设置点击事件，要不然会响应speech的点击事件。
         mLoading.setOnClickListener(this);
 //        mLoadingAnimator = () mLoading.getBackground();
 //        speech.setOnTouchListener(new RecordTouchListener());
@@ -486,6 +490,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void operateNetwork() {
+        if (isFinishing() || isDestroyed()){
+            Log.d(TAG, "operateNetwork: is finishing, or is destroyed.");
+            return;
+        }
         Log.e(TAG, "operateNetwork: ");
         mHoldRecord.setActivated(true);
         hasNetwork = true;
@@ -504,6 +512,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void showMessage(String message) {
         hideLoading();
+
         mMessageTv.setVisibility(View.VISIBLE);
         if (message != null) {
             setMessage(message);
@@ -648,7 +657,11 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void showMessage(final String text, String source) {
         showMessage(text);
-        mMediaPlayer.play(new IMediaPlayer.MediaResource(source));
+        if (mMediaPlayer != null) {
+            mMediaPlayer.play(new IMediaPlayer.MediaResource(source));
+        }else {
+            CrashReport.postCatchedException(new NullPointerException("showMessage: mMediaPlayer = null."));
+        }
     }
 
     /**
@@ -788,8 +801,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             return;
         }
         switch (v.getId()) {
+            case R.id.message_tv:
             case R.id.speech:
-                Log.e(TAG, "onClick: speech, pauseSpeaker()");
+                Log.d(TAG, "onClick: speech, pauseOrResumeSpeaker()");
                 //暂停,ai.dueros.device_interface.voice_output内容
                 if (CommonUtil.isFastDoubleClick()) {
                     Log.e(TAG, "onClick: is fast double click.");
@@ -826,17 +840,17 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     }
                 }
 
-                if (System.currentTimeMillis() - mLastSpeakingTime < SPEAKING_LISTENING_INTERVAL_TIME
+                if (Math.abs(System.currentTimeMillis() - mLastSpeakingTime) < SPEAKING_LISTENING_INTERVAL_TIME
                         && isSpeaking()){
                     //sdk1.5.0.1存在这问题，过快进入.
                     Log.w(TAG, "onClick: fast to start recording.");
-//                    return;
+                    return;
                 }
 
                 if (!checkLoginState()) {
                     return;
                 }
-                if (!checkConnectState()) {
+                if (!checkConnectStatus()) {
                     return;
                 }
 
@@ -857,11 +871,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //                }
                 break;
             case R.id.loading_pb:
-                Log.d(TAG, "onClick: loading.");
-                if (ClickUtils.isFastMultiClick()){
-                    return;
-                }
-                cancelVoiceRequest();
+//                Log.d(TAG, "onClick: loading.");
+//                if (ClickUtils.isFastMultiClick()){
+//                    Log.d(TAG, "onClick: loading is fast multi click.");
+//                    return;
+//                }
+//                cancelVoiceRequest();
                 break;
             default:
                 Log.e(TAG, "onClick: default = " + v.getId());
@@ -882,7 +897,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         return true;
     }
 
-    private boolean checkConnectState() {
+    private boolean checkConnectStatus() {
         boolean result = false;
         switch (connectionStatus) {
             case CONNECTED:
@@ -890,7 +905,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 break;
             case PENDING:
             case DISCONNECTED:
-                Log.e(TAG, "checkConnectState: connect state = " + connectionStatus);
+                Log.d(TAG, "checkConnectStatus: connect state = " + connectionStatus);
                 ToastUtils.showShort(this, getString(R.string.logging_toast));
                 result = false;
                 break;
@@ -908,12 +923,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 || state == IMediaPlayer.PlayState.PREPARED) {
             mMediaPlayer.stop();
         } else {
-            Log.e(TAG, "onClick: mMediaPlayer state = " + state);
+//            Log.e(TAG, "onClick: mMediaPlayer state = " + state);
         }
     }
 
     private void keepScreenOn() {
-        Log.e(TAG, "keepScreenOn: ");
+//        Log.e(TAG, "keepScreenOn: ");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -923,7 +938,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void cancelScreenOn() {
-        Log.e(TAG, "cancelScreenOn: ");
+//        Log.e(TAG, "cancelScreenOn: ");
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 

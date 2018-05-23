@@ -97,6 +97,7 @@ import com.readboy.watch.speech.media.MediaPlayerImpl;
 import com.readboy.watch.speech.util.FileUtils;
 import com.readboy.watch.speech.util.NetworkUtils;
 import com.readboy.watch.speech.util.ToastUtils;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import org.json.JSONException;
 
@@ -178,6 +179,7 @@ public abstract class BaseDcsActivity extends Activity {
     protected boolean isLogging = true;
     private boolean isReleased = false;
     private boolean isPausedSpeaker = false;
+    private boolean isSendExitEvent = false;
 
     protected MediaPlayerImpl mMediaPlayer;
     private AudioManager.OnAudioFocusChangeListener mAudioListener;
@@ -340,6 +342,8 @@ public abstract class BaseDcsActivity extends Activity {
                 isPlayingAudio = true;
                 handlePlaybackStarted();
                 isPlaying = true;
+            }else if ("ExceptionEncountered".equals(eventName)){
+                CrashReport.postCatchedException(new Exception("onDcsRequestBody eventName: ExceptionEncountered"));
             }
         }
     };
@@ -353,15 +357,9 @@ public abstract class BaseDcsActivity extends Activity {
         public void onConnectStatus(ConnectionStatus status) {
             Log.e(TAG, "onConnectionStatusChange: " + status);
             connectionStatus = status;
-            switch (status) {
-                case CONNECTED:
-                    break;
-                case DISCONNECTED:
-//                    ToastUtils.showShort(BaseDcsActivity.this, "连接已断开，请重新进入");
-                    break;
-                case PENDING:
-                    break;
-                default:
+            if (!isSendExitEvent && connectionStatus == ConnectionStatus.CONNECTED){
+                sendExitEvent();
+                isSendExitEvent = true;
             }
         }
     };
@@ -426,13 +424,13 @@ public abstract class BaseDcsActivity extends Activity {
             @Override
             public void onVoiceError(int error, int subError) {
                 Log.d(TAG, "onVoiceError:" + error + ":" + subError);
-                if (error == -3005 && subError == 0){
+                if (error == -3005 && subError == 0) {
                     //主动提交录音内容，进行识别
-                }else if (error == 3 && subError == 3101){
+                } else if (error == 3 && subError == 3101) {
                     //拾音超时（10s）,过程都没有声音
-                }else {
+                } else {
                     Log.d(TAG, "onVoiceError: other voice error : " + error + ":" + subError);
-//                    CrashReport.postCatchedException(new Exception("Voice Error, error = " + error + ":" + subError));
+                   // CrashReport.postCatchedException(new Exception("Voice Error, error = " + error + ":" + subError));
                 }
             }
         });
@@ -992,7 +990,7 @@ public abstract class BaseDcsActivity extends Activity {
         // 恢复tts，音乐等有关播放。策略一，恢复状态，恢复声音。
 //        resumeSpeaker();
         // 恢复tts，音乐等有关播放。策略二：只恢复状态，不恢复声音。
-        //调用getInternalApi().stopSpeaker()会让其标志位为true。
+        //调用getInternalApi().pauseSpeaker()会让其标志位为true。
         //恢复内部播放状态，如果该标志位为true（），则会导致没有声音。
 //        getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
 
@@ -1006,7 +1004,7 @@ public abstract class BaseDcsActivity extends Activity {
         super.onPause();
         Log.d(TAG, "onPause");
         // 停止tts，音乐等有关播放.
-//        getInternalApi().stopSpeaker();
+//        getInternalApi().pauseSpeaker();
         // 如果有唤醒，则停止唤醒
         if (Config.WAKEUP_ENABLE) {
             getInternalApi().stopWakeup(null);
@@ -1038,16 +1036,17 @@ public abstract class BaseDcsActivity extends Activity {
         }
         isReleased = true;
 
+        abandonAudioFocus();
+        getContentResolver().unregisterContentObserver(mContractsObserver);
         Log.e(TAG, "release: state = " + mMediaPlayer.getPlayState());
         mMediaPlayer.stop();
         mMediaPlayer.release();
+        mMediaPlayer = null;
 
-        getContentResolver().unregisterContentObserver(mContractsObserver);
-        abandonAudioFocus();
-
-        stopSpeaker();
+        pauseSpeaker();
 
         sendExitEvent();
+        releaseDcssdk();
     }
 
     private void sendExitEvent() {
@@ -1058,19 +1057,19 @@ public abstract class BaseDcsActivity extends Activity {
                 @Override
                 public void onSucceed(int i) {
                     Log.e(TAG, "sendExitEvent onSucceed: ");
-                    releaseDcssdk();
+//                    releaseDcssdk();
                 }
 
                 @Override
                 public void onFailed(String s) {
                     Log.e(TAG, "sendExitEvent onFailed: ");
-                    releaseDcssdk();
+//                    releaseDcssdk();
                 }
 
                 @Override
                 public void onCancel() {
                     Log.e(TAG, "sendExitEvent onCancel: ");
-                    releaseDcssdk();
+//                    releaseDcssdk();
                 }
             });
         } else {
@@ -1079,6 +1078,7 @@ public abstract class BaseDcsActivity extends Activity {
     }
 
     private void releaseDcssdk() {
+        Log.e(TAG, "releaseDcssdk: hashCode = " + hashCode());
         if (screenDeviceModule != null) {
             screenDeviceModule.removeScreenListener(screenListener);
         }
@@ -1230,9 +1230,9 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().postEvent(Form.playPauseButtonClicked(token), null);
     }
 
-    private void stopSpeaker() {
-        Log.e(TAG, "stopSpeaker: ");
-        getInternalApi().stopSpeaker();
+    private void pauseSpeaker() {
+        Log.e(TAG, "pauseSpeaker: ");
+        getInternalApi().pauseSpeaker();
         isPausedSpeaker = true;
         isPlaying = false;
     }
@@ -1243,9 +1243,10 @@ public abstract class BaseDcsActivity extends Activity {
             if (isPausedSpeaker) {
                 resumeSpeakerStateAndSound();
             } else {
-                stopSpeaker();
+                pauseSpeaker();
             }
         } else {
+            resumeSpeakerState();
             Log.e(TAG, "pauseOrResumeSpeaker: do nothing, dialogState = " + currentDialogState);
         }
     }
@@ -1271,7 +1272,7 @@ public abstract class BaseDcsActivity extends Activity {
         Log.e(TAG, "resumeSpeakerState: isPauseSpeaker = " + isPausedSpeaker);
 //        if (isPausedSpeaker) {
         getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
-//            isPausedSpeaker = false;
+            isPausedSpeaker = false;
 //        }
     }
 
@@ -1365,6 +1366,10 @@ public abstract class BaseDcsActivity extends Activity {
         return currentDialogState == IDialogStateListener.DialogState.SPEAKING;
     }
 
+    protected boolean isDialogIdle() {
+        return currentDialogState == IDialogStateListener.DialogState.IDLE;
+    }
+
     private int requestAudioFocus() {
         if (hadAudioFocus) {
             Log.e(TAG, "requestAudioFocus: had request audio focus.");
@@ -1408,7 +1413,7 @@ public abstract class BaseDcsActivity extends Activity {
                     Log.e(TAG, "onAudioFocusChange: audio focus loss");
                     mPausedByTransientLossOfFocus = false;
                     hadAudioFocus = false;
-                    stopSpeaker();
+                    pauseSpeaker();
                     mMediaPlayer.pause();
 //                    stopMusic();
                     break;

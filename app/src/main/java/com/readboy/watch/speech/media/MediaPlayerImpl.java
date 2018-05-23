@@ -152,7 +152,6 @@ public class MediaPlayerImpl implements IMediaPlayer {
     }
 
     private void play(String url) {
-        Log.e(TAG, "play: url = " + url);
         if (TextUtils.isEmpty(url)) {
             Log.d(TAG, "play-url is empty");
             fireOnError("play-url is empty.",

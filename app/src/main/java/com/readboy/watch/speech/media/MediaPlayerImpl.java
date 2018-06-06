@@ -52,9 +52,9 @@ public class MediaPlayerImpl implements IMediaPlayer {
     private static final String KEY_SP_MUTE = "isMute";
     private IMediaPlayer.PlayState mCurrentState = IMediaPlayer.PlayState.IDLE;
     private MediaPlayer mMediaPlayer;
-    // 默认音量80%
+    // 默认音量100%
     private boolean isMute;
-    private float currentVolume = 0.8f;
+    private float currentVolume = 1.0f;
     private boolean isError38;
     private float currentPercent;
     private int currentSeekMilliseconds;

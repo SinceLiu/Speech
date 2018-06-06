@@ -100,6 +100,27 @@ public interface ILocation {
          * @return 当前定位信息的街道地址
          */
         public String streetStr = "";
+
+        @Override
+        public String toString() {
+            return "LocationInfo{" +
+                    "time=" + time +
+                    ", longitude=" + longitude +
+                    ", latitude=" + latitude +
+                    ", radius=" + radius +
+                    ", addressStr='" + addressStr + '\'' +
+                    ", province='" + province + '\'' +
+                    ", city='" + city + '\'' +
+                    ", street='" + street + '\'' +
+                    ", streetNo='" + streetNo + '\'' +
+                    ", district='" + district + '\'' +
+                    ", cityCode='" + cityCode + '\'' +
+                    ", coorType='" + coorType + '\'' +
+                    ", country='" + country + '\'' +
+                    ", countryCode='" + countryCode + '\'' +
+                    ", streetStr='" + streetStr + '\'' +
+                    '}';
+        }
     }
 
     /**

@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author oubin
@@ -191,7 +194,7 @@ public class FileUtils {
         return file;
     }
 
-    public static void addLog(String filePath, String text, boolean addTime) {
+    public static void appendLog(String filePath, String text, boolean addTime) {
         RandomAccessFile raf = null;
         try {
             File file = new File(filePath);
@@ -202,7 +205,7 @@ public class FileUtils {
             long length = raf.length();
             Log.d(TAG, "addLog: length = " + length);
             raf.seek(length);
-            raf.write("\n".getBytes());
+            raf.write("\r\n".getBytes());
             if (addTime) {
                 String time = DateUtils.getCurDateString() + "  ";
                 raf.write(time.getBytes());

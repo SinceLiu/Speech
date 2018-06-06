@@ -1,44 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dialog_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
-    android:orientation="vertical">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/traffic_dialog_title" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:text="@string/traffic_dialog_content" />
+    android:layout_gravity="center"
+    android:background="@color/gray_translation"
+    android:clickable="true"
+    android:orientation="vertical"
+    tools:context=".Main2Activity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_gravity="center"
+        android:layout_margin="12px"
+        android:background="@drawable/bg_dialog"
+        android:orientation="vertical">
 
         <TextView
-            android:id="@+id/goto_wifi_setting"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:text="@string/traffic_dialog_wifi" />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:text="@string/traffic_dialog_content"
+            android:textColor="@android:color/black"
+            android:textSize="20px" />
 
-        <TextView
-            android:id="@+id/exit"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center_horizontal"
-            android:text="@string/traffic_dialog_exit" />
+            android:orientation="horizontal"
+            android:paddingEnd="8px"
+            android:paddingStart="8px"
+            android:paddingTop="4px">
+
+            <Button
+                style="@style/DialogButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@android:color/black"
+                android:onClick="onDialogWifiClick"
+                android:text="@string/traffic_dialog_wifi" />
+
+            <Button
+                style="@style/DialogButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#123123"
+                android:onClick="onDialogExitClick"
+                android:text="@string/traffic_dialog_exit" />
+        </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

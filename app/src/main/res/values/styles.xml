@@ -48,7 +48,7 @@
     </style>
 
     <style name="DialogButton" parent="@android:style/Widget.Material.Button.Borderless.Colored">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">24px</item>
         <item name="android:gravity">center</item>
     </style>
 

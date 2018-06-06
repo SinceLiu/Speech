@@ -1,6 +1,7 @@
 package com.readboy.watch.speech;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 

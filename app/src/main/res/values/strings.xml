@@ -29,6 +29,7 @@
     <string name="short_time">录音时间过短</string>
 
     <string name="using_mobile_data_traffic">未连接WIFI，使用流量可能会产生费用，是否允许使用?</string>
+    <string name="disable_using_traffic">流量已被家长禁止使用，请连接WIFI。</string>
     <string name="yes">确定</string>
     <string name="no">取消</string>
 
@@ -93,7 +94,7 @@
     <string name="no_login">未登录</string>
 
     <string name="traffic_dialog_title">流量禁止使用</string>
-    <string name="traffic_dialog_content">流量已经被家长禁止使用，请连接wifi</string>
+    <string name="traffic_dialog_content">流量已经被家长禁止使用，请连接WIFI。</string>
     <string name="traffic_dialog_wifi">WIFI</string>
     <string name="traffic_dialog_exit">退出</string>
 

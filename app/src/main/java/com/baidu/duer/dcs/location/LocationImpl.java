@@ -18,6 +18,7 @@ package com.baidu.duer.dcs.location;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.baidu.duer.dcs.location.util.LocationPreferenceUtil;
 import com.baidu.location.BDLocation;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
  * @author yangrui09
  */
 public class LocationImpl implements ILocation {
+    private static final String TAG = "oubin_LocationImpl";
 
     private static final String SAVE_PREFILE = "com.baidu.duer.dcs.sample.sdk.location.LocationImpl.SAVE_PREFILE";
 
@@ -61,11 +63,13 @@ public class LocationImpl implements ILocation {
                         saveLocation(locationJson);
                         // 转换为可以提供给外层的对象
                         LocationInfo locationInfo = toLocationInfo(locationJson);
+                        Log.i(TAG, "onReceiveLocation: locationInfo = " + locationInfo.toString());
                         // 返回位置信息给监听器
                         returnLocToLisenter(locationInfo);
                     }
                     // 其他情况属于有问题
                     else {
+                        Log.d(TAG, "onReceiveLocation: other = " + location.getLocTypeDescription());
                         returnErrToListener(LocationListener.OTHER_ERROR);
                     }
                 }

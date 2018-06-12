@@ -35,6 +35,7 @@ public final class Contracts {
 
     public static final String GRAMMAR_FILE = DIR + "grammar.text";
 
+    public static final String LISTENING_TIMEOUT = "assets://listening_timeout.wav";
     public static final String NO_RESULT_FILE1 = "assets://noresult1.mp3";
     public static final String NO_RESULT_FILE2 = "assets://noresult2.mp3";
     public static final String HELLO1 = "assets://hello1.mp3";

@@ -618,16 +618,16 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             showMessage(R.string.connect_time_out);
             return;
         }
-        if (NetworkUtils.isConnected(this)){
-            Log.d(TAG, "showListeningTimeout: network disconnected.");
-            //息屏久了，可能导致该问题
-            showConnectTimeOut();
-            return;
-        }
+//        if (NetworkUtils.isConnected(this)){
+//            Log.d(TAG, "showListeningTimeout: network disconnected.");
+//            //息屏久了，可能导致该问题
+//            showConnectTimeOut();
+//            return;
+//        }
         stopRecordAnim();
         String text = getString(R.string.error_no_asr_result);
-        getInternalApi().speakRequest(text);
-        showMessage(text);
+//        getInternalApi().speakRequest(text);
+        showMessage(R.string.error_no_asr_result, Contracts.LISTENING_TIMEOUT);
     }
 
     private void showUnknownHost() {
@@ -643,7 +643,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
      * 网络连接超时，或者服务器出问题
      */
     private void showConnectTimeOut() {
-        showMessage(getString(R.string.connect_time_out), "assets://timeout.mp3");
+        showMessage(getString(R.string.connect_time_out), "assets://timeout_xiaodu.wav");
     }
 
     private void showRecognitionError() {
@@ -659,9 +659,13 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         showMessage(getString(R.string.hello1), Contracts.HELLO1);
     }
 
+    private void showMessage(final int resId, String filePath){
+        showMessage(getString(resId), filePath);
+    }
+
     private void showMessage(final String text, String source) {
         showMessage(text);
-        if (mMediaPlayer != null) {
+        if (mMediaPlayer != null && !TextUtils.isEmpty(source)) {
             mMediaPlayer.play(new IMediaPlayer.MediaResource(source));
         }else {
             CrashReport.postCatchedException(new NullPointerException("showMessage: mMediaPlayer = null."));
@@ -745,11 +749,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     public void onDialogWifiClick(View view){
         Log.d(TAG, "onDialogWifiClick: ");
-
+        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
     }
 
     public void onDialogExitClick(View view){
         Log.d(TAG, "onDialogExitClick: ");
+        finish();
     }
 
     private void startRecordAnim() {
@@ -1033,7 +1038,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         .show();
             } else if (errorCode == ErrorCode.SDK_VOICE_UNKNOWN_EXCEPTION) {
                 Toast.makeText(Main2Activity.this,
-                        "SDK语音未知错误",
+                        "出现未知错误，请重新打开应用",
                         Toast.LENGTH_SHORT)
                         .show();
             }else if ("DECODER_FAILED".equals(errorCode)){

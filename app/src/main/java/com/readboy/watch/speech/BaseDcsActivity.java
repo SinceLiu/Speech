@@ -342,7 +342,7 @@ public abstract class BaseDcsActivity extends Activity {
                 isPlayingAudio = true;
                 handlePlaybackStarted();
                 isPlaying = true;
-            }else if ("ExceptionEncountered".equals(eventName)){
+            } else if ("ExceptionEncountered".equals(eventName)) {
                 CrashReport.postCatchedException(new Exception("onDcsRequestBody eventName: ExceptionEncountered"));
             }
         }
@@ -357,7 +357,7 @@ public abstract class BaseDcsActivity extends Activity {
         public void onConnectStatus(ConnectionStatus status) {
             Log.e(TAG, "onConnectionStatusChange: " + status);
             connectionStatus = status;
-            if (!isSendExitEvent && connectionStatus == ConnectionStatus.CONNECTED){
+            if (!isSendExitEvent && connectionStatus == ConnectionStatus.CONNECTED) {
                 sendExitEvent();
                 isSendExitEvent = true;
             }
@@ -430,7 +430,7 @@ public abstract class BaseDcsActivity extends Activity {
                     //拾音超时（10s）,过程都没有声音
                 } else {
                     Log.d(TAG, "onVoiceError: other voice error : " + error + ":" + subError);
-                   // CrashReport.postCatchedException(new Exception("Voice Error, error = " + error + ":" + subError));
+                    // CrashReport.postCatchedException(new Exception("Voice Error, error = " + error + ":" + subError));
                 }
             }
         });
@@ -1272,7 +1272,7 @@ public abstract class BaseDcsActivity extends Activity {
         Log.e(TAG, "resumeSpeakerState: isPauseSpeaker = " + isPausedSpeaker);
 //        if (isPausedSpeaker) {
         getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
-            isPausedSpeaker = false;
+        isPausedSpeaker = false;
 //        }
     }
 

@@ -19,6 +19,6 @@
     <dimen name="loading_padding">3px</dimen>
 
     <dimen name="record_padding_bottom">12px</dimen>
-    <dimen name="record_padding">2px</dimen>
+    <dimen name="record_padding">0px</dimen>
 
 </resources>

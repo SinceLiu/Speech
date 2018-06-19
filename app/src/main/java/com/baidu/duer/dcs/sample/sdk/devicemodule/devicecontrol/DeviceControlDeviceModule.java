@@ -44,6 +44,7 @@ import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetSynch
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetVibrationPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetVpnPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetWifiPayload;
+import com.readboy.watch.speech.SpeechApplication;
 import com.readboy.watch.speech.util.SettingsUtils;
 import com.readboy.watch.speech.util.ToastUtils;
 
@@ -56,7 +57,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 
 public class DeviceControlDeviceModule extends BaseDeviceModule {
-    private static final String TAG = "DCS_header_DeviceCont";
+    private static final String TAG = "oubin_header_DeviceCont";
 
     private List<IDeviceControlListener> listeners;
 
@@ -256,6 +257,7 @@ public class DeviceControlDeviceModule extends BaseDeviceModule {
         @Override
         public void onSetPhonePower(SetPhonePowerPayload payload) {
             Log.e(TAG, "onSetPhonePower: " + payload.toString());
+            ToastUtils.showShort(context, "暂不支持该功能");
         }
 
         @Override

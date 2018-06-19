@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -209,7 +210,7 @@ public abstract class BaseDcsActivity extends Activity {
 //            finish();
 //        }
         initPermission();
-        copyLibvab();
+        copyLibvadAsync();
         initSdk();
         sdkRun();
 
@@ -223,10 +224,10 @@ public abstract class BaseDcsActivity extends Activity {
         test();
     }
 
-    private void copyLibvab() {
+    private void copyLibvad() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "copyLibvab: not permission.");
+            Log.e(TAG, "copyLibvad: not permission.");
             return;
         }
         String vad = "libvad.dnn.so";
@@ -234,9 +235,33 @@ public abstract class BaseDcsActivity extends Activity {
 
         if (!file.exists()) {
             boolean result = FileUtils.copyAssets(this, vad, file.getAbsolutePath());
-            Log.e(TAG, "copyLibvab: result = " + result);
+            Log.e(TAG, "copyLibvad: result = " + result);
             AsrParam.ASR_VAD_RES_FILE_PATH = getLibvadPath();
-            Log.e(TAG, "copyLibvab: file not exit");
+            Log.e(TAG, "copyLibvad: file not exit");
+        }
+    }
+
+    private void copyLibvadAsync() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "copyLibvadAsync: not permission: write external storage.");
+            return;
+        }
+        final String vad = "libvad.dnn.so";
+        File file = new File(getLibvadPath() + vad);
+        if (!file.exists()) {
+            final String absolutePath = file.getAbsolutePath();
+            new AsyncTask<Void, Void, Boolean>() {
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result = FileUtils.copyAssets(BaseDcsActivity.this, vad, absolutePath);
+                    Log.e(TAG, "copyLibvadAsync: result = " + result);
+                    AsrParam.ASR_VAD_RES_FILE_PATH = getLibvadPath();
+                    Log.e(TAG, "copyLibvadAsync: file not exit");
+                    return null;
+                }
+            }.execute();
         }
     }
 
@@ -334,6 +359,7 @@ public abstract class BaseDcsActivity extends Activity {
                     || PlaybackEvent.PLAYBACK_FINISHED.equals(eventName)) {
                 handlePlaybackStopped();
                 isPlaying = false;
+                isPlayingAudio = false;
             } else if (PlaybackEvent.PLAYBACK_PAUSED.equals(eventName)) {
                 handlePlaybackPause();
                 isPlaying = false;
@@ -463,7 +489,7 @@ public abstract class BaseDcsActivity extends Activity {
                 Log.e(TAG, "onRequestPermissionsResult: has not permissions2 = " + permissions[i]);
             }
         }
-        copyLibvab();
+        copyLibvadAsync();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             uploadContacts();
         }
@@ -725,6 +751,7 @@ public abstract class BaseDcsActivity extends Activity {
         public void onRenderPlayerInfo(RenderPlayerInfoPayload renderPlayerInfoPayload) {
             // handleRenderPlayerInfoPayload(renderPlayerInfoPayload);
             Log.e(TAG, "onRenderPlayerInfo: content = " + renderPlayerInfoPayload.getContent());
+            handleRenderPlayerInfo(renderPlayerInfoPayload);
         }
 
         @Override
@@ -877,7 +904,7 @@ public abstract class BaseDcsActivity extends Activity {
             @Override
             public void onSelectCallee(SelectCalleePayload payload) {
                 Log.e(TAG, "onSelectCallee() called with: payload = " + payload.toString() + "");
-                ToastUtils.showShort(BaseDcsActivity.this, "不支持该功能");
+                ToastUtils.showShort(BaseDcsActivity.this, "暂不支持该功能");
 //                Toast.makeText(BaseDcsActivity.this, "打电话指令（选择联系人）", Toast.LENGTH_LONG).show();
 //                List<CandidateCalleeNumber> list = payload.getCandidateCallees();
 //                if (list != null && list.size() > 0) {
@@ -891,7 +918,7 @@ public abstract class BaseDcsActivity extends Activity {
             @Override
             public void onPhoneCallByNumber(PhonecallByNumberPayload payload) {
                 Log.e(TAG, "onPhoneCallByNumber() called with: payload = " + payload.toString() + "");
-                ToastUtils.showShort(BaseDcsActivity.this, "不支持该功能");
+                ToastUtils.showShort(BaseDcsActivity.this, "暂不支持该功能");
 //                Toast.makeText(BaseDcsActivity.this, "打电话指令（按号码）", Toast.LENGTH_LONG).show();
 //                CandidateCalleeNumber callee = payload.getCallee();
 //                if (callee != null && !TextUtils.isEmpty(callee.getPhoneNumber())) {
@@ -1141,13 +1168,20 @@ public abstract class BaseDcsActivity extends Activity {
         }
     }
 
-    protected void stopMusic() {
+    protected void sendPauseMusicEvent() {
         //防止频繁上发数据
-        if (isPlaying) {
-            Log.e(TAG, "stopMusic: pause audio player");
-            getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule.CommandIssued
-                    .CommandIssuedPause);
-            isPlaying = false;
+        Log.d(TAG, "sendPauseMusicEvent: isPlayingAudio = " + isPlayingAudio);
+        if (isPlayingAudio) {
+            Log.e(TAG, "sendPauseMusicEvent: pause audio player");
+            if (TextUtils.isEmpty(mRenderPlayerInfoToken) || !mRenderPlayerInfoToken.equals(mPlayToken)) {
+                Log.d(TAG, "sendPauseMusicEvent: send CommandIssuedPause.");
+                getInternalApi().sendCommandIssuedEvent(PlaybackControllerDeviceModule.CommandIssued
+                        .CommandIssuedPause);
+            } else {
+                Log.d(TAG, "sendPauseMusicEvent: post playPauseButtonClicked event.");
+                getInternalApi().postEvent(Form.playPauseButtonClicked(mRenderPlayerInfoToken), null);
+            }
+            isPlayingAudio = false;
         }
     }
 
@@ -1314,36 +1348,51 @@ public abstract class BaseDcsActivity extends Activity {
      *
      * @param payload asr结果
      */
-    protected abstract void handleRenderVoiceInputTextPayload(RenderVoiceInputTextPayload payload);
+    protected void handleRenderVoiceInputTextPayload(RenderVoiceInputTextPayload payload) {
+
+    }
 
     /**
      * 部分要显示的内容回调，如果收音超时
      *
      * @param payload 要显示的文本
      */
-    protected abstract void handleRenderCard(RenderCardPayload payload);
+    protected void handleRenderCard(RenderCardPayload payload) {
+    }
 
     /**
      * 界面显示，html链接，需要webView显示。
      *
      * @param htmlPayload 数据对象
      */
-    protected abstract void handleHtmlPayload(HtmlPayload htmlPayload);
+    protected void handleHtmlPayload(HtmlPayload htmlPayload) {
+    }
 
     /**
      * 媒体播放状态改变，停止播放
      */
-    protected abstract void handlePlaybackStopped();
+    protected void handlePlaybackStopped() {
+    }
 
     /**
      * 暂停播放
      */
-    protected abstract void handlePlaybackPause();
+    protected void handlePlaybackPause() {
+    }
 
     /**
      * 开始播放
      */
-    protected abstract void handlePlaybackStarted();
+    protected void handlePlaybackStarted() {
+    }
+
+    /**
+     * dafa
+     *
+     * @param renderPlayerInfoPayload
+     */
+    protected void handleRenderPlayerInfo(RenderPlayerInfoPayload renderPlayerInfoPayload) {
+    }
 
     protected void addErrorListener(IErrorListener listener) {
         if (errorListener != null) {
@@ -1415,7 +1464,7 @@ public abstract class BaseDcsActivity extends Activity {
                     hadAudioFocus = false;
                     pauseSpeaker();
                     mMediaPlayer.pause();
-//                    stopMusic();
+//                    sendPauseMusicEvent();
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                     //-3

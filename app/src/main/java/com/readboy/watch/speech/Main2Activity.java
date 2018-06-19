@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -32,6 +31,7 @@ import android.widget.Toast;
 import com.baidu.duer.dcs.api.IDialogStateListener;
 import com.baidu.duer.dcs.api.config.DcsConfig;
 import com.baidu.duer.dcs.framework.internalapi.IErrorListener;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.message.RenderPlayerInfoPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.HtmlPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderCardPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderVoiceInputTextPayload;
@@ -120,6 +120,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
+            Log.d(TAG, "handleMessage: msg = " + msg.what);
             switch (msg.what) {
                 case HANDLER_WHAT_FINISH:
                     finish();
@@ -306,7 +307,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     protected void handleRenderVoiceInputTextPayload(RenderVoiceInputTextPayload payload) {
         Log.e(TAG, "handleRenderVoiceInputTextPayload: text = " + payload.text);
-        setMessage(payload.text);
+//        setMessage(payload.text);
     }
 
     @Override
@@ -316,6 +317,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             Log.e(TAG, "handleRenderCard: this is default card.");
         } else if (TextUtils.isEmpty(mMessageTv.getText())) {
             showMessage(payload.content);
+        } else {
+//            showMessage(payload.content);
         }
     }
 
@@ -337,6 +340,14 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     protected void handlePlaybackStarted() {
         Log.e(TAG, "handlePlaybackStarted: ");
+    }
+
+    @Override
+    protected void handleRenderPlayerInfo(RenderPlayerInfoPayload infoPayload) {
+//        String message = infoPayload.getContent().getTitleSubtext1() + ":"
+//                + infoPayload.getContent().getTitle();
+//        Log.d(TAG, "handleRenderPlayerInfo: message = " + message);
+//        showMessage(message);
     }
 
     @Override
@@ -643,6 +654,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
      * 网络连接超时，或者服务器出问题
      */
     private void showConnectTimeOut() {
+        Log.d(TAG, "showConnectTimeOut: 当前网络不稳定，请稍后再试.");
         showMessage(getString(R.string.connect_time_out), "assets://timeout_xiaodu.wav");
     }
 
@@ -842,7 +854,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 Log.d(TAG, "onClick: voice clicked, mEnable = " + mEnable);
                 if (!mEnable || !isActivated) {
                     return;
-//                stopMusic()
+//                sendPauseMusicEvent()
                 }
 
                 if (ClickUtils.isFastMultiClick()){
@@ -872,10 +884,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     return;
                 }
 
-                stopMusic();
-//                clearAudioList2();
+                sendPauseMusicEvent();
                 getInternalApi().stopSpeaker();
-                isPlayingAudio = false;
+                //闲聊完，或者玩完游戏，会检查Audio列表是否有内容。所有这里需要清掉。
+                clearAudioList2();
                 startRecord();
                 break;
             case R.id.recording_iv:

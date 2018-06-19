@@ -271,7 +271,11 @@ public class MediaPlayerImpl implements IMediaPlayer {
             audioStreamStore.speakAfter();
         }
         mediaPlayerListeners.clear();
-        phoneStateListener = null;
+        if (phoneStateListener != null) {
+            TelephonyManager manager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+            manager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+            phoneStateListener = null;
+        }
     }
 
     @Override

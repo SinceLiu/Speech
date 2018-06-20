@@ -307,7 +307,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     protected void handleRenderVoiceInputTextPayload(RenderVoiceInputTextPayload payload) {
         Log.e(TAG, "handleRenderVoiceInputTextPayload: text = " + payload.text);
-//        setMessage(payload.text);
+        setMessage(payload.text);
     }
 
     @Override
@@ -316,7 +316,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         if ("default".equals(payload.content)) {
             Log.e(TAG, "handleRenderCard: this is default card.");
         } else if (TextUtils.isEmpty(mMessageTv.getText())) {
-            showMessage(payload.content);
+//            showMessage(payload.content);
         } else {
 //            showMessage(payload.content);
         }
@@ -885,7 +885,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 }
 
                 sendPauseMusicEvent();
-                getInternalApi().stopSpeaker();
+//                getInternalApi().stopSpeaker();
                 //闲聊完，或者玩完游戏，会检查Audio列表是否有内容。所有这里需要清掉。
                 clearAudioList2();
                 startRecord();

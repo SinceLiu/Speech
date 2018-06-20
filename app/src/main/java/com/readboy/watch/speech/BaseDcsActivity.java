@@ -409,8 +409,11 @@ public abstract class BaseDcsActivity extends Activity {
                         Log.e(TAG, "onDirective play mToken = " + mPlayToken);
                     }
                 }
+                isPlaying = true;
+                isPlayingAudio = true;
             } else if ("Stop".equals(directive.getName())) {
                 isPlaying = false;
+                isPlayingAudio = false;
             } else if ("RenderPlayerInfo".equals(directive.getName())) {
                 Payload mPayload = directive.getPayload();
                 if (mPayload instanceof RenderPlayerInfoPayload) {
@@ -1179,7 +1182,22 @@ public abstract class BaseDcsActivity extends Activity {
                         .CommandIssuedPause);
             } else {
                 Log.d(TAG, "sendPauseMusicEvent: post playPauseButtonClicked event.");
-                getInternalApi().postEvent(Form.playPauseButtonClicked(mRenderPlayerInfoToken), null);
+                getInternalApi().postEvent(Form.playPauseButtonClicked(mRenderPlayerInfoToken), new IResponseListener() {
+                    @Override
+                    public void onSucceed(int i) {
+                        Log.e(TAG, "onSucceed() called with: i = " + i + "");
+                    }
+
+                    @Override
+                    public void onFailed(String s) {
+                        Log.e(TAG, "onFailed() called with: s = " + s + "");
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        Log.e(TAG, "onCancel() called");
+                    }
+                });
             }
             isPlayingAudio = false;
         }

@@ -17,7 +17,7 @@
 package com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.report;
 
 import com.baidu.duer.dcs.util.util.LogUtil;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message.PlayPayload;
 
 /**
  * Created by guxiuzhong@baidu.com on 2017/12/21.

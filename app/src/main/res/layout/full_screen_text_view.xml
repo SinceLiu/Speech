@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.readboy.watch.speech.view.DragFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/full_screen_text_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    tools:visibility="visible"
+    android:layout_height="match_parent"
+    android:visibility="gone">
+
+    <ScrollView
+        android:layout_width="240px"
+        android:background="@android:color/black"
+        android:layout_height="240px">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12px"
+            android:layout_marginRight="12px"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/query_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="9px"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:textColor="#a5a5a5"
+                android:textSize="24px" />
+
+            <TextView
+                android:id="@+id/response_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16px"
+                android:lineSpacingExtra="1px"
+                android:textColor="@android:color/white"
+                android:textSize="18px" />
+
+        </LinearLayout>
+
+    </ScrollView>
+</com.readboy.watch.speech.view.DragFrameLayout>

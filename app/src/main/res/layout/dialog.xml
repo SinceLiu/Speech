@@ -2,13 +2,12 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dialog_main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="240px"
+    android:layout_height="240px"
     android:layout_gravity="center"
     android:background="@color/gray_translation"
     android:clickable="true"
     android:orientation="vertical"
-    android:visibility="gone"
     tools:context=".Main2Activity">
 
     <LinearLayout
@@ -21,8 +20,8 @@
 
         <ImageView
             android:id="@+id/dialog_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="24px"
+            android:layout_height="24px"
             android:layout_gravity="right"
             android:onClick="onDialogCancelClick"
             android:paddingBottom="4px"

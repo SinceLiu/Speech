@@ -18,7 +18,19 @@
 
         </android.support.v4.view.ViewPager>
 
-        <include layout="@layout/dialog" />
+        <!--<include layout="@layout/dialog" />-->
+
+        <ViewStub
+            android:id="@+id/view_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/dialog"
+            android:layout="@layout/dialog" />
+
+        <include layout="@layout/full_screen_text_view"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
+
     </FrameLayout>
 
 </com.readboy.watch.speech.view.DragFrameLayout>

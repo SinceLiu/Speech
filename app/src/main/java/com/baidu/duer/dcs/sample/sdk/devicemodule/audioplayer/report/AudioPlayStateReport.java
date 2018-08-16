@@ -15,10 +15,10 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.report;
 
-import com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.AudioPlayerPayload;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.PlaybackFailedPayload;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.PlaybackStutterFinishedPayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.ApiConstants;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message.AudioPlayerPayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message.PlaybackFailedPayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message.PlaybackStutterFinishedPayload;
 import com.baidu.duer.dcs.api.IMessageSender;
 import com.baidu.duer.dcs.util.message.ClientContext;
 import com.baidu.duer.dcs.util.message.Event;

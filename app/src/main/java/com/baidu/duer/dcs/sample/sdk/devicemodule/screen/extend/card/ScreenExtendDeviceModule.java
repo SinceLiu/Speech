@@ -40,8 +40,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static com.baidu.duer.dcs.util.message.HandleDirectiveException.ExceptionType.UNSUPPORTED_OPERATION;
 
 public class ScreenExtendDeviceModule extends BaseDeviceModule {
+    private static final String TAG = "oubin-ScreenExtend";
+
 
     private final List<IRenderExtendListener> listeners = new ArrayList<>();
+    private final List<IScreenPayloadListener> screenListeners = new ArrayList<>();
     private List<ScreenExtendDeviceModule.IScreenExtensionListener> mExtensionListeners;
 
     public ScreenExtendDeviceModule(IMessageSender messageSender) {
@@ -56,6 +59,7 @@ public class ScreenExtendDeviceModule extends BaseDeviceModule {
 
     @Override
     public void handleDirective(Directive directive) throws HandleDirectiveException {
+        Log.e(TAG, "handleDirective: directive = " + directive.jsonObjectDirective.toString());
         String name = directive.header.getName();
         if (ApiConstants.Directives.RenderWeather.NAME.equals(name)
                 || ApiConstants.Directives.RenderDate.NAME.equals(name)
@@ -126,11 +130,16 @@ public class ScreenExtendDeviceModule extends BaseDeviceModule {
         for (IRenderExtendListener listener : listeners) {
             listener.onRenderDirective(directive);
         }
+
+        for (IScreenPayloadListener listener : screenListeners){
+            listener.onScreenPayload(ScreenPayloadFactroy.parseDirective(directive));
+        }
     }
 
     @Override
     public void release() {
         listeners.clear();
+        screenListeners.clear();
         if (mExtensionListeners != null) {
             mExtensionListeners.clear();
         }
@@ -154,12 +163,27 @@ public class ScreenExtendDeviceModule extends BaseDeviceModule {
 
     }
 
+    public void addScreenPayloadListener(IScreenPayloadListener listener){
+        screenListeners.add(listener);
+    }
+
+    public void removeScreenPayloadListener(IScreenPayloadListener listener){
+        screenListeners.remove(listener);
+    }
+
     public void addListener(IRenderExtendListener listener) {
         listeners.add(listener);
     }
 
     public void removeListener(IRenderExtendListener listener) {
         listeners.remove(listener);
+    }
+
+    public interface IScreenPayloadListener{
+        /**
+         * 屏显内容
+         */
+        void onScreenPayload(IScreenPayload screenPayload);
     }
 
     public interface IRenderExtendListener {

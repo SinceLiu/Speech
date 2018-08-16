@@ -16,6 +16,8 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.message;
 
+import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.ApiConstants;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.extend.card.IScreenPayload;
 import com.baidu.duer.dcs.util.message.Payload;
 
 import java.io.Serializable;
@@ -25,7 +27,7 @@ import java.util.List;
  * Created by chenxiaojian on 17/11/1.
  */
 
-public class RenderPlayerInfoPayload extends Payload implements Serializable {
+public class RenderPlayerInfoPayload extends Payload implements Serializable, IScreenPayload {
 
 
     private ContentBean content;
@@ -54,6 +56,16 @@ public class RenderPlayerInfoPayload extends Payload implements Serializable {
 
     public void setControls(List<ControlsBean> controls) {
         this.controls = controls;
+    }
+
+    @Override
+    public String name() {
+        return ApiConstants.Directives.RenderPlayerInfo.NAME;
+    }
+
+    @Override
+    public String getScreenContent() {
+        return content.getTitleSubtext1() + "：" + content.getTitle();
     }
 
     public static class ContentBean {

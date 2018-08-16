@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="AppCompatTextView">
+        <attr name="textAllCaps" format="reference|boolean" />
+        <attr name="android:textAppearance" />
+        <attr name="autoSizeTextType" format="enum">
+            <enum name="none" value="0" />
+
+            <enum name="uniform" value="1" />
+        </attr>
+        <attr name="autoSizeStepGranularity" format="dimension" />
+        <attr name="autoSizePresetSizes" format="reference" />
+        <attr name="autoSizeMinTextSize" format="dimension" />
+        <attr name="autoSizeMaxTextSize" format="dimension" />
+        <attr name="fontFamily" format="string" />
+    </declare-styleable>
+
+</resources>

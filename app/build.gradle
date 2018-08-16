@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "27.0.1"
+    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "com.readboy.watch.speech"
         minSdkVersion 21
@@ -28,6 +28,22 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('E:/apkKey/readboy.key')
+            storePassword 'soft@readboy.com'
+            keyAlias "rbsoft"
+            keyPassword "23378528"
+        }
+
+//        release {
+//            storeFile file("E:/AG550/g30.key11")
+//            storePassword 'soft_g@readboy.com'
+//            keyAlias 'rbsoft'
+//            keyPassword '076023378308'
+//        }
     }
     externalNativeBuild {
         cmake {
@@ -62,14 +78,14 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.3.1'
+//    compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:support-v4:25.3.1'
     compile files('libs/bugly_crash_release.jar')
-    compile project(':swipeback')
+    //    compile project(':swipeback')
     // 可选
-//        compile name: 'dlp-1.0.0', ext: 'aar'
+    //        compile name: 'dlp-1.0.0', ext: 'aar'
     //    compile name: 'bdplayer-1.0.0', ext: 'aar'
     //    compile name: 'ijkmedia-1.0.0', ext: 'aar'
     //    compile 'tv.danmaku.ijk.media:ijkplayer-java:0.8.4'
@@ -90,5 +106,6 @@ dependencies {
     compile files('libs/dcssdk-1.5.0.1.jar')
     //    compile files('libs/localtts-2.3.1.jar')
     compile files('libs/fastjson-1.2.46.jar')
-//    compile 'me.codeboy.android:align-text-view:2.3.2'
+    //    compile 'me.codeboy.android:align-text-view:2.3.2'
+//    compile 'com.android.support:support-v4:25.3.1'
 }

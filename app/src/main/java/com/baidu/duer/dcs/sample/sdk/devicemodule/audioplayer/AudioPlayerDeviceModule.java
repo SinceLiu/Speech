@@ -15,17 +15,19 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer;
 
+import android.util.Log;
+
 import com.baidu.duer.dcs.api.BaseDeviceModule;
 import com.baidu.duer.dcs.api.IChannelMediaPlayer;
 import com.baidu.duer.dcs.api.IMessageSender;
 import com.baidu.duer.dcs.api.player.IMediaPlayer;
-import com.baidu.duer.dcs.devicemodule.audioplayer.*;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.ClearQueuePayload;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.PlayPayload;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.PlaybackStatePayload;
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.StopPayload;
-import com.baidu.duer.dcs.devicemodule.audioplayer.report.AudioPlayStateReport;
-import com.baidu.duer.dcs.devicemodule.audioplayer.report.AudioPlayerReporter;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.*;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message.ClearQueuePayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message.PlayPayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message.PlaybackStatePayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message.StopPayload;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.report.AudioPlayStateReport;
+import com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.report.AudioPlayerReporter;
 import com.baidu.duer.dcs.util.message.ClientContext;
 import com.baidu.duer.dcs.util.message.Directive;
 import com.baidu.duer.dcs.util.message.HandleDirectiveException;
@@ -43,7 +45,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by guxiuzhong@baidu.com on 2017/5/31.
  */
 public class AudioPlayerDeviceModule extends BaseDeviceModule {
-    private static final String TAG = AudioPlayerDeviceModule.class.getSimpleName();
+    private static final String TAG = "oubin_AudioPlayerModule";
     // 播放列表，先进先出
     private LinkedList<PlayPayload.Stream> playQueue = new LinkedList<>();
     // 当前stream的token
@@ -64,7 +66,7 @@ public class AudioPlayerDeviceModule extends BaseDeviceModule {
 
     public AudioPlayerDeviceModule(IChannelMediaPlayer mediaPlayer,
                                    IMessageSender messageSender) {
-        super(com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.NAMESPACE, messageSender);
+        super(ApiConstants.NAMESPACE, messageSender);
         this.mediaPlayer = mediaPlayer;
         this.mediaPlayer.addMediaPlayerListener(mediaPlayerListener);
         this.audioPlayStateReport = new AudioPlayStateReport(getNameSpace(),
@@ -93,8 +95,8 @@ public class AudioPlayerDeviceModule extends BaseDeviceModule {
     }
 
     private ClientContext getClientContext() {
-        String namespace = com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.NAMESPACE;
-        String name = com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.Events.PlaybackState.NAME;
+        String namespace = ApiConstants.NAMESPACE;
+        String name = ApiConstants.Events.PlaybackState.NAME;
         Header header = new Header(namespace, name);
         PlaybackStatePayload payload = new PlaybackStatePayload(latestStreamToken,
                 mediaPlayer.getCurrentPosition(),
@@ -105,12 +107,14 @@ public class AudioPlayerDeviceModule extends BaseDeviceModule {
     @Override
     public void handleDirective(Directive directive) throws HandleDirectiveException {
         String directiveName = directive.getName();
+        Log.d(TAG, "handleDirective: directive = " + directive.toString());
+        Log.d(TAG, "handleDirective: directiveName = " + directiveName);
         LogUtil.dcf(TAG, "dcs-speak-directiveName:" + directiveName);
-        if (com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.Directives.Play.NAME.equals(directiveName)) {
+        if (ApiConstants.Directives.Play.NAME.equals(directiveName)) {
             handlePlay((PlayPayload) directive.getPayload());
-        } else if (com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.Directives.Stop.NAME.equals(directiveName)) {
+        } else if (ApiConstants.Directives.Stop.NAME.equals(directiveName)) {
             handleStop((StopPayload) directive.getPayload());
-        } else if (com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.Directives.ClearQueue.NAME.equals(directiveName)) {
+        } else if (ApiConstants.Directives.ClearQueue.NAME.equals(directiveName)) {
             handleClearQueue((ClearQueuePayload) directive.getPayload());
         } else {
             String message = "audioPlayer cannot handle the directive";
@@ -122,9 +126,9 @@ public class AudioPlayerDeviceModule extends BaseDeviceModule {
     @Override
     public HashMap<String, Class<?>> supportPayload() {
         HashMap<String, Class<?>> map = new HashMap<>();
-        map.put(getNameSpace() + com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.Directives.Play.NAME, PlayPayload.class);
-        map.put(getNameSpace() + com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.Directives.Stop.NAME, StopPayload.class);
-        map.put(getNameSpace() + com.baidu.duer.dcs.devicemodule.audioplayer.ApiConstants.Directives.ClearQueue.NAME, ClearQueuePayload.class);
+        map.put(getNameSpace() + ApiConstants.Directives.Play.NAME, PlayPayload.class);
+        map.put(getNameSpace() + ApiConstants.Directives.Stop.NAME, StopPayload.class);
+        map.put(getNameSpace() + ApiConstants.Directives.ClearQueue.NAME, ClearQueuePayload.class);
         return map;
     }
 

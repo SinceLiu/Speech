@@ -39,7 +39,7 @@ import java.lang.reflect.Field;
 /**
  * Helper for accessing features in {@link TextView}.
  */
-public final class TextViewCompat {
+public final class TextViewCompat2 {
 
     /**
      * The TextView does not auto-size text (default).
@@ -59,7 +59,7 @@ public final class TextViewCompat {
     public @interface AutoSizeTextType {}
 
     // Hide constructor
-    private TextViewCompat() {}
+    private TextViewCompat2() {}
 
     static class TextViewCompatBaseImpl {
         private static final String LOG_TAG = "TextViewCompatBase";
@@ -438,8 +438,8 @@ public final class TextViewCompat {
      * within the layout bounds by using the default auto-size configuration.
      *
      * @param autoSizeTextType the type of auto-size. Must be one of
-     *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
-     *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
+     *        {@link TextViewCompat2#AUTO_SIZE_TEXT_TYPE_NONE} or
+     *        {@link TextViewCompat2#AUTO_SIZE_TEXT_TYPE_UNIFORM}
      *
      * @attr name android:autoSizeTextType
      */
@@ -450,7 +450,7 @@ public final class TextViewCompat {
     /**
      * Specify whether this widget should automatically scale the text to try to perfectly fit
      * within the layout bounds. If all the configuration params are valid the type of auto-size is
-     * set to {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
+     * set to {@link TextViewCompat2#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
      *
      * @param autoSizeMinTextSize the minimum text size available for auto-size
      * @param autoSizeMaxTextSize the maximum text size available for auto-size
@@ -481,7 +481,7 @@ public final class TextViewCompat {
     /**
      * Specify whether this widget should automatically scale the text to try to perfectly fit
      * within the layout bounds. If at least one value from the <code>presetSizes</code> is valid
-     * then the type of auto-size is set to {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
+     * then the type of auto-size is set to {@link TextViewCompat2#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
      *
      * @param presetSizes an {@code int} array of sizes in pixels
      * @param unit the desired dimension unit for the preset sizes above. See {@link TypedValue} for
@@ -501,8 +501,8 @@ public final class TextViewCompat {
      * Returns the type of auto-size set for this widget.
      *
      * @return an {@code int} corresponding to one of the auto-size types:
-     *         {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
-     *         {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
+     *         {@link TextViewCompat2#AUTO_SIZE_TEXT_TYPE_NONE} or
+     *         {@link TextViewCompat2#AUTO_SIZE_TEXT_TYPE_UNIFORM}
      *
      * @attr name android:autoSizeTextType
      */

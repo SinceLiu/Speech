@@ -15,7 +15,6 @@
  */
 package com.baidu.duer.dcs.sample.sdk.devicemodule.audioplayer.message;
 
-import com.baidu.duer.dcs.devicemodule.audioplayer.message.*;
 
 import java.io.Serializable;
 
@@ -24,7 +23,7 @@ import java.io.Serializable;
  * <p>
  * Created by guxiuzhong@baidu.com on 2017/6/4.
  */
-public class PlaybackStutterFinishedPayload extends com.baidu.duer.dcs.devicemodule.audioplayer.message.AudioPlayerPayload implements Serializable {
+public class PlaybackStutterFinishedPayload extends AudioPlayerPayload implements Serializable {
     public long stutterDurationInMilliseconds;
 
     public PlaybackStutterFinishedPayload(String token, long offsetInMilliseconds,

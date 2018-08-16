@@ -3,8 +3,6 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Holo.NoActionBar.Fullscreen">
         <!-- Customize your theme here. -->
-        <item name="android:textSize">24px</item>
-        <item name="android:textColor">@android:color/white</item>
         <item name="android:windowAnimationStyle">@style/Animation.Bottom</item>
         <item name="android:windowSoftInputMode">stateAlwaysHidden</item>
         <item name="android:windowBackground">@android:color/transparent</item>

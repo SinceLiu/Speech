@@ -29,6 +29,8 @@ public class ExampleUnitTest {
         int a = 'a';
         int k = 'k';
         int d = k -a;
+        int p = 22 % 22 + 16;
+        
 
         String str1 = "zhong中";
         String str2 = "zhogn";

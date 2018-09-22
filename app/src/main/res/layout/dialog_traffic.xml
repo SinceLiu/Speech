@@ -5,9 +5,8 @@
     android:layout_width="240px"
     android:layout_height="240px"
     android:layout_gravity="center"
-    android:background="@color/gray_translation"
+    android:background="#88000000"
     android:clickable="true"
-    android:visibility="gone"
     android:orientation="vertical"
     tools:context=".Main2Activity">
 

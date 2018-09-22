@@ -2,6 +2,7 @@ package com.readboy.watch.speech;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
@@ -580,8 +581,8 @@ public abstract class BaseDcsActivity extends Activity {
         // 打开debug模式，重要日志写入文件和打印到控制台
 //                .withOpenDebug(true)
 //        if (AppUtils.isDebugVersion(this)) {
-            Log.d(TAG, "initSdk: is debug model and open log enable.");
-            builder.withOpenDebug(true);
+        Log.d(TAG, "initSdk: is debug model and open log enable.");
+        builder.withOpenDebug(true);
 //        }
         dcsSdk = builder.build();
 
@@ -811,7 +812,7 @@ public abstract class BaseDcsActivity extends Activity {
     }
 
     private void asyncUploadContacts() {
-        if (isUploadingContacts){
+        if (isUploadingContacts) {
             Log.w(TAG, "asyncUploadContacts: is uploading contacts, no need to upload.");
             return;
         }
@@ -1024,6 +1025,22 @@ public abstract class BaseDcsActivity extends Activity {
         } else {
             Log.d(TAG, "release: dcsSdk == null.");
         }
+        stopService();
+    }
+
+    private void stopService() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo info : manager.getRunningServices(Integer.MAX_VALUE)) {
+            Log.e(TAG, "stopService: info = " + info.service.getClassName());
+            if (info.service != null
+                    && this.getPackageName().equals(info.service.getPackageName())) {
+                Log.e(TAG, "stopService: removeTask: " + info.service);
+//                manager.removeTask(info.pid);
+//                manager.removeTask(info.uid);
+//                manager.killUid(info.uid, "cancel");
+            }
+        }
+        manager.killBackgroundProcesses(getPackageName());
     }
 
     private void sendExitEvent() {
@@ -1224,7 +1241,7 @@ public abstract class BaseDcsActivity extends Activity {
         getInternalApi().postEvent(Form.playPauseButtonClicked(token), null);
     }
 
-    private void pauseSpeaker() {
+    protected void pauseSpeaker() {
         Log.e(TAG, "pauseSpeaker: ");
         if (getInternalApi() == null) {
             Log.d(TAG, "pauseSpeaker: internal api == null.");
@@ -1430,7 +1447,7 @@ public abstract class BaseDcsActivity extends Activity {
                     Log.e(TAG, "onAudioFocusChange: audio focus loss");
                     mPausedByTransientLossOfFocus = false;
                     hadAudioFocus = false;
-                    if (dcsSdk == null) {
+                    if (dcsSdk != null) {
                         pauseSpeaker();
                     }
                     mMediaPlayer.pause();

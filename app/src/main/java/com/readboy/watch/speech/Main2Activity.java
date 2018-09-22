@@ -46,6 +46,7 @@ import com.readboy.watch.speech.media.IMediaPlayer;
 import com.readboy.watch.speech.util.AppUtils;
 import com.readboy.watch.speech.util.ClickUtils;
 import com.readboy.watch.speech.util.FileUtils;
+import com.readboy.watch.speech.util.NetworkCompat;
 import com.readboy.watch.speech.util.NetworkUtils;
 import com.readboy.watch.speech.util.PreferencesUtils;
 import com.readboy.watch.speech.util.ReadboyUtils;
@@ -68,6 +69,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private static final String ACTION_CHARGING_ANIM_DISPLAY = "android.intent.action.ACTION_CHARGING_ANIM_DISPLAY";
     private static final String ACTION_POWER_PRESS_EXIT = "com.readboy.ACITON_POWER_PRESS_EXIT";
     public static final String READBOY_ACTION_CLASS_DISABLE_CHANGED = "readboy.acion.CLASS_DISABLE_CHANGED";
+    private static final String ACTION_APP_DATA_CHANGED = "readboy.action.APP_DATA_SWITCH_CHANGED";
 
     private static final boolean IS_TEST_MODE = false;
     private static final boolean SHOW_EXTEND_SCREEN = true;
@@ -89,7 +91,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private static final int LOADING_TIME_OUT = 30000;
     private static final int DELAYED_START_RECORD_ANIMATION = 1300;
     private static final int DELAYED_FINISH_MILLIS = 4 * 1000;
-    private static final Pattern TEXT_CRAD_PATTERN = Pattern.compile("^下面播放专辑| 来自蜻蜓$");
+    private static final Pattern TEXT_CARD_PATTERN = Pattern.compile("^下面播放专辑| 来自蜻蜓$");
 
     private DragFrameLayout mRootDragFrameLayout;
     private TextView mMessageTv;
@@ -125,6 +127,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private float mDownY = 0;
 
     private BroadcastReceiver mBroadcastReceiver;
+    private NetworkCompat mNetworkCompat;
+    private NetworkCompat.OnNetChangeListener mNetChangeListener;
 
     /**
      * 控制最长录音时间
@@ -178,6 +182,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //        stopAudioPlayback();
 
         registerReceiver();
+        mNetworkCompat = new NetworkCompat();
+        mNetChangeListener = new NetChangeListener();
+        mNetworkCompat.setNetChangeListener(mNetChangeListener);
+        mNetworkCompat.start(this);
         if (SHOW_EXTEND_SCREEN) {
             TextViewCompat2.setAutoSizeTextTypeUniformWithConfiguration(mMessageTv, 18, 24, 3, TypedValue.COMPLEX_UNIT_PX);
         }
@@ -223,11 +231,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     protected void onDestroy() {
         removeAllMessages();
+        mNetworkCompat.stop(this);
+        unregisterReceiver(mBroadcastReceiver);
+        mBroadcastReceiver = null;
         super.onDestroy();
         Log.e(TAG, "onDestroy: ");
         stopAll();
-        unregisterReceiver(mBroadcastReceiver);
-        mBroadcastReceiver = null;
         releaseAnimation();
 //        ToastUtils.cancel();
 
@@ -328,8 +337,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             Log.e(TAG, "handleRenderCard: this is default card.");
         } else if (SHOW_EXTEND_SCREEN) {
             String content = payload.content;
-            Matcher mt = TEXT_CRAD_PATTERN.matcher(content);
+            Matcher mt = TEXT_CARD_PATTERN.matcher(content);
             String result = mt.replaceAll("");
+            result = filter(result);
             showMessage(result);
             Log.e(TAG, "handleRenderCard() called with: payload text length = " + result.length() + "");
             if (result.length() > 84) {
@@ -337,6 +347,22 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 showFullScreenDialog(mVoiceInputText, mRenderCardText);
             }
         }
+    }
+
+    private String filter(String message) {
+        if (message == null || message.length() < 1) {
+            return message;
+        }
+        String first = message.substring(0, 1);
+        int index = message.indexOf(first, 1);
+        if (index > 1) {
+            String temp1 = message.substring(0, index);
+            String temp2 = message.substring(index, message.length());
+            if (temp1.equals(temp2)) {
+                return temp1;
+            }
+        }
+        return message;
     }
 
     @Override
@@ -370,7 +396,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     protected void handleScreenPayload(IScreenPayload payload) {
 //        super.handleScreenPayload(payload);
-        if (payload != null && SHOW_EXTEND_SCREEN) {
+        if (payload != null && SHOW_EXTEND_SCREEN && !isListening()) {
             showMessage(payload.getScreenContent());
         }
     }
@@ -414,6 +440,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             IntentFilter filter = new IntentFilter(ACTION_POWER_PRESS_EXIT);
             filter.addAction(ACTION_CHARGING_ANIM_DISPLAY);
             filter.addAction(READBOY_ACTION_CLASS_DISABLE_CHANGED);
+            filter.addAction(ACTION_APP_DATA_CHANGED);
             registerReceiver(mBroadcastReceiver, filter);
         }
     }
@@ -543,7 +570,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHoldRecord.setActivated(true);
         hasNetwork = true;
         if (!NetworkUtils.isWifiConnected(this)
-                && !PreferencesUtils.get(this, PreferencesUtils.KEY_REMINDED_NO_WIFI)) {
+                && !ReadboyManagerWrapper.isEnableOnlyWifi(this)) {
             showDialog();
         } else {
             mEnable = true;
@@ -573,8 +600,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         updateLayout();
     }
 
-    private void showFullScreenDialog(String query, String response){
-        if (mFullScreenTextParent == null){
+    private void showFullScreenDialog(String query, String response) {
+        if (mFullScreenTextParent == null) {
             mFullScreenTextParent = (DragFrameLayout) findViewById(R.id.full_screen_text_parent);
             mFullScreenTextParent.setEdgeTrackingEnabled(DragFrameLayout.EDGE_LEFT);
             mFullScreenTextParent.setOnScrollCompletedListener(new DragFrameLayout.OnScrollCompletedListener() {
@@ -596,20 +623,31 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         showMessage(R.string.hello3);
     }
 
-    private void dismissFullScreenDialog(){
+    private void dismissFullScreenDialog() {
         getInternalApi().stopSpeaker();
         mFullScreenTextParent.setVisibility(View.GONE);
         mRootDragFrameLayout.setEnableGesture(true);
     }
 
     private void updateLayout() {
+//        mMessageTv.post(new Runnable() {
+//            @Override
+//            public void run() {
+        Log.e(TAG, "run: line count = " + mMessageTv.getLineCount());
         int lineCount = mMessageTv.getLineCount();
+        Log.e(TAG, "updateLayout: text = " + mMessageTv.getText() + ", lineCount = " + lineCount);
         int gravity = mMessageTv.getGravity();
-        if (lineCount > 1 && gravity != (Gravity.LEFT | Gravity.CENTER_VERTICAL)) {
+        String text = mMessageTv.getText().toString();
+        if (TextUtils.isEmpty(text)) {
+            return;
+        }
+        if ((lineCount > 1 || text.length() > 9) && gravity != (Gravity.LEFT | Gravity.CENTER_VERTICAL)) {
             mMessageTv.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
         } else if (lineCount == 1 && (gravity != Gravity.CENTER)) {
             mMessageTv.setGravity(Gravity.CENTER);
         }
+//            }
+//        });
     }
 
     /**
@@ -744,6 +782,16 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         sendBroadcast(i);
     }
 
+    private void tryShowDialog() {
+        if (!NetworkUtils.isWifiConnected(Main2Activity.this)
+                && !ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
+            showDialog();
+        } else {
+            hideDialog();
+            mEnable = true;
+        }
+    }
+
     /**
      * 提醒用户正在使用移动数据流量
      */
@@ -758,7 +806,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             mDialogViewStub = (ViewStub) findViewById(R.id.view_stub);
             mDialogViewStub.inflate();
         } else {
-            mDialogViewStub.setVisibility(View.GONE);
+            mDialogViewStub.setVisibility(View.VISIBLE);
         }
 //        mDialog.setVisibility(View.VISIBLE);
     }
@@ -791,7 +839,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void hideDialog() {
-        mDialogViewStub.setVisibility(View.GONE);
+        if (mDialogViewStub != null) {
+            mDialogViewStub.setVisibility(View.GONE);
+        }
 //        mDialog.setVisibility(View.GONE);
 //        mAlertDialog.cancel();
     }
@@ -820,7 +870,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     public void onDialogWifiClick(View view) {
         Log.d(TAG, "onDialogWifiClick: ");
-        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+        Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.setClassName("com.android.settings", "com.android.settings.Settings$WifiSettingsActivity");
+        startActivity(intent);
     }
 
     public void onDialogExitClick(View view) {
@@ -998,6 +1051,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void stopCustomMediaPlayer() {
+        if (mMediaPlayer == null) {
+            return;
+        }
         IMediaPlayer.PlayState state = mMediaPlayer.getPlayState();
         if (state == IMediaPlayer.PlayState.PREPARING
                 || state == IMediaPlayer.PlayState.PLAYING
@@ -1029,6 +1085,42 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         }
     }
 
+    private class NetChangeListener extends NetworkCompat.OnNetChangeSample {
+
+        @Override
+        public void onMobile() {
+            super.onMobile();
+            Log.e(TAG, "onMobile() called");
+            Main2Activity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (!NetworkUtils.isWifiConnected(Main2Activity.this)
+                            && !ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
+                        if (isListening()) {
+                            cancelVoiceRequest();
+                            showHello3();
+                        }
+                        stopCustomMediaPlayer();
+                        pauseSpeaker();
+                        showDialog();
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onWifi() {
+            super.onWifi();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    hideDialog();
+                    mEnable = true;
+                }
+            });
+        }
+    }
+
     private class MyBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -1052,6 +1144,20 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     if (isListening()) {
                         cancelVoiceRequest();
                         showHello3();
+                    }
+                } else if (ACTION_APP_DATA_CHANGED.equals(action)) {
+                    if (!NetworkUtils.isWifiConnected(Main2Activity.this)
+                            && !ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
+                        if (isListening()) {
+                            cancelVoiceRequest();
+                            showHello3();
+                        }
+                        stopCustomMediaPlayer();
+                        pauseSpeaker();
+                        showDialog();
+                    } else {
+                        hideDialog();
+                        mEnable = true;
                     }
                 }
 

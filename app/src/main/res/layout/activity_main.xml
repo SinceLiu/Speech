@@ -25,11 +25,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:inflatedId="@+id/dialog"
-            android:layout="@layout/dialog" />
+            android:layout="@layout/dialog_traffic" />
 
-        <include layout="@layout/full_screen_text_view"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+        <include
+            layout="@layout/full_screen_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 

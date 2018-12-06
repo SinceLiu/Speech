@@ -1,5 +1,7 @@
 package com.readboy.watch.speech;
 
+import android.app.job.JobInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.support.test.InstrumentationRegistry;
@@ -23,5 +25,10 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getTargetContext();
 
         assertEquals("com.readboy.watch.speech", appContext.getPackageName());
+
+        ComponentName service = new ComponentName("com.readboy.watch.speech", "TestService");
+        JobInfo.Builder builder = new JobInfo.Builder(1, service);
+        builder.setClipData();
+        builder.setRequiresDeviceIdle()
     }
 }

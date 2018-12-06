@@ -391,6 +391,7 @@ public abstract class BaseDcsActivity extends Activity {
             connectionStatus = status;
             if (!isSendExitEvent && connectionStatus == ConnectionStatus.CONNECTED) {
                 sendExitEvent();
+                delayLoad();
                 isSendExitEvent = true;
             }
         }

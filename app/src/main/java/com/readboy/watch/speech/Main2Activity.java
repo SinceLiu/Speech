@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -192,6 +193,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
         Log.d(TAG, "onCreate: is debug mode = " + AppUtils.isDebugVersion(getApplicationContext()));
 
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            init();
+        }
 //        checkNetwork();
 //        operateNetwork();
 //        String mode = Build.MODEL;
@@ -269,6 +273,11 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 currentDialogState = dialogState;
                 switch (dialogState) {
                     case IDLE:
+                        if (lastState == DialogState.LISTENING
+                                && System.currentTimeMillis() - mLastListeningTime < 100) {
+                            Log.e(TAG, "onDialogStateChanged: too fast to idle, filter this idle.");
+                            return;
+                        }
                         mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
                         stopRecordAnim();
                         showMessage(null);
@@ -410,6 +419,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
+        init();
+    }
+
+    private void init() {
         long start = System.currentTimeMillis();
         Log.e(TAG, "onEnterAnimationComplete: firstBlood = " + firstBlood);
         Log.d(TAG, "onEnterAnimationComplete: start = " + start);
@@ -426,7 +439,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 startDcsSdk();
                 addErrorListener();
                 initDialogStateListener();
-                delayLoad();
                 initAnimation();
                 isActivated = temp;
             }
@@ -570,7 +582,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mHoldRecord.setActivated(true);
         hasNetwork = true;
         if (!NetworkUtils.isWifiConnected(this)
-                && !ReadboyManagerWrapper.isEnableOnlyWifi(this)) {
+                && ReadboyManagerWrapper.isEnableOnlyWifi(this)) {
             showDialog();
         } else {
             mEnable = true;
@@ -784,7 +796,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void tryShowDialog() {
         if (!NetworkUtils.isWifiConnected(Main2Activity.this)
-                && !ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
+                && ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
             showDialog();
         } else {
             hideDialog();
@@ -967,7 +979,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 }
 
                 if (getAsrMode() == DcsConfig.ASR_MODE_ONLINE) {
-                    if (!NetWorkUtil.isNetworkConnected(this)) {
+                    if (!NetworkUtils.isConnected(this)) {
 //                Toast.makeText(this, getResources().getString(R.string.err_net_msg), Toast.LENGTH_SHORT).show();
                         showNoNetwork();
                         return;
@@ -1095,7 +1107,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                 @Override
                 public void run() {
                     if (!NetworkUtils.isWifiConnected(Main2Activity.this)
-                            && !ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
+                            && ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
                         if (isListening()) {
                             cancelVoiceRequest();
                             showHello3();
@@ -1147,7 +1159,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     }
                 } else if (ACTION_APP_DATA_CHANGED.equals(action)) {
                     if (!NetworkUtils.isWifiConnected(Main2Activity.this)
-                            && !ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
+                            && ReadboyManagerWrapper.isEnableOnlyWifi(Main2Activity.this)) {
                         if (isListening()) {
                             cancelVoiceRequest();
                             showHello3();

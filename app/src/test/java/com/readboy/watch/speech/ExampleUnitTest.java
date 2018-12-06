@@ -1,7 +1,13 @@
 package com.readboy.watch.speech;
 
+import android.os.StrictMode;
+
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +50,10 @@ public class ExampleUnitTest {
         filter("ABCA");
         filter("ABCCBA");
         filter("212212");
+
+        LocalTime.now().withNano(0);
+        Instant.now();
+        StrictMode mode
 
     }
 

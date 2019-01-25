@@ -26,11 +26,9 @@ public class SpeechApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e(TAG, "onCreate() called");
 //        CrashReport.initCrashReport(getApplicationContext(), "17cdb09846", false);
         //加快进入应用速度，需要放到异步
         asyncInitBugly();
-        Log.e(TAG, "onCreate: end.");
     }
 
     private void asyncInitBugly() {

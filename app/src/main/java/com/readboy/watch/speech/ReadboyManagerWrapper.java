@@ -23,18 +23,20 @@ public class ReadboyManagerWrapper {
     public static boolean isEnableOnlyWifi(Context context) {
         ReadboyWearManager manager = (ReadboyWearManager) context.getSystemService(Context.RBW_SERVICE);
         if (manager == null) {
+            Log.w(TAG, "isEnableOnlyWifi: ReadboyWearManager is null.");
             return false;
         }
         PersonalInfo info = manager.getPersonalInfo();
         if (info == null) {
+            Log.w(TAG, "isEnableOnlyWifi: personalInfo is null.");
             return false;
         }
         List<String> appList = info.getWifiAppList();
-        Log.e(TAG, "isEnableOnlyWifi: appList = " + Arrays.toString(appList.toArray()));
+        Log.i(TAG, "isEnableOnlyWifi: appList = " + Arrays.toString(appList.toArray()));
         if (appList == null || !appList.contains(PACKAGE_NAME)) {
             return false;
         }
         Log.e(TAG, "isEnableOnlyWifi: enable = " + info.getWifiAppEnable());
-        return info.getWifiAppEnable() == 0;
+        return info.getWifiAppEnable() == 1;
     }
 }

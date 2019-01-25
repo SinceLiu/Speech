@@ -206,11 +206,16 @@ public abstract class BaseDcsActivity extends Activity {
 //        initListener();
 //        initLocation();
 
-        mMediaPlayer = new MediaPlayerImpl(this);
-
         registerContentObserver();
 
 //        test();
+    }
+
+    protected MediaPlayerImpl getMediaPlayer() {
+        if (mMediaPlayer == null) {
+            mMediaPlayer = new MediaPlayerImpl(this);
+        }
+        return mMediaPlayer;
     }
 
     protected void startDcsSdk() {
@@ -1012,10 +1017,12 @@ public abstract class BaseDcsActivity extends Activity {
 
         abandonAudioFocus();
         getContentResolver().unregisterContentObserver(mContractsObserver);
-        Log.e(TAG, "release: state = " + mMediaPlayer.getPlayState());
-        mMediaPlayer.stop();
-        mMediaPlayer.release();
-        mMediaPlayer = null;
+        if (mMediaPlayer != null) {
+            Log.e(TAG, "release: state = " + mMediaPlayer.getPlayState());
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
 
         if (dcsSdk != null) {
             Log.w(TAG, "release: dcsSdk == null.");
@@ -1451,7 +1458,9 @@ public abstract class BaseDcsActivity extends Activity {
                     if (dcsSdk != null) {
                         pauseSpeaker();
                     }
-                    mMediaPlayer.pause();
+                    if (mMediaPlayer != null) {
+                        getMediaPlayer().pause();
+                    }
 //                    sendPauseMusicEvent();
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:

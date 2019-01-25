@@ -35,13 +35,12 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.baidu.duer.dcs.sample.sdk.SDKBaseActivity.TAG;
-
 /**
  * Created by wuqi08 on 18/1/17.
  */
 
 public class DeviceCodeOauth implements IOauth {
+    private static final String TAG = "DeviceCodeOauth";
 
     private Timer pollTimer = new Timer();
     private String clientId;

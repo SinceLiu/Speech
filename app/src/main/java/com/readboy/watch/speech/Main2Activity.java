@@ -42,7 +42,6 @@ import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderCardPaylo
 import com.baidu.duer.dcs.sample.sdk.devicemodule.screen.message.RenderVoiceInputTextPayload;
 import com.baidu.duer.dcs.util.AsrType;
 import com.baidu.duer.dcs.util.util.CommonUtil;
-import com.baidu.duer.dcs.util.util.NetWorkUtil;
 import com.readboy.watch.speech.media.IMediaPlayer;
 import com.readboy.watch.speech.util.AppUtils;
 import com.readboy.watch.speech.util.ClickUtils;
@@ -193,9 +192,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
         Log.d(TAG, "onCreate: is debug mode = " + AppUtils.isDebugVersion(getApplicationContext()));
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            init();
-        }
 //        checkNetwork();
 //        operateNetwork();
 //        String mode = Build.MODEL;
@@ -419,10 +415,6 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
-        init();
-    }
-
-    private void init() {
         long start = System.currentTimeMillis();
         Log.e(TAG, "onEnterAnimationComplete: firstBlood = " + firstBlood);
         Log.d(TAG, "onEnterAnimationComplete: start = " + start);
@@ -769,7 +761,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void showIntroduction() {
-        showMessage(getString(R.string.hello1), Contracts.HELLO1);
+        showMessage(getString(R.string.hello1), null);
     }
 
     private void showMessage(final int resId, String filePath) {
@@ -779,7 +771,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private void showMessage(final String text, String source) {
         showMessage(text);
         if (mMediaPlayer != null && !TextUtils.isEmpty(source)) {
-            mMediaPlayer.play(new IMediaPlayer.MediaResource(source));
+            getMediaPlayer().play(new IMediaPlayer.MediaResource(source));
         } else {
             CrashReport.postCatchedException(new NullPointerException("showMessage: mMediaPlayer = null."));
         }

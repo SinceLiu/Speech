@@ -192,6 +192,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
         Log.d(TAG, "onCreate: is debug mode = " + AppUtils.isDebugVersion(getApplicationContext()));
 
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            init();
+        }
 //        checkNetwork();
 //        operateNetwork();
 //        String mode = Build.MODEL;
@@ -415,6 +418,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     public void onEnterAnimationComplete() {
         super.onEnterAnimationComplete();
+        init();
+    }
+
+    private void init() {
         long start = System.currentTimeMillis();
         Log.e(TAG, "onEnterAnimationComplete: firstBlood = " + firstBlood);
         Log.d(TAG, "onEnterAnimationComplete: start = " + start);

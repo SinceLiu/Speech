@@ -1,11 +1,13 @@
 package com.readboy.watch.speech;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,6 +15,8 @@ import android.util.Log;
 import com.tencent.bugly.crashreport.CrashReport;
 
 import org.w3c.dom.Text;
+
+import java.security.Permission;
 
 /**
  * @author oubin
@@ -28,7 +32,10 @@ public class SpeechApplication extends Application {
         super.onCreate();
 //        CrashReport.initCrashReport(getApplicationContext(), "17cdb09846", false);
         //加快进入应用速度，需要放到异步
-        asyncInitBugly();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED) {
+            asyncInitBugly();
+        }
     }
 
     private void asyncInitBugly() {
@@ -56,8 +63,13 @@ public class SpeechApplication extends Application {
                 return null;
             }
         }
-        imei = manager.getDeviceId();
-        Log.e(TAG, "getImei: imei = " + imei);
+        if (manager != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                imei = manager.getImei();
+            } else {
+                imei = manager.getDeviceId();
+            }
+        }
         return imei;
     }
 

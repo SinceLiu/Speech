@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.media.AudioManager;
@@ -14,6 +15,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -480,7 +482,7 @@ public abstract class BaseDcsActivity extends Activity {
     /**
      * android 6.0 以上需要动态申请权限
      */
-    private void initPermission() {
+    private boolean initPermission() {
         ArrayList<String> toApplyList = new ArrayList<String>();
         for (String perm : Contracts.PERMISSIONS) {
             if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(this, perm)) {
@@ -492,6 +494,9 @@ public abstract class BaseDcsActivity extends Activity {
         if (!toApplyList.isEmpty()) {
             String[] tmpList = new String[toApplyList.size()];
             ActivityCompat.requestPermissions(this, toApplyList.toArray(tmpList), REQUEST_CODE);
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -499,17 +504,32 @@ public abstract class BaseDcsActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // 此处为android 6.0以上动态授权的回调，用户自行实现。
         Log.e(TAG, "onRequestPermissionsResult() called with: requestCode = " + requestCode);
+        boolean permission = false;
         for (int i = 0; i < permissions.length; i++) {
             if (grantResults[i] != PackageManager.PERMISSION_GRANTED
                     && Arrays.asList(Contracts.PERMISSIONS).contains(permissions[i])) {
                 Log.e(TAG, "onRequestPermissionsResult: has not permissions2 = " + permissions[i]);
+                permission = true;
             }
         }
+        if (permission) {
+            ToastUtils.showShort(this, "获取权限失败，请手动获取");
+            goIntentSetting();
+        } else {
+            registerContentObserver();
+        }
         copyLibvadAsync();
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-////            uploadContacts();
-//        }
+    }
 
+    private void goIntentSetting() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        intent.setData(uri);
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -623,7 +643,6 @@ public abstract class BaseDcsActivity extends Activity {
         initPhoneCallListener();
         phoneCallDeviceModule.addPhoneCallListener(phoneCallListener);
         dcsSdk.putDeviceModule(phoneCallDeviceModule);
-//        uploadContacts();
 
         // 设置
         deviceControlDeviceModule = new DeviceControlDeviceModule(messageSender);
@@ -631,11 +650,6 @@ public abstract class BaseDcsActivity extends Activity {
         deviceControlListener = new DeviceControlDeviceModule.SimpleDeviceControlListener(this);
         deviceControlDeviceModule.addDeviceControlListener(deviceControlListener);
         dcsSdk.putDeviceModule(deviceControlDeviceModule);
-        // 本地闹钟
-//        alarmsDeviceModule = new AlarmsDeviceModule(messageSender);
-//        initAlarmListener();
-//        alarmsDeviceModule.addAlarmListener(alarmListener);
-//        dcsSdk.putDeviceModule(alarmsDeviceModule);
         // 联系人
 //        contactsDeviceModule = new ContactsDeviceModule(messageSender);
 //        initContactsListener();
@@ -999,12 +1013,16 @@ public abstract class BaseDcsActivity extends Activity {
     }
 
     private void registerContentObserver() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) !=
+                PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "registerContentObserver: no read contacts permission.");
+            return;
+        }
         if (mContractsObserver == null) {
             mContractsObserver = new ContractsObserver(new Handler(Looper.getMainLooper()));
+            getContentResolver().registerContentObserver(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                    true, mContractsObserver);
         }
-//        getContentResolver().registerContentObserver(ContactsContract.Data.CONTENT_URI, true, mContractsObserver);
-        getContentResolver().registerContentObserver(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                true, mContractsObserver);
     }
 
     protected void release() {
@@ -1016,7 +1034,10 @@ public abstract class BaseDcsActivity extends Activity {
         isReleased = true;
 
         abandonAudioFocus();
-        getContentResolver().unregisterContentObserver(mContractsObserver);
+        if (mContractsObserver != null) {
+            getContentResolver().unregisterContentObserver(mContractsObserver);
+            mContractsObserver = null;
+        }
         if (mMediaPlayer != null) {
             Log.e(TAG, "release: state = " + mMediaPlayer.getPlayState());
             mMediaPlayer.stop();
@@ -1039,7 +1060,6 @@ public abstract class BaseDcsActivity extends Activity {
     private void stopService() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo info : manager.getRunningServices(Integer.MAX_VALUE)) {
-            Log.e(TAG, "stopService: info = " + info.service.getClassName());
             if (info.service != null
                     && this.getPackageName().equals(info.service.getPackageName())) {
                 Log.e(TAG, "stopService: removeTask: " + info.service);

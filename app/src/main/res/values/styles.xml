@@ -11,12 +11,24 @@
         <item name="android:windowSwipeToDismiss">false</item>
     </style>
 
+    <style name="LauncherTheme" parent="android:Theme.Holo.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@drawable/bg_speech_pre</item>
+        <item name="android:windowAnimationStyle">@style/Animation.Preview</item>
+    </style>
+
     <style name="Animation"/>
-    
-    <style name="Animation.Bottom">
+
+    <style name="Animation.Preview">
         <item name="android:windowEnterAnimation">@anim/activity_bottom_enter</item>
         <item name="android:activityCloseExitAnimation">@anim/activity_bottom_exit</item>
         <item name="android:wallpaperCloseEnterAnimation">@anim/activity_bottom_enter</item>
+        <item name="android:wallpaperOpenExitAnimation">@anim/activity_bottom_exit</item>
+    </style>
+
+    <style name="Animation.Bottom">
+        <!--<item name="android:windowEnterAnimation">@anim/activity_bottom_enter</item>-->
+        <item name="android:activityCloseExitAnimation">@anim/activity_bottom_exit</item>
+        <!--<item name="android:wallpaperCloseEnterAnimation">@anim/activity_bottom_enter</item>-->
         <item name="android:wallpaperOpenExitAnimation">@anim/activity_bottom_exit</item>
     </style>
     

@@ -1314,7 +1314,9 @@ public abstract class BaseDcsActivity extends Activity {
     private void resumeSpeakerState() {
         Log.e(TAG, "resumeSpeakerState: isPauseSpeaker = " + isPausedSpeaker);
 //        if (isPausedSpeaker) {
-        getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
+        if (getDcsSdkImpl() != null) {
+            getDcsSdkImpl().getFramework().multiChannelMediaPlayer.a(false);
+        }
         isPausedSpeaker = false;
 //        }
     }

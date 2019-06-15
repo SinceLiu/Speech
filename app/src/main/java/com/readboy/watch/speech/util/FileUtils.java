@@ -118,7 +118,14 @@ public class FileUtils {
     public static boolean copyAssets(Context context, String oldPath, String newPath) {
         Log.e(TAG, "copyAssets: start.newPath = " + newPath);
         // 获取assets目录下的所有文件及目录名
-        File file = new File(newPath);
+        String newTempPath = newPath + ".temp";
+        File file = new File(newTempPath);
+        //如果临时文件存在，删除
+        if (file.exists() && file.isFile()) {
+            if (!file.delete()) {
+                return false;
+            }
+        }
         if (file.isDirectory()) {
             Log.e(TAG, "copyAssets: isDirectory.");
             // 如果是目录
@@ -152,6 +159,8 @@ public class FileUtils {
                 }
                 // 刷新缓冲区
                 fos.flush();
+                //复制完成才修改正确文件名
+                file.renameTo(new File(newPath));
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "copyAssets: e: " + e.toString());

@@ -1,6 +1,7 @@
 package com.baidu.duer.dcs.sample.sdk.util;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +25,7 @@ import org.json.JSONObject;
 
 public final class ContactsUtils {
     private static final String TAG = "ContactsUtils";
+
 
     public static String getAllContacts(Context context) throws JSONException {
         JSONArray array = new JSONArray();
@@ -83,6 +85,7 @@ public final class ContactsUtils {
             return true;
         }
     }
+
 
     /**
      * @return first phoneNum or the home number.

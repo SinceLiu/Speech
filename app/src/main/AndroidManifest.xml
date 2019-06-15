@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.readboy.watch.speech"
-    android:versionCode="181012001"
-    android:versionName="2.2.2">
+    android:versionCode="190331001"
+    android:versionName="2.3.0">
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -83,13 +83,14 @@
         <!--语音asr end -->
 
         <activity android:name=".Main2Activity"
-            android:launchMode="singleInstance">
+            android:launchMode="singleInstance"
+            android:theme="@style/LauncherTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.readboy.WATCH.FLAG" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
             </intent-filter>
         </activity>
 

@@ -65,7 +65,10 @@ public final class Contracts {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.READ_CONTACTS,
-            Manifest.permission.WRITE_CONTACTS
+            Manifest.permission.WRITE_CONTACTS,
+            Manifest.permission.CALL_PHONE,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS,
+            Manifest.permission.WRITE_SETTINGS
     };
 
 

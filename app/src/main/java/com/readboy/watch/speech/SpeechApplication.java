@@ -31,16 +31,15 @@ public class SpeechApplication extends Application {
     public void onCreate() {
         super.onCreate();
 //        CrashReport.initCrashReport(getApplicationContext(), "17cdb09846", false);
-        //加快进入应用速度，需要放到异步
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
-                == PackageManager.PERMISSION_GRANTED) {
-            asyncInitBugly();
-        }
     }
 
-    private void asyncInitBugly() {
+    //加快进入应用速度，需要放到异步
+    public void asyncInitBugly() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         new AsyncTask<Void, Void, Void>() {
-
             @Override
             protected Void doInBackground(Void... params) {
                 CrashReport.initCrashReport(getApplicationContext(), "17cdb09846", false);
@@ -64,7 +63,7 @@ public class SpeechApplication extends Application {
             }
         }
         if (manager != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= 26) {
                 imei = manager.getImei();
             } else {
                 imei = manager.getDeviceId();

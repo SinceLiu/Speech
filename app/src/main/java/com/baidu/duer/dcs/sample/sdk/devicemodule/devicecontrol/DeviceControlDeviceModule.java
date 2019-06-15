@@ -44,7 +44,6 @@ import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetSynch
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetVibrationPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetVpnPayload;
 import com.baidu.duer.dcs.sample.sdk.devicemodule.devicecontrol.message.SetWifiPayload;
-import com.readboy.watch.speech.SpeechApplication;
 import com.readboy.watch.speech.util.SettingsUtils;
 import com.readboy.watch.speech.util.ToastUtils;
 

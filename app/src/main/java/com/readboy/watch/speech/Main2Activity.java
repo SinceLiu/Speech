@@ -2,6 +2,7 @@ package com.readboy.watch.speech;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.provider.Settings;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.TextViewCompat2;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
@@ -175,6 +177,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_main);
         assignViews();
         initViewPager();
@@ -182,19 +185,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //        stopAudioPlayback();
 
         registerReceiver();
-        mNetworkCompat = new NetworkCompat();
-        mNetChangeListener = new NetChangeListener();
-        mNetworkCompat.setNetChangeListener(mNetChangeListener);
-        mNetworkCompat.start(this);
+
         if (SHOW_EXTEND_SCREEN) {
             TextViewCompat2.setAutoSizeTextTypeUniformWithConfiguration(mMessageTv, 18, 24, 3, TypedValue.COMPLEX_UNIT_PX);
         }
-
         Log.d(TAG, "onCreate: is debug mode = " + AppUtils.isDebugVersion(getApplicationContext()));
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            init();
-        }
 //        checkNetwork();
 //        operateNetwork();
 //        String mode = Build.MODEL;
@@ -234,11 +230,17 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     @Override
     protected void onDestroy() {
         removeAllMessages();
-        mNetworkCompat.stop(this);
-        unregisterReceiver(mBroadcastReceiver);
-        mBroadcastReceiver = null;
-        super.onDestroy();
+        if (mNetworkCompat != null) {
+            mNetworkCompat.stop(this);
+        }
+        try {
+            unregisterReceiver(mBroadcastReceiver);
+            mBroadcastReceiver = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Log.e(TAG, "onDestroy: ");
+        super.onDestroy();
         stopAll();
         releaseAnimation();
 //        ToastUtils.cancel();
@@ -247,12 +249,14 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void removeAllMessages() {
-        mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
-        mHandler.removeMessages(HANDLER_WHAT_FINISH);
-        mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
-        mHandler.removeMessages(HANDLER_WHAT_RECORD_ANIMATION);
-        mHandler.removeMessages(HANDLER_WHAT_SHOW_HELLO);
-        mHandler.removeMessages(HANDLER_WHAT_TEST);
+        if (mHandler != null) {
+            mHandler.removeMessages(HANDLER_WHAT_LOADING_TIME_OUT);
+            mHandler.removeMessages(HANDLER_WHAT_FINISH);
+            mHandler.removeMessages(HANDLER_WHAT_STOP_RECORD);
+            mHandler.removeMessages(HANDLER_WHAT_RECORD_ANIMATION);
+            mHandler.removeMessages(HANDLER_WHAT_SHOW_HELLO);
+            mHandler.removeMessages(HANDLER_WHAT_TEST);
+        }
     }
 
     private void releaseAnimation() {
@@ -287,6 +291,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                         break;
                     case LISTENING:
                         keepScreenOn();
+                        if (mFullScreenTextParent != null && mFullScreenTextParent.getVisibility() == View.VISIBLE) {
+                            dismissFullScreenDialog();
+                        }
                         startRecordAnim();
                         mMessageTv.setText("");
 //                        showWaveform();
@@ -417,8 +424,15 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     @Override
     public void onEnterAnimationComplete() {
+        Log.e(TAG, "onEnterAnimationComplete: ");
         super.onEnterAnimationComplete();
         init();
+        mNetworkCompat = new NetworkCompat();
+        mNetChangeListener = new NetChangeListener();
+        mNetworkCompat.setNetChangeListener(mNetChangeListener);
+        mNetworkCompat.start(this);
+        SpeechApplication mApplication = (SpeechApplication) getApplication();
+        mApplication.asyncInitBugly();
     }
 
     private void init() {
@@ -452,6 +466,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
             filter.addAction(ACTION_CHARGING_ANIM_DISPLAY);
             filter.addAction(READBOY_ACTION_CLASS_DISABLE_CHANGED);
             filter.addAction(ACTION_APP_DATA_CHANGED);
+            filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
             registerReceiver(mBroadcastReceiver, filter);
         }
     }
@@ -516,6 +531,9 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         mRootDragFrameLayout.setOnDismissListener(new DragFrameLayout.OnDismissedListener() {
             @Override
             public void onDismissed() {
+                if (mSilkyAnimation != null) {
+                    mSilkyAnimation.stop();
+                }
                 stopAll();
                 finish();
             }
@@ -696,8 +714,10 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     }
 
     private void hideLoading() {
-        mHoldRecord.setVisibility(View.VISIBLE);
-        mLoading.setVisibility(View.GONE);
+        if (mHoldRecord != null && mLoading != null) {
+            mHoldRecord.setVisibility(View.VISIBLE);
+            mLoading.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -754,7 +774,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //            return;
 //        }
         stopRecordAnim();
-        String text = getString(R.string.error_no_asr_result);
+//        String text = getString(R.string.error_no_asr_result);
 //        getInternalApi().speakRequest(text);
         showMessage(R.string.error_no_asr_result, Contracts.LISTENING_TIMEOUT);
     }
@@ -777,10 +797,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void showMessage(final String text, String source) {
         showMessage(text);
-        if (mMediaPlayer != null && !TextUtils.isEmpty(source)) {
+        if (!TextUtils.isEmpty(source)) {
             getMediaPlayer().play(new IMediaPlayer.MediaResource(source));
-        } else {
-            CrashReport.postCatchedException(new NullPointerException("showMessage: mMediaPlayer = null."));
         }
     }
 
@@ -959,10 +977,12 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 //                if (isPlayingAudio) {
 //                    pauseOrPlayMusic();
 //                }
+                //
+                if (isSpeaking()) {
+                    cancelScreenOn();
+                }
                 pauseOrResumeSpeaker();
                 stopCustomMediaPlayer();
-//                if (CommonUtil.isFastDoubleClick()){
-//                }
                 break;
             case R.id.voice_btn:
                 stopCustomMediaPlayer();
@@ -1169,6 +1189,15 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
                     } else {
                         hideDialog();
                         mEnable = true;
+                    }
+                } else if (TelephonyManager.ACTION_PHONE_STATE_CHANGED.equals(action)) {
+                    if (TelephonyManager.EXTRA_STATE_RINGING.equals(intent.getStringExtra(TelephonyManager.EXTRA_STATE))) {
+                        if (dcsSdk != null) {
+                            pauseSpeaker();
+                        }
+                        if (mMediaPlayer != null) {
+                            getMediaPlayer().pause();
+                        }
                     }
                 }
 

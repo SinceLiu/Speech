@@ -3,38 +3,21 @@
 
     <string name="help_title">"您可以这样问我"</string>
     <string name="help_content">"打电话给爸爸\n猜谜语\n词语接龙\n今天天气怎样\n讲个故事"</string>
-    <string name="help_content2">打电话给爸爸\n猜谜语\n中山天气怎样\n讲个故事 </string>
 
     <string name="hello1">Hi，我是你的好朋友小蛙，能帮你做点什么吗？</string>
-    <string name="hello2">你好，我是小蛙</string>
     <string name="hello3">小主人，请问还有什么可以帮你的？</string>
     <string name="connect_time_out">当前网络不稳定，请稍后再试</string>
-    <string name="error_no_network">世界上最遥远的距离，就是你在我身边却没有网络，赶紧去设置吧！</string>
     <string name="error_no_network2">世界上最遥远的距离，就是没有了网络，快去设置吧！</string>
     <string name="error_no_network3">请检查网络是否可用</string>
     <!-- 手表内部出问题 -->
     <string name="error_internal">小蛙累了，需要休息一会</string>
-    <string name="error_no_result1">噢，你可以再说一遍吗？</string>
-    <string name="error_no_result2">对不起，没有听清，能再说一遍吗？</string>
     <string name="error_no_asr_result">抱歉，没有听到你说了什么</string>
-    <string name="error_useless_result">这个问题有点难，你可以去问问你爸爸噢！</string>
     <!--比如我们这边的网络被网管禁止了-->
     <!--asr,tts服务器出问题了-->
-    <string name="error_service">小蛙生病了，需要休息一会</string>
     <!--如：10086。冬天天气-->
-    <string name="contact_not_exist">\"%s\"联系人不存在</string>
-    <string name="loading">识别中&#8230;</string>
-    <string name="hold_record">按住说话</string>
     <string name="hold_record_message">请长按录音</string>
-    <string name="short_time">录音时间过短</string>
 
     <string name="using_mobile_data_traffic">未连接WIFI，使用流量可能会产生费用，是否允许使用?</string>
-    <string name="disable_using_traffic">流量已被家长禁止使用，请连接WIFI。</string>
-    <string name="yes">确定</string>
-    <string name="no">取消</string>
-
-    <string name="always_allow">总是允许</string>
-    <string name="once_allow">允许本次</string>
 
     <string name="always">总是</string>
     <string name="once">本次</string>
@@ -43,57 +26,10 @@
     <string name="cannot_using_traffic">请连接WIFI！</string>
     <string name="toast_max_record_time">说话时间超长</string>
 
-    <string name="recording_format_high">高</string>
-    <string name="recording_format_mid">中</string>
-    <string name="recording_format_low">低</string>
-
-    <string name="err_net_msg">当前网络连接失败,请稍后重试</string>
-    <string name="voice_err_msg">识别失败，请稍后再试</string>
-    <string name="audio_paused">暂停中&#8230;</string>
-    <string name="audio_playing">播放中&#8230;</string>
-    <string name="audio_default">等待音乐</string>
-    <string name="stop_record">点击说话</string>
-    <string name="start_record">录音中&#8230;</string>
-    <string name="speaking">播报中&#8230;</string>
-    <string name="think">思考中&#8230;</string>
-    <string name="time_record">耗时:click->StopListen:%1$dms</string>
-    <string name="request_error">出错了，请稍后再试</string>
-    <string name="no_log">暂时没有日志</string>
-    <string name="no_directive">对不起，暂时没有收到指令</string>
-    <string name="inputed_text_cannot_be_empty">输入的内容不能为空</string>
-    <string name="no_audio">暂时没有歌曲了，请稍后再试</string>
-    <string name="open_file_title">选择浏览工具</string>
-    <string name="previous_audio">上一首</string>
-    <string name="upload_contacts">上传联系人</string>
-    <string name="next_audio">下一首</string>
-    <string name="open_log">打开日志</string>
-    <string name="send">发送</string>
-    <string name="login">登陆</string>
-    <string name="client_id">您应用的client_id</string>
-    <string name="client_id_empty">请输入您申请的client_id</string>
-    <string name="login_succeed">登陆成功</string>
-    <string name="login_failed">登陆失败</string>
-    <string name="login_canceled">登陆取消</string>
-    <string name="wakeup_succeed">唤醒成功,您问点什么呢?</string>
-    <string name="wakeup_word">您可以说【小度小度】进行唤醒</string>
-    <string name="audio_permission_error_msg">录音权限失败</string>
-    <string name="send_edit_hint">输入你要查询的内容</string>
-    <string name="adjust_volume">调整音量</string>
-    <string name="tts_info_volume_hint">声音大小（0&#8211;9）</string>
-    <string name="tts_info_speed_hint">语速（0&#8211;9）</string>
-    <string name="tts_info_pitch_hint">语调（0&#8211;9）</string>
-    <string name="tts_info_speaker_hint">声音类型（0&#8211;4）</string>
-    <string name="tts_info_aue_hint">音频格式</string>
-    <string name="tts_info_rate_hint">码率</string>
-    <string name="tts_info_xml_hint">是否为xml</string>
-    <string name="tts_info_reset_hint">重置</string>
-    <string name="cancel_recognition">取消识别</string>
-
     <string name="logging_toast">正在加载中,请稍后</string>
     <string name="login_failed_toast">网络连接失败，请重试</string>
     <string name="no_login">未登录</string>
 
-    <string name="traffic_dialog_title">流量禁止使用</string>
     <string name="traffic_dialog_content">流量已经被家长禁止使用，请连接WIFI。</string>
     <string name="traffic_dialog_wifi">WIFI</string>
     <string name="traffic_dialog_exit">退出</string>

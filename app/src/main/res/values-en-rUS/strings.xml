@@ -3,36 +3,20 @@
 
     <string name="help_title">"You can ask me some questions, such as"</string>
     <string name="help_content">"call dad\nmake a joke\nWhat’s the weather in Zhongshan\ntell a story"</string>
-    <string name="help_content2">"Call dad\nMake a joke\nWhat\'s the weather like today\nRecite a Tang poem\nSing a children's song"</string>
 
     <string name="hello1">Hi,I am your friend Xiao Wa,What can I do for you?</string>
-    <string name="hello2">Hello,I am XiaoWa</string>
     <string name="hello3">My master，Is there anything else I can do to help you？</string>
     <string name="connect_time_out">The current network is unstable, please try again later.</string>
-    <string name="error_no_network">The furthest distance in the world is that you have no network around me, set it up quickly！</string>
     <string name="error_no_network2">The furthest distance in the world is that there is no network, set it up quickly!</string>
     <string name="error_no_network3">Please check whether the network is available.</string>
     <!-- 手表内部出问题 -->
     <string name="error_internal">I\'m tired. I need to take a rest.</string>
-    <string name="error_no_result1">Please say it again？</string>
-    <string name="error_no_result2">I\'m sorry, I didn\'t hear it. Can you say it again</string>
-    <string name="error_useless_result">It\'s a little difficult. You can ask your dad!</string>
     <!--比如我们这边的网络被网管禁止了-->
     <!--asr,tts服务器出问题了-->
-    <string name="error_service">I\'m sick. I need to take a rest.</string>
     <!--如：10086。冬天天气-->
-    <string name="contact_not_exist">\"%s\" contacts do not exist</string>
-    <string name="loading">recognizing&#8230;</string>
-    <string name="hold_record">hold to talk</string>
     <string name="hold_record_message">please hold to talk</string>
-    <string name="short_time">Recording time is too short</string>
 
     <string name="using_mobile_data_traffic">Unconnected WIFI, the use of traffic may produce costs, and is allowed to use?</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-
-    <string name="always_allow">Always allow</string>
-    <string name="once_allow">Allow this</string>
 
     <string name="always">always</string>
     <string name="once">once</string>
@@ -41,45 +25,6 @@
     <string name="cannot_using_traffic">Please connect WIFI！</string>
     <string name="toast_max_record_time">The time of speaking is too long</string>
 
-    <string name="recording_format_high">high</string>
-    <string name="recording_format_mid">middle</string>
-    <string name="recording_format_low">low</string>
-
-    <string name="err_net_msg">The current network connection failed, please try again later</string>
-    <string name="voice_err_msg">Identification failed, please try again later</string>
-    <string name="audio_paused">paused&#8230;</string>
-    <string name="audio_playing">playing&#8230;</string>
-    <string name="audio_default">wait music</string>
-    <string name="stop_record">Click on speech</string>
-    <string name="start_record">recording&#8230;</string>
-    <string name="speaking">speaking&#8230;</string>
-    <string name="think">thinking&#8230;</string>
-    <string name="time_record">Time consuming:click->StopListen:%1$dms</string>
-    <string name="request_error">it\'s error，please try again later</string>
-    <string name="no_log">No log for the time being</string>
-    <string name="no_directive">Sorry, no instructions have been received for the time being</string>
-    <string name="inputed_text_cannot_be_empty">The contents of the input can not be empty</string>
-    <string name="no_audio">There is no song for the time being. Please try again later.</string>
-    <string name="open_file_title">Select browse tools</string>
-    <string name="previous_audio">previous audio</string>
-    <string name="upload_contacts">upload contacts</string>
-    <string name="next_audio">new audio</string>
-    <string name="open_log">open log</string>
-    <string name="send">send</string>
-    <string name="login">login</string>
-    <string name="client_id">It client_id you applied</string>
-    <string name="client_id_empty">Please enter the client_id you apply for</string>
-    <string name="login_succeed">login succeed</string>
-    <string name="login_failed">login failed</string>
-    <string name="login_canceled">login canceled</string>
-    <string name="wakeup_succeed">Wake-up success, what do you ask?</string>
-    <string name="wakeup_word">You can say XiaoduXiaodu to wake up</string>
-    <string name="audio_permission_error_msg">Unable to obtain record permissions</string>
-    <string name="send_edit_hint">Enter the content you want to query</string>
-    <string name="adjust_volume">Adjust the volume</string>
-    <string name="cancel_recognition">Cancelling recognition</string>
-
-    <string name="traffic_dialog_title">Traffic is prohibit to use</string>
     <string name="traffic_dialog_content">Traffic has been banned by parents，please connect wifi</string>
     <string name="traffic_dialog_wifi">WIFI</string>
     <string name="traffic_dialog_exit">CANCEL</string>

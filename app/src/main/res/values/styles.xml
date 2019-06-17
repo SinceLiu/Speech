@@ -31,31 +31,6 @@
         <!--<item name="android:wallpaperCloseEnterAnimation">@anim/activity_bottom_enter</item>-->
         <item name="android:wallpaperOpenExitAnimation">@anim/activity_bottom_exit</item>
     </style>
-    
-    <style name="DisableSwipeToDismiss" parent="AppTheme">
-        <item name="android:windowSwipeToDismiss">false</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-    </style>
-
-    <style name="TextStyle">
-        <item name="android:textSize">@dimen/text_style_text_size</item>
-        <item name="android:textColor">@color/gray_light</item>
-    </style>
-
-    <style name="TitleStyle">
-        <item name="android:textSize">@dimen/text_size_normal</item>
-        <item name="android:text">@string/help_title</item>
-        <item name="android:textColor">@color/green</item>
-    </style>
-
-    <style name="Footer">
-        <item name="android:textColor">@color/blue</item>
-        <item name="android:textSize">@dimen/text_size_normal</item>
-        <item name="android:gravity">center</item>
-        <item name="android:text">@string/hold_record</item>
-    </style>
 
     <style name="DialogButton" parent="@android:style/Widget.Material.Button.Borderless.Colored">
         <item name="android:textSize">@dimen/dialog_button_text_size</item>

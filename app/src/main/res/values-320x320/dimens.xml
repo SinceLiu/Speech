@@ -1,7 +1,5 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">21px</dimen>
-    <dimen name="activity_vertical_margin">21px</dimen>
 
     <dimen name="display_width">320px</dimen>
     <dimen name="display_height">320px</dimen>
@@ -10,26 +8,9 @@
 
     <dimen name="text_size_large">37px</dimen>
     <dimen name="text_size_normal">32px</dimen>
-    <dimen name="text_size_small">27px</dimen>
-
-    <dimen name="content_height">213px</dimen>
-    <dimen name="content_padding">11px</dimen>
-    <dimen name="progress_bar_width">120px</dimen>
-
-    <dimen name="loading_padding">4px</dimen>
 
     <dimen name="record_padding_bottom">16px</dimen>
     <dimen name="record_padding">0px</dimen>
-    <dimen name="dialog_margin_1">16px</dimen>
-    <dimen name="dialog_cancel_width">32px</dimen>
-    <dimen name="dialog_cancel_padding_bottom">5px</dimen>
-    <dimen name="dialog_cancel_padding_left">13px</dimen>
-    <dimen name="dialog_cancel_padding_right">7px</dimen>
-    <dimen name="dialog_cancel_padding_top">7px</dimen>
-    <dimen name="dialog_cancel_tv_margin_horizontal">16dp</dimen>
-    <dimen name="dialog_cancel_tv_text_size">32sp</dimen>
-    <dimen name="dialog_button_padding_horizontal">16dp</dimen>
-    <dimen name="dialog_button_padding_top">5dp</dimen>
     <dimen name="dialog_traffic_margin_1">16px</dimen>
     <dimen name="dialog_traffic_text_size">27px</dimen>
     <dimen name="dialog_traffic_padding_2">11px</dimen>
@@ -41,12 +22,6 @@
     <dimen name="full_screen_text_view_text_size_2">24px</dimen>
     <dimen name="help_margin_left">20px</dimen>
     <dimen name="help_spacing_extra">8px</dimen>
-    <dimen name="sdk_main_text_size">21sp</dimen>
-    <dimen name="sdk_margin_margin_1">7dp</dimen>
-    <dimen name="sdk_main_margin_2">13dp</dimen>
-    <dimen name="sdk_main_et_height">53dp</dimen>
-    <dimen name="sdk_main_et_padding">7dp</dimen>
-    <dimen name="sdk_main_button_margin_start">13dp</dimen>
     <dimen name="speech_recording_height">96px</dimen>
     <dimen name="speech_loading_pb_width">80px</dimen>
     <dimen name="speech_loading_pb_height">96px</dimen>
@@ -54,7 +29,6 @@
     <dimen name="speech_message_margin_top">9px</dimen>
     <dimen name="speech_message_padding_horizontal">16px</dimen>
     <dimen name="speech_message_text_size">32px</dimen>
-    <dimen name="text_style_text_size">40px</dimen>
     <dimen name="dialog_button_text_size">36sp</dimen>
 
 </resources>

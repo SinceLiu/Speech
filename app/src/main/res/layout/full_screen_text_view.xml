@@ -8,35 +8,35 @@
     android:visibility="gone">
 
     <ScrollView
-        android:layout_width="240px"
+        android:layout_width="match_parent"
         android:background="@android:color/black"
-        android:layout_height="240px">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12px"
-            android:layout_marginRight="12px"
+            android:layout_marginLeft="@dimen/full_screen_text_view_margin_horizontal"
+            android:layout_marginRight="@dimen/full_screen_text_view_margin_horizontal"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/query_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="9px"
+                android:layout_marginTop="@dimen/full_screen_text_view_margin_top_1"
                 android:maxLines="2"
                 android:ellipsize="end"
                 android:textColor="#a5a5a5"
-                android:textSize="24px" />
+                android:textSize="@dimen/full_screen_text_view_text_size_1" />
 
             <TextView
                 android:id="@+id/response_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16px"
+                android:layout_marginTop="@dimen/full_screen_text_view_margin_top_2"
                 android:lineSpacingExtra="1px"
                 android:textColor="@android:color/white"
-                android:textSize="18px" />
+                android:textSize="@dimen/full_screen_text_view_text_size_2" />
 
         </LinearLayout>
 

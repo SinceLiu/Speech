@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="15px"
+    android:layout_marginLeft="@dimen/help_margin_left"
     android:orientation="vertical">
 
         <TextView
@@ -17,9 +17,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white_dark"
-            android:layout_marginTop="8px"
-            android:lineSpacingExtra="6px"
-            android:textSize="24px"
+            android:layout_marginTop="@dimen/help_margin_top"
+            android:lineSpacingExtra="@dimen/help_spacing_extra"
+            android:textSize="@dimen/text_size_normal"
             android:text="@string/help_content" />
 
 </LinearLayout>

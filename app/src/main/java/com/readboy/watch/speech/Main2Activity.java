@@ -20,6 +20,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.TextViewCompat2;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -186,8 +187,13 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
         registerReceiver();
 
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int mScreenWidth = dm.widthPixels;
+        float mZoom = mScreenWidth / 240.0f;
+
         if (SHOW_EXTEND_SCREEN) {
-            TextViewCompat2.setAutoSizeTextTypeUniformWithConfiguration(mMessageTv, 18, 24, 3, TypedValue.COMPLEX_UNIT_PX);
+            TextViewCompat2.setAutoSizeTextTypeUniformWithConfiguration(mMessageTv, (int) (18 * mZoom), (int) (24 * mZoom), 3, TypedValue.COMPLEX_UNIT_PX);
         }
         Log.d(TAG, "onCreate: is debug mode = " + AppUtils.isDebugVersion(getApplicationContext()));
 

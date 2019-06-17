@@ -28,14 +28,14 @@
         android:id="@+id/recording_surface_view"
         style="@style/RecordButton"
         android:layout_width="match_parent"
-        android:layout_height="72px"
+        android:layout_height="@dimen/speech_recording_height"
         android:visibility="gone" />
 
     <ProgressBar
         android:id="@+id/loading_pb"
         style="@style/RecordButton"
-        android:layout_width="60px"
-        android:layout_height="72px"
+        android:layout_width="@dimen/speech_loading_pb_width"
+        android:layout_height="@dimen/speech_loading_pb_height"
         android:indeterminateDrawable="@drawable/loading_animation"
         android:visibility="gone" />
 
@@ -50,17 +50,17 @@
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/message_tv"
         android:layout_width="match_parent"
-        android:layout_height="151px"
-        android:layout_marginTop="7px"
+        android:layout_height="@dimen/speech_message_height"
+        android:layout_marginTop="@dimen/speech_message_margin_top"
         android:clickable="false"
         android:ellipsize="end"
         android:maxLines="7"
         android:layout_gravity="left"
         android:gravity="left|center_vertical"
-        android:paddingLeft="12px"
-        android:paddingRight="12px"
+        android:paddingLeft="@dimen/speech_message_padding_horizontal"
+        android:paddingRight="@dimen/speech_message_padding_horizontal"
         android:textColor="@android:color/white"
-        android:textSize="24px"
+        android:textSize="@dimen/speech_message_text_size"
         android:text="@string/hello1" />
 
 </FrameLayout>

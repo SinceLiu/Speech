@@ -12,7 +12,7 @@
         android:layout_gravity="center_horizontal"
         android:text="@string/wakeup_word"
         android:textColor="@android:color/black"
-        android:textSize="16sp" />
+        android:textSize="@dimen/sdk_main_text_size" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -67,7 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        android:textSize="16sp" />
+        android:textSize="@dimen/sdk_main_text_size" />
 
     <LinearLayout
         android:id="@+id/voice_panel"
@@ -79,40 +79,40 @@
             android:id="@+id/voiceBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
+            android:layout_margin="@dimen/sdk_margin_margin_1"
             android:layout_weight="1"
             android:text="@string/stop_record"
             android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:textSize="@dimen/sdk_main_text_size" />
 
         <Button
             android:id="@+id/cancelBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
+            android:layout_margin="@dimen/sdk_margin_margin_1"
             android:layout_weight="1"
             android:text="@string/cancel_recognition"
             android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:textSize="@dimen/sdk_main_text_size" />
 
         <Button
             android:id="@+id/openLogBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
+            android:layout_margin="@dimen/sdk_margin_margin_1"
             android:layout_weight="1"
             android:text="@string/open_log"
             android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:textSize="@dimen/sdk_main_text_size" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginBottom="@dimen/sdk_main_margin_2"
+        android:layout_marginLeft="@dimen/sdk_main_margin_2"
+        android:layout_marginRight="@dimen/sdk_main_margin_2"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:orientation="horizontal">
@@ -120,29 +120,29 @@
         <EditText
             android:id="@+id/textInput"
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="@dimen/sdk_main_et_height"
             android:layout_weight="1"
             android:hint="@string/send_edit_hint"
             android:inputType="text"
-            android:padding="5dp" />
+            android:padding="@dimen/sdk_main_et_padding" />
 
         <Button
             android:id="@+id/sendBtn"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_height="@dimen/sdk_main_et_height"
+            android:layout_marginStart="@dimen/sdk_main_button_margin_start"
             android:text="@string/send"
             android:textColor="@android:color/white"
-            android:textSize="16sp" />
+            android:textSize="@dimen/sdk_main_text_size" />
 
         <Button
             android:id="@+id/sendBtn2"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginStart="10dp"
+            android:layout_height="@dimen/sdk_main_et_height"
+            android:layout_marginStart="@dimen/sdk_main_button_margin_start"
             android:text="@string/send"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textSize="@dimen/sdk_main_text_size"
             android:visibility="gone" />
 
     </LinearLayout>

@@ -1,0 +1,538 @@
+From a23ea9a69208d0e3a54eb6e6cd453a4784915234 Mon Sep 17 00:00:00 2001
+From: lxx <lxx@readboy.com>
+Date: Mon, 17 Jun 2019 14:27:06 +0800
+Subject: [PATCH 1/2] =?UTF-8?q?=E9=80=82=E9=85=8D320x320,=E5=90=8E?=
+ =?UTF-8?q?=E9=9D=A2=E8=BF=98=E8=A6=81=E6=8D=A2mdpi=E5=9B=BE=E7=89=87?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .../readboy/watch/speech/Main2Activity.java   |  8 ++-
+ app/src/main/res/layout/dialog.xml            | 30 ++++-----
+ app/src/main/res/layout/dialog_traffic.xml    | 20 +++---
+ .../main/res/layout/full_screen_text_view.xml | 16 ++---
+ app/src/main/res/layout/help.xml              |  8 +--
+ app/src/main/res/layout/sdk_main.xml          | 38 ++++++------
+ app/src/main/res/layout/speech.xml            | 16 ++---
+ app/src/main/res/values-320x320/dimens.xml    | 61 +++++++++++++++++++
+ app/src/main/res/values/dimens.xml            | 36 +++++++++++
+ app/src/main/res/values/styles.xml            |  4 +-
+ 10 files changed, 170 insertions(+), 67 deletions(-)
+ create mode 100644 app/src/main/res/values-320x320/dimens.xml
+
+diff --git a/app/src/main/java/com/readboy/watch/speech/Main2Activity.java b/app/src/main/java/com/readboy/watch/speech/Main2Activity.java
+index 70fcd7d..b2e12d2 100644
+--- a/app/src/main/java/com/readboy/watch/speech/Main2Activity.java
++++ b/app/src/main/java/com/readboy/watch/speech/Main2Activity.java
+@@ -20,6 +20,7 @@ import android.support.v4.view.ViewPager;
+ import android.support.v4.widget.TextViewCompat2;
+ import android.telephony.TelephonyManager;
+ import android.text.TextUtils;
++import android.util.DisplayMetrics;
+ import android.util.Log;
+ import android.util.TypedValue;
+ import android.view.Gravity;
+@@ -186,8 +187,13 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
+ 
+         registerReceiver();
+ 
++        DisplayMetrics dm = new DisplayMetrics();
++        getWindowManager().getDefaultDisplay().getMetrics(dm);
++        int mScreenWidth = dm.widthPixels;
++        float mZoom = mScreenWidth / 240.0f;
++
+         if (SHOW_EXTEND_SCREEN) {
+-            TextViewCompat2.setAutoSizeTextTypeUniformWithConfiguration(mMessageTv, 18, 24, 3, TypedValue.COMPLEX_UNIT_PX);
++            TextViewCompat2.setAutoSizeTextTypeUniformWithConfiguration(mMessageTv, (int) (18 * mZoom), (int) (24 * mZoom), 3, TypedValue.COMPLEX_UNIT_PX);
+         }
+         Log.d(TAG, "onCreate: is debug mode = " + AppUtils.isDebugVersion(getApplicationContext()));
+ 
+diff --git a/app/src/main/res/layout/dialog.xml b/app/src/main/res/layout/dialog.xml
+index 8470af6..8bfab27 100644
+--- a/app/src/main/res/layout/dialog.xml
++++ b/app/src/main/res/layout/dialog.xml
+@@ -2,8 +2,8 @@
+ <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:id="@+id/dialog_main"
+-    android:layout_width="240px"
+-    android:layout_height="240px"
++    android:layout_width="@dimen/display_width"
++    android:layout_height="@dimen/display_width"
+     android:layout_gravity="center"
+     android:background="@color/gray_translation"
+     android:clickable="true"
+@@ -14,39 +14,39 @@
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_gravity="center"
+-        android:layout_margin="12px"
++        android:layout_margin="@dimen/dialog_margin_1"
+         android:background="@drawable/bg_dialog"
+         android:orientation="vertical">
+ 
+         <ImageView
+             android:id="@+id/dialog_cancel"
+-            android:layout_width="24px"
+-            android:layout_height="24px"
++            android:layout_width="@dimen/dialog_cancel_width"
++            android:layout_height="@dimen/dialog_cancel_width"
+             android:layout_gravity="right"
+             android:onClick="onDialogCancelClick"
+-            android:paddingBottom="4px"
+-            android:paddingLeft="10px"
+-            android:paddingRight="5px"
+-            android:paddingTop="5px"
++            android:paddingBottom="@dimen/dialog_cancel_padding_bottom"
++            android:paddingLeft="@dimen/dialog_cancel_padding_left"
++            android:paddingRight="@dimen/dialog_cancel_padding_right"
++            android:paddingTop="@dimen/dialog_cancel_padding_top"
+             android:src="@drawable/ic_cancel" />
+ 
+         <TextView
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center_horizontal"
+-            android:layout_marginEnd="12dp"
+-            android:layout_marginStart="12dp"
++            android:layout_marginEnd="@dimen/dialog_cancel_tv_margin_horizontal"
++            android:layout_marginStart="@dimen/dialog_cancel_tv_margin_horizontal"
+             android:text="@string/using_mobile_data_traffic"
+             android:textColor="@android:color/black"
+-            android:textSize="24sp" />
++            android:textSize="@dimen/dialog_cancel_tv_text_size" />
+ 
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal"
+-            android:paddingEnd="12dp"
+-            android:paddingStart="12dp"
+-            android:paddingTop="4dp">
++            android:paddingEnd="@dimen/dialog_button_padding_horizontal"
++            android:paddingStart="@dimen/dialog_button_padding_horizontal"
++            android:paddingTop="@dimen/dialog_button_padding_top">
+ 
+             <Button
+                 style="@style/DialogButton"
+diff --git a/app/src/main/res/layout/dialog_traffic.xml b/app/src/main/res/layout/dialog_traffic.xml
+index 96fe851..e0c62db 100644
+--- a/app/src/main/res/layout/dialog_traffic.xml
++++ b/app/src/main/res/layout/dialog_traffic.xml
+@@ -2,8 +2,8 @@
+ <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:id="@+id/dialog_main"
+-    android:layout_width="240px"
+-    android:layout_height="240px"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
+     android:layout_gravity="center"
+     android:background="#88000000"
+     android:clickable="true"
+@@ -14,7 +14,7 @@
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_gravity="center"
+-        android:layout_margin="12px"
++        android:layout_margin="@dimen/dialog_traffic_margin_1"
+         android:background="@drawable/bg_dialog"
+         android:orientation="vertical">
+ 
+@@ -22,20 +22,20 @@
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center_horizontal"
+-            android:layout_marginEnd="12px"
+-            android:layout_marginStart="12px"
+-            android:layout_marginTop="12px"
++            android:layout_marginEnd="@dimen/dialog_traffic_margin_1"
++            android:layout_marginStart="@dimen/dialog_traffic_margin_1"
++            android:layout_marginTop="@dimen/dialog_traffic_margin_1"
+             android:text="@string/traffic_dialog_content"
+             android:textColor="@android:color/black"
+-            android:textSize="20px" />
++            android:textSize="@dimen/dialog_traffic_text_size" />
+ 
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="horizontal"
+-            android:paddingEnd="8px"
+-            android:paddingStart="8px"
+-            android:paddingTop="4px">
++            android:paddingEnd="@dimen/dialog_traffic_padding_2"
++            android:paddingStart="@dimen/dialog_traffic_padding_2"
++            android:paddingTop="@dimen/dialog_traffic_padding_3">
+ 
+             <Button
+                 style="@style/DialogButton"
+diff --git a/app/src/main/res/layout/full_screen_text_view.xml b/app/src/main/res/layout/full_screen_text_view.xml
+index 0265de0..493c1d2 100644
+--- a/app/src/main/res/layout/full_screen_text_view.xml
++++ b/app/src/main/res/layout/full_screen_text_view.xml
+@@ -8,35 +8,35 @@
+     android:visibility="gone">
+ 
+     <ScrollView
+-        android:layout_width="240px"
++        android:layout_width="match_parent"
+         android:background="@android:color/black"
+-        android:layout_height="240px">
++        android:layout_height="match_parent">
+ 
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+-            android:layout_marginLeft="12px"
+-            android:layout_marginRight="12px"
++            android:layout_marginLeft="@dimen/full_screen_text_view_margin_horizontal"
++            android:layout_marginRight="@dimen/full_screen_text_view_margin_horizontal"
+             android:orientation="vertical">
+ 
+             <TextView
+                 android:id="@+id/query_text_view"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+-                android:layout_marginTop="9px"
++                android:layout_marginTop="@dimen/full_screen_text_view_margin_top_1"
+                 android:maxLines="2"
+                 android:ellipsize="end"
+                 android:textColor="#a5a5a5"
+-                android:textSize="24px" />
++                android:textSize="@dimen/full_screen_text_view_text_size_1" />
+ 
+             <TextView
+                 android:id="@+id/response_text_view"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+-                android:layout_marginTop="16px"
++                android:layout_marginTop="@dimen/full_screen_text_view_margin_top_2"
+                 android:lineSpacingExtra="1px"
+                 android:textColor="@android:color/white"
+-                android:textSize="18px" />
++                android:textSize="@dimen/full_screen_text_view_text_size_2" />
+ 
+         </LinearLayout>
+ 
+diff --git a/app/src/main/res/layout/help.xml b/app/src/main/res/layout/help.xml
+index 0749a83..4f84fea 100644
+--- a/app/src/main/res/layout/help.xml
++++ b/app/src/main/res/layout/help.xml
+@@ -2,7 +2,7 @@
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+-    android:layout_marginLeft="15px"
++    android:layout_marginLeft="@dimen/help_margin_left"
+     android:orientation="vertical">
+ 
+         <TextView
+@@ -17,9 +17,9 @@
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:textColor="@color/white_dark"
+-            android:layout_marginTop="8px"
+-            android:lineSpacingExtra="6px"
+-            android:textSize="24px"
++            android:layout_marginTop="@dimen/help_margin_top"
++            android:lineSpacingExtra="@dimen/help_spacing_extra"
++            android:textSize="@dimen/text_size_normal"
+             android:text="@string/help_content" />
+ 
+ </LinearLayout>
+\ No newline at end of file
+diff --git a/app/src/main/res/layout/sdk_main.xml b/app/src/main/res/layout/sdk_main.xml
+index ab037a0..0976d9b 100644
+--- a/app/src/main/res/layout/sdk_main.xml
++++ b/app/src/main/res/layout/sdk_main.xml
+@@ -12,7 +12,7 @@
+         android:layout_gravity="center_horizontal"
+         android:text="@string/wakeup_word"
+         android:textColor="@android:color/black"
+-        android:textSize="16sp" />
++        android:textSize="@dimen/sdk_main_text_size" />
+ 
+     <LinearLayout
+         android:layout_width="match_parent"
+@@ -67,7 +67,7 @@
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:textColor="@android:color/black"
+-        android:textSize="16sp" />
++        android:textSize="@dimen/sdk_main_text_size" />
+ 
+     <LinearLayout
+         android:id="@+id/voice_panel"
+@@ -79,40 +79,40 @@
+             android:id="@+id/voiceBtn"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+-            android:layout_margin="5dp"
++            android:layout_margin="@dimen/sdk_margin_margin_1"
+             android:layout_weight="1"
+             android:text="@string/stop_record"
+             android:textColor="@android:color/white"
+-            android:textSize="16sp" />
++            android:textSize="@dimen/sdk_main_text_size" />
+ 
+         <Button
+             android:id="@+id/cancelBtn"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+-            android:layout_margin="5dp"
++            android:layout_margin="@dimen/sdk_margin_margin_1"
+             android:layout_weight="1"
+             android:text="@string/cancel_recognition"
+             android:textColor="@android:color/white"
+-            android:textSize="16sp" />
++            android:textSize="@dimen/sdk_main_text_size" />
+ 
+         <Button
+             android:id="@+id/openLogBtn"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+-            android:layout_margin="5dp"
++            android:layout_margin="@dimen/sdk_margin_margin_1"
+             android:layout_weight="1"
+             android:text="@string/open_log"
+             android:textColor="@android:color/white"
+-            android:textSize="16sp" />
++            android:textSize="@dimen/sdk_main_text_size" />
+ 
+     </LinearLayout>
+ 
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:layout_marginBottom="10dp"
+-        android:layout_marginLeft="10dp"
+-        android:layout_marginRight="10dp"
++        android:layout_marginBottom="@dimen/sdk_main_margin_2"
++        android:layout_marginLeft="@dimen/sdk_main_margin_2"
++        android:layout_marginRight="@dimen/sdk_main_margin_2"
+         android:focusable="true"
+         android:focusableInTouchMode="true"
+         android:orientation="horizontal">
+@@ -120,29 +120,29 @@
+         <EditText
+             android:id="@+id/textInput"
+             android:layout_width="0dp"
+-            android:layout_height="40dp"
++            android:layout_height="@dimen/sdk_main_et_height"
+             android:layout_weight="1"
+             android:hint="@string/send_edit_hint"
+             android:inputType="text"
+-            android:padding="5dp" />
++            android:padding="@dimen/sdk_main_et_padding" />
+ 
+         <Button
+             android:id="@+id/sendBtn"
+             android:layout_width="wrap_content"
+-            android:layout_height="40dp"
+-            android:layout_marginStart="10dp"
++            android:layout_height="@dimen/sdk_main_et_height"
++            android:layout_marginStart="@dimen/sdk_main_button_margin_start"
+             android:text="@string/send"
+             android:textColor="@android:color/white"
+-            android:textSize="16sp" />
++            android:textSize="@dimen/sdk_main_text_size" />
+ 
+         <Button
+             android:id="@+id/sendBtn2"
+             android:layout_width="wrap_content"
+-            android:layout_height="40dp"
+-            android:layout_marginStart="10dp"
++            android:layout_height="@dimen/sdk_main_et_height"
++            android:layout_marginStart="@dimen/sdk_main_button_margin_start"
+             android:text="@string/send"
+             android:textColor="@android:color/white"
+-            android:textSize="16sp"
++            android:textSize="@dimen/sdk_main_text_size"
+             android:visibility="gone" />
+ 
+     </LinearLayout>
+diff --git a/app/src/main/res/layout/speech.xml b/app/src/main/res/layout/speech.xml
+index 1ec2ccc..31ab1e0 100644
+--- a/app/src/main/res/layout/speech.xml
++++ b/app/src/main/res/layout/speech.xml
+@@ -28,14 +28,14 @@
+         android:id="@+id/recording_surface_view"
+         style="@style/RecordButton"
+         android:layout_width="match_parent"
+-        android:layout_height="72px"
++        android:layout_height="@dimen/speech_recording_height"
+         android:visibility="gone" />
+ 
+     <ProgressBar
+         android:id="@+id/loading_pb"
+         style="@style/RecordButton"
+-        android:layout_width="60px"
+-        android:layout_height="72px"
++        android:layout_width="@dimen/speech_loading_pb_width"
++        android:layout_height="@dimen/speech_loading_pb_height"
+         android:indeterminateDrawable="@drawable/loading_animation"
+         android:visibility="gone" />
+ 
+@@ -50,17 +50,17 @@
+     <android.support.v7.widget.AppCompatTextView
+         android:id="@+id/message_tv"
+         android:layout_width="match_parent"
+-        android:layout_height="151px"
+-        android:layout_marginTop="7px"
++        android:layout_height="@dimen/speech_message_height"
++        android:layout_marginTop="@dimen/speech_message_margin_top"
+         android:clickable="false"
+         android:ellipsize="end"
+         android:maxLines="7"
+         android:layout_gravity="left"
+         android:gravity="left|center_vertical"
+-        android:paddingLeft="12px"
+-        android:paddingRight="12px"
++        android:paddingLeft="@dimen/speech_message_padding_horizontal"
++        android:paddingRight="@dimen/speech_message_padding_horizontal"
+         android:textColor="@android:color/white"
+-        android:textSize="24px"
++        android:textSize="@dimen/speech_message_text_size"
+         android:text="@string/hello1" />
+ 
+ </FrameLayout>
+diff --git a/app/src/main/res/values-320x320/dimens.xml b/app/src/main/res/values-320x320/dimens.xml
+new file mode 100644
+index 0000000..6e7261c
+--- /dev/null
++++ b/app/src/main/res/values-320x320/dimens.xml
+@@ -0,0 +1,61 @@
++<resources>
++    <!-- Default screen margins, per the Android Design guidelines. -->
++    <dimen name="activity_horizontal_margin">21px</dimen>
++    <dimen name="activity_vertical_margin">21px</dimen>
++
++    <dimen name="display_width">320px</dimen>
++    <dimen name="display_height">320px</dimen>
++
++    <dimen name="help_margin_top">11px</dimen>
++
++    <dimen name="text_size_large">37px</dimen>
++    <dimen name="text_size_normal">32px</dimen>
++    <dimen name="text_size_small">27px</dimen>
++
++    <dimen name="content_height">213px</dimen>
++    <dimen name="content_padding">11px</dimen>
++    <dimen name="progress_bar_width">120px</dimen>
++
++    <dimen name="loading_padding">4px</dimen>
++
++    <dimen name="record_padding_bottom">16px</dimen>
++    <dimen name="record_padding">0px</dimen>
++    <dimen name="dialog_margin_1">16px</dimen>
++    <dimen name="dialog_cancel_width">32px</dimen>
++    <dimen name="dialog_cancel_padding_bottom">5px</dimen>
++    <dimen name="dialog_cancel_padding_left">13px</dimen>
++    <dimen name="dialog_cancel_padding_right">7px</dimen>
++    <dimen name="dialog_cancel_padding_top">7px</dimen>
++    <dimen name="dialog_cancel_tv_margin_horizontal">16dp</dimen>
++    <dimen name="dialog_cancel_tv_text_size">32sp</dimen>
++    <dimen name="dialog_button_padding_horizontal">16dp</dimen>
++    <dimen name="dialog_button_padding_top">5dp</dimen>
++    <dimen name="dialog_traffic_margin_1">16px</dimen>
++    <dimen name="dialog_traffic_text_size">27px</dimen>
++    <dimen name="dialog_traffic_padding_2">11px</dimen>
++    <dimen name="dialog_traffic_padding_3">5px</dimen>
++    <dimen name="full_screen_text_view_margin_horizontal">16px</dimen>
++    <dimen name="full_screen_text_view_margin_top_1">12px</dimen>
++    <dimen name="full_screen_text_view_text_size_1">32px</dimen>
++    <dimen name="full_screen_text_view_margin_top_2">21px</dimen>
++    <dimen name="full_screen_text_view_text_size_2">24px</dimen>
++    <dimen name="help_margin_left">20px</dimen>
++    <dimen name="help_spacing_extra">8px</dimen>
++    <dimen name="sdk_main_text_size">21sp</dimen>
++    <dimen name="sdk_margin_margin_1">7dp</dimen>
++    <dimen name="sdk_main_margin_2">13dp</dimen>
++    <dimen name="sdk_main_et_height">53dp</dimen>
++    <dimen name="sdk_main_et_padding">7dp</dimen>
++    <dimen name="sdk_main_button_margin_start">13dp</dimen>
++    <dimen name="speech_recording_height">96px</dimen>
++    <dimen name="speech_loading_pb_width">80px</dimen>
++    <dimen name="speech_loading_pb_height">96px</dimen>
++    <dimen name="speech_message_height">201px</dimen>
++    <dimen name="speech_message_margin_top">9px</dimen>
++    <dimen name="speech_message_padding_horizontal">16px</dimen>
++    <dimen name="speech_message_text_size">32px</dimen>
++    <dimen name="text_style_text_size">40px</dimen>
++    <dimen name="dialog_button_text_size">36sp</dimen>
++
++</resources>
++
+diff --git a/app/src/main/res/values/dimens.xml b/app/src/main/res/values/dimens.xml
+index 38128cb..b55cc93 100644
+--- a/app/src/main/res/values/dimens.xml
++++ b/app/src/main/res/values/dimens.xml
+@@ -20,5 +20,41 @@
+ 
+     <dimen name="record_padding_bottom">12px</dimen>
+     <dimen name="record_padding">0px</dimen>
++    <dimen name="dialog_margin_1">12px</dimen>
++    <dimen name="dialog_cancel_width">24px</dimen>
++    <dimen name="dialog_cancel_padding_bottom">4px</dimen>
++    <dimen name="dialog_cancel_padding_left">10px</dimen>
++    <dimen name="dialog_cancel_padding_right">5px</dimen>
++    <dimen name="dialog_cancel_padding_top">5px</dimen>
++    <dimen name="dialog_cancel_tv_margin_horizontal">12dp</dimen>
++    <dimen name="dialog_cancel_tv_text_size">24sp</dimen>
++    <dimen name="dialog_button_padding_horizontal">12dp</dimen>
++    <dimen name="dialog_button_padding_top">4dp</dimen>
++    <dimen name="dialog_traffic_margin_1">12px</dimen>
++    <dimen name="dialog_traffic_text_size">20px</dimen>
++    <dimen name="dialog_traffic_padding_2">8px</dimen>
++    <dimen name="dialog_traffic_padding_3">4px</dimen>
++    <dimen name="full_screen_text_view_margin_horizontal">12px</dimen>
++    <dimen name="full_screen_text_view_margin_top_1">9px</dimen>
++    <dimen name="full_screen_text_view_text_size_1">24px</dimen>
++    <dimen name="full_screen_text_view_margin_top_2">16px</dimen>
++    <dimen name="full_screen_text_view_text_size_2">18px</dimen>
++    <dimen name="help_margin_left">15px</dimen>
++    <dimen name="help_spacing_extra">6px</dimen>
++    <dimen name="sdk_main_text_size">16sp</dimen>
++    <dimen name="sdk_margin_margin_1">5dp</dimen>
++    <dimen name="sdk_main_margin_2">10dp</dimen>
++    <dimen name="sdk_main_et_height">40dp</dimen>
++    <dimen name="sdk_main_et_padding">5dp</dimen>
++    <dimen name="sdk_main_button_margin_start">10dp</dimen>
++    <dimen name="speech_recording_height">72px</dimen>
++    <dimen name="speech_loading_pb_width">60px</dimen>
++    <dimen name="speech_loading_pb_height">72px</dimen>
++    <dimen name="speech_message_height">151px</dimen>
++    <dimen name="speech_message_margin_top">7px</dimen>
++    <dimen name="speech_message_padding_horizontal">12px</dimen>
++    <dimen name="speech_message_text_size">24px</dimen>
++    <dimen name="text_style_text_size">30px</dimen>
++    <dimen name="dialog_button_text_size">27sp</dimen>
+ 
+ </resources>
+diff --git a/app/src/main/res/values/styles.xml b/app/src/main/res/values/styles.xml
+index f6f9320..4f69d1e 100644
+--- a/app/src/main/res/values/styles.xml
++++ b/app/src/main/res/values/styles.xml
+@@ -40,7 +40,7 @@
+     </style>
+ 
+     <style name="TextStyle">
+-        <item name="android:textSize">30px</item>
++        <item name="android:textSize">@dimen/text_style_text_size</item>
+         <item name="android:textColor">@color/gray_light</item>
+     </style>
+ 
+@@ -58,7 +58,7 @@
+     </style>
+ 
+     <style name="DialogButton" parent="@android:style/Widget.Material.Button.Borderless.Colored">
+-        <item name="android:textSize">27sp</item>
++        <item name="android:textSize">@dimen/dialog_button_text_size</item>
+         <item name="android:gravity">center</item>
+         <item name="android:textColor">#009688</item>
+     </style>
+-- 
+2.18.0.windows.1
+

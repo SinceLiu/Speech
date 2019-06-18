@@ -129,6 +129,8 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
     private float mDownX = 0;
     private float mDownY = 0;
 
+    private float mZoom;
+
     private BroadcastReceiver mBroadcastReceiver;
     private NetworkCompat mNetworkCompat;
     private NetworkCompat.OnNetChangeListener mNetChangeListener;
@@ -190,7 +192,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int mScreenWidth = dm.widthPixels;
-        float mZoom = mScreenWidth / 240.0f;
+        mZoom = mScreenWidth / 240.0f;
 
         if (SHOW_EXTEND_SCREEN) {
             TextViewCompat2.setAutoSizeTextTypeUniformWithConfiguration(mMessageTv, (int) (18 * mZoom), (int) (24 * mZoom), 3, TypedValue.COMPLEX_UNIT_PX);
@@ -569,7 +571,7 @@ public class Main2Activity extends BaseDcsActivity implements View.OnClickListen
 
     private void initAnimation() {
         if (mSilkyAnimation == null) {
-            mSilkyAnimation = new SilkyAnimation.Builder(mRecordingSurfaceView, "recording")
+            mSilkyAnimation = new SilkyAnimation.Builder(mRecordingSurfaceView, "recording",mZoom)
                     .setRepeatPosition(16)
                     .build();
         }

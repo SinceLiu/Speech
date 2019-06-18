@@ -1,0 +1,1302 @@
+From cae68f34403d4e8d979af90ecd284bf75df97318 Mon Sep 17 00:00:00 2001
+From: lxx <lxx@readboy.com>
+Date: Mon, 17 Jun 2019 14:28:11 +0800
+Subject: [PATCH 2/2] remove unused resources
+
+---
+ app/src/main/res/anim/loading.xml             |  14 --
+ .../drawable-ldpi/bg_dialog_button_left.png   | Bin 3221 -> 0 bytes
+ .../drawable-ldpi/bg_dialog_button_right.png  | Bin 3185 -> 0 bytes
+ app/src/main/res/drawable-ldpi/bg_footer.png  | Bin 9155 -> 0 bytes
+ app/src/main/res/drawable-ldpi/ic_cancel.png  | Bin 3056 -> 0 bytes
+ .../main/res/drawable-ldpi/progress_bar.png   | Bin 4890 -> 0 bytes
+ app/src/main/res/drawable/progress.xml        |   6 -
+ app/src/main/res/layout/dialog.xml            |  70 --------
+ app/src/main/res/layout/dialog_traffic.xml    |   1 -
+ app/src/main/res/layout/sdk_main.xml          | 155 ------------------
+ app/src/main/res/values-320x320/dimens.xml    |  26 ---
+ app/src/main/res/values-en-rUS/strings.xml    |  55 -------
+ .../main/res/values/aligntextview-styles.xml  |   7 -
+ app/src/main/res/values/colors.xml            |  11 --
+ app/src/main/res/values/dimens.xml            |  26 ---
+ app/src/main/res/values/integers.xml          |   6 -
+ app/src/main/res/values/strings.xml           |  64 --------
+ app/src/main/res/values/styles.xml            |  25 ---
+ .../src/main/res/drawable/shadow_top1.png     | Bin 2845 -> 0 bytes
+ .../src/main/res/layout/swipeback_layout.xml  |   1 -
+ 20 files changed, 467 deletions(-)
+ delete mode 100644 app/src/main/res/anim/loading.xml
+ delete mode 100644 app/src/main/res/drawable-ldpi/bg_dialog_button_left.png
+ delete mode 100644 app/src/main/res/drawable-ldpi/bg_dialog_button_right.png
+ delete mode 100644 app/src/main/res/drawable-ldpi/bg_footer.png
+ delete mode 100644 app/src/main/res/drawable-ldpi/ic_cancel.png
+ delete mode 100644 app/src/main/res/drawable-ldpi/progress_bar.png
+ delete mode 100644 app/src/main/res/drawable/progress.xml
+ delete mode 100644 app/src/main/res/layout/dialog.xml
+ delete mode 100644 app/src/main/res/layout/sdk_main.xml
+ delete mode 100644 swipeback/src/main/res/drawable/shadow_top1.png
+
+diff --git a/app/src/main/res/anim/loading.xml b/app/src/main/res/anim/loading.xml
+deleted file mode 100644
+index 816352c..0000000
+--- a/app/src/main/res/anim/loading.xml
++++ /dev/null
+@@ -1,14 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<rotate xmlns:android="http://schemas.android.com/apk/res/android">
+-
+-    <rotate
+-        android:drawable="@drawable/loading"
+-        android:duration="3000"
+-        android:fromDegrees="0"
+-        android:pivotX="50%"
+-        android:pivotY="50%"
+-        android:repeatCount="-1"
+-        android:repeatMode="restart"
+-        android:toDegrees="359 " />
+-
+-</rotate>
+\ No newline at end of file
+diff --git a/app/src/main/res/drawable-ldpi/bg_dialog_button_left.png b/app/src/main/res/drawable-ldpi/bg_dialog_button_left.png
+deleted file mode 100644
+index 2ea16f6f9c5a75606371e1a6dac72b2826433c4e..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 3221
+zcmV;G3~KX<P)<h;3K|Lk000e1NJLTq003wJ001Zm1^@s65=6hv00009a7bBm000XU
+z000XU0RWnu7ytkYO=&|zP*7-ZbZ>KLZ*U+<Lqi~Na&Km7Y-Iodc-oy)cUY767Czti
+zWe-+D*zmEJY=HnGBdiF>5Lu!Sk^o_Z5E4Meg@_7P6crJiNL9pw)e1<Rh~l6qxMx9%
+zh+2zPTsZC@+^4mDdhhM+``7!t=bY#K&Uw!dfDsZVk>;Xm069{HJUZAPk55R%$-RIA
+z6-eL&AQ0xu!e<4=008g<d3b(wus{3(uWtYX0C3eVBofEr|AV?vCRYF;kpSQ#66Xs6
+zkWv81E>y@A0LT~suv4>S3ILP<0Bm`DLLvaF4FK%)Nj?Pt*r}7;7Xa9z9H|HZjR63e
+zC`Tj$K)V27Re@400>HumpsYY5E(E}?0f1SyGDiY{y#)Yvj#!WnKwtoXnL;eg03bL5
+z07D)V%>y7z1E4U{zu>7~aD})?0RX_umCct+(lZpemCzb@^6=o|A>zVpu|i=NDG+7}
+z<RYAxn<EoQ=L1a63;+Nc`O(4tI6si*=H%h#X6J10^u?n7Yw&L(J|Xen{=AF=1OO0D
+z&+pn_<>l4`aK{0#b-!z=TL9Wt0BGO&T{GJWpjryhdijfaIQ&2!o}p04JRKYg3k&Tf
+zVxhe-<BLB3GvROGi+=X}Kpy_vdhh^onn0PYz@vlxaba$Du2PQY%LGC(ZujRS{>O!X
+z{f;To;xw^bEES6JSc$k$B2CA6xl)ltA<32E66t?3@gJ7`36pmX0IY^jz)rRYwaaY4
+ze(nJRiw;=Qb^t(r^DT@T3y}a2XEZW-_W%Hszxj_qD**t_m!#tW0KDiJT&R>6OvVTR
+z07RgHDzHHZ48atvzz&?j9lXF70$~P3Knx_nJP<+#<bWIsp%|7y8C1YJ*aWq(0~(+a
+zn&A+%!7(@u=im}tf$MM=24EPT!Wg`U2?RmN2oqr;I*1Wsj@Tm32p5@-1R`NbG?IX%
+zAnAw{Q6k02a-;&OLTZs+NF(wsauhj@TtNDe+sGg?iu{VaM=_LvvQY!n0(C&Ss2>`N
+z#-MZ2bTkiLfR>_b(HgWKJ%F~Nr_oF3b#wrIijHG|(J>BYjM-sajE6;FiC7vY#};Gd
+zST$CUHDeuEH+B^pz@B062qXfFfD`NpUW5?BY=V%GM_5c)L#QR}BeW8_2v-S%gfYS=
+zB9o|3v?Y2H`NVi)I<b&gMyw|8As!)~C0-{E6JL`^Bo4`v<W349C6F>n3rTB8+ej^>
+zQ=~r95NVuDChL%G$=>7$vVg20myx%S50Foi`^m%Pw-h?Xh~i8Mq9jtJloCocWk2Nv
+zrJpiFnV_ms&8eQ$2&#xWpIS+6pmtC%Q-`S&G<BLK&6^fO%cL!%)zF%0XKD9nFX?o;
+z3EhJpMVHW*(rf4k>F4Q#^mhymh7E(qNMa}%YZ-ePrx>>xFPTiH1=E+A$W$=bG8>s^
+zm=Bn5Rah$aDtr}@$`X}2l~$F0mFKEdRdZE8)p@E5RI61Ft6o-prbbn>P~)iy)E2AN
+zsU20jsWz_8Qg>31P|s0cqrPALg8E|(vWA65poU1JRAaZs8I2(p#xiB`SVGovRs-uS
+zYnV-9TeA7=Om+qP8+I>yOjAR1s%ETak!GFdam@h^#<Ae=IoX^_&LPeX&U-BbEk7->
+z)@rS0t$wXH+Irf)+G6c;?H29p+V6F6oj{!|o%K3xI`?%6x;DB|x`n#ib<gTP(_`y-
+z=?V49^$zLX(MR=d^rQ6`>hIR?(H}Q3Gzd138Ei2)WAMz7W9Vy`X}HnwgyE<W%V@fh
+z#Au_@NuwvYChmu4<285}K4z?M9Ad0A-euftJYiyKGTWrYq{ZaEDb18?nr6Duw9|CV
+z%*ZU<tk|r{?2b9roNJz8zS+Fn{EdaBMV!S-i#ChLmfDtl%LSHAmiMffRz6mFR`pib
+ztVz~f>n!VS)>mv$8&{hQn>w4zwy3R}t;BYlZQm5)6pty=DfLrs+A-|>><a9f>;~;Q
+z_F?uV_HFjh9n2gO9o9Q^JA86<b<B2baJ=iJ;WWdk#HqvSS7#e%p>v({H5aB!kjoO6
+zc9$1ZZKsN-Zl8L~mE{`ly3)1N^`o1+o7}D0ZPeY&J;i;i`%NyJ8_8Y6J?}yE@b_5a
+zam?eLr<<q3^N{B+UUpttUi-ZsPqUmRp4KpJ$lJtQ;JwRxU^+fMW%|zP13tz+0-t)H
+zhrXu1BHul}BYxI?nSKZSp8Grc%l(h|zu|fE7V%C6U;)7a<pI5c8iBI|YXctynFOT=
+zH3f|Yy9O@|J{3X?2@P2va+7bs7xEkVV>8@mESk|3$_SkmS{wQ>%qC18))9_|&j{ZT
+zes8AvOzF(F2#DZEY>2oYX&IRp`F#{ADl)1r>QS^)ba8a|EY_^#S^H<bj`5GFjJZ48
+zYPNEAXRK;$Qfy=Fo4A0us<?r8hxkSDmlAXnBnj<_<iyy-J&EIU0_SX+Go0j_RF-sO
+zuI1dKxfkZ?&dZ*6JXtkakbF3Wm=c$=KjniULQpRlPvxg>O&t^Rgqwv=MZThqqEWH8
+zxJo>d=ABlR_Bh=;eM9<ahEGOy#xn^|QY(3p8Irjp^G#Mn*50ho*>Tw|Ih34~oTE|=
+zX_mAr*D$vzw@+p(E0Yc6dFE}(8<U61_v9n_bMxC3Y=unGqqI`4P!1MMFQ_YcTNqn-
+zxJbQ7TGTV&X8!8=BMX8Se7%scP`I$O*tmFE@!%rAMY|Rwi&GbOE-_tFx@351@X~$D
+zXv?ye{ZQgqQdRP5dED}jQiIZ^r9&%%S2UHWl*!9(uJl^DV-;bQWL58Km(^QVe<~N1
+zU#xJfsIK_1M!4qUS59BmeD!&4+S=Yqx61A7Nb98QZmjoNzpqNYYC+Y|hVTuo8}W_h
+z8((co-gKdQYW0rIw9U%R12tha?OV*YtlRRTHly}>oqt`+R{gE3x4zjX+Sb3_cYE^=
+zgB=w+-tUy`ytONMS8KgRef4hA?t<Nq8e$u|zvh13xJP$S#h#CQrF#eVMeplsbZ>0j
+zufM;t32jm~jUGrkaOInTZ`zyfns>EuS}G30LFK_G-==(f<51|K&cocp&EJ`SxAh3?
+zNO>#LI=^+SEu(FqJ)ynt=!~PC9bO$rzPJB=?=j<Jb;mW2SDv7qC_VA{<bspqr(~y|
+zolZYJ)S29Q_e}hmYh6)Yy=Ozuo<A3K?o78|_sR3#=Z{_Rym0g)_hQ>6w@a-(u02P7
+zaQ)#(uUl{HW%tYNS3ItC^iAtK(eKlL`f9+{bJzISE?u8_z3;~C8@FyI-5j_jy7l;W
+z_U#vU3hqqYU3!mrul&B+{ptt$59)uk{;_4iZQ%G|z+lhASr6|H35TBkl>gI*;nGLU
+zN7W-nBaM%pA0HbH8olyl&XeJ%vZoWz%6?Y=dFykl=imL}`%BMQ{Mhgd`HRoLu6e2R
+za__6DuR6yg#~-}Tc|Gx_{H@O0eebyMy5GmWADJlpK>kqk(fVV@r_fLLKIeS?{4e)}
+z^ZO;zpECde03c&XQcVB=dL;k=fP(-4`Tqa_faw4Lbua(`>R<o>I+y?e7jKeZ#YO-C
+z0m4Z{K~#9!?AyI+6k!~N@!u{Rh0NOc0g9`oBG{R|fLN<&C99T#ih2iDdIuU&tTkeh
+zpoN8Kk_*raP_PjMD=W83;aDsoiwS}d$iFxTrkG)>=b7`)*ZX$bw)M}fHQOESVu*Rn
+z;RKGN!CuLZrT3rb4{#e-aV+@i2s(iKxQ;!+R!h)jEZ|^pRT8w?^zaBbgQ=RJ)n*p2
+za4v{;H=Qj{aVt#^OSlj`yPxhh#}*=|YJ*mq5f+1`qM#4WA$-REV5vF8J&2sD4SL@k
+z$5+e*NzDe`ikzwqdN<p}H<RydNx=pUBd7A0gw}j8)D|=s47G>2lfh8CK}Uk2c7yf>
+zL+u77r3LByGWn&Q6m8It2&ygU3r+_`-G_uv!BD$FYr#;vK_BrwD5?rNKmM)tTuZik
+z+s6N($5_wxS}&V(65jNm$Rx#*_n?j3!_Oe8+8}t{zk(ORQnNu^953QouvB^v`a7+=
+zI4rYE3pNNYjn^^4+u*5o51P($f5v3_$&FyDC}>mE2oGfeSCJuZYhL0Mp5|q?VuP0Y
+z(|ZHl!8Mar-AOS))6E;=EY6rL!ylk8Q;2soe*gdg|NjF3?`FhvrmW<N00000NkvXX
+Hu0mjfEOI2Q
+
+diff --git a/app/src/main/res/drawable-ldpi/bg_dialog_button_right.png b/app/src/main/res/drawable-ldpi/bg_dialog_button_right.png
+deleted file mode 100644
+index b56d65fb04aa103676ed281676be1c4b2fba43c3..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 3185
+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
+Xwk5m6miuO=00000NkvXXu0mjfZ$lbr
+
+diff --git a/app/src/main/res/drawable-ldpi/bg_footer.png b/app/src/main/res/drawable-ldpi/bg_footer.png
+deleted file mode 100644
+index dad3ad3ce8fcf740be5cff10798c072bc5fce011..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 9155
+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
+HKYscj`Wrw3
+
+diff --git a/app/src/main/res/drawable-ldpi/ic_cancel.png b/app/src/main/res/drawable-ldpi/ic_cancel.png
+deleted file mode 100644
+index 174af1d722390dfa66da0fbf7063e0170473c24e..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 3056
+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
+
+diff --git a/app/src/main/res/drawable-ldpi/progress_bar.png b/app/src/main/res/drawable-ldpi/progress_bar.png
+deleted file mode 100644
+index 7692e54ee9bec4c5b88364be978a1ab7fd66484a..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 4890
+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
+M07*qoM6N<$f{<@Jga7~l
+
+diff --git a/app/src/main/res/drawable/progress.xml b/app/src/main/res/drawable/progress.xml
+deleted file mode 100644
+index e37f24d..0000000
+--- a/app/src/main/res/drawable/progress.xml
++++ /dev/null
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<animated-rotate xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:drawable="@drawable/progress_bar"
+-    android:pivotX="50%"
+-    android:pivotY="50%" />
+-
+diff --git a/app/src/main/res/layout/dialog.xml b/app/src/main/res/layout/dialog.xml
+deleted file mode 100644
+index 8bfab27..0000000
+--- a/app/src/main/res/layout/dialog.xml
++++ /dev/null
+@@ -1,70 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:tools="http://schemas.android.com/tools"
+-    android:id="@+id/dialog_main"
+-    android:layout_width="@dimen/display_width"
+-    android:layout_height="@dimen/display_width"
+-    android:layout_gravity="center"
+-    android:background="@color/gray_translation"
+-    android:clickable="true"
+-    android:orientation="vertical"
+-    tools:context=".Main2Activity">
+-
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:layout_gravity="center"
+-        android:layout_margin="@dimen/dialog_margin_1"
+-        android:background="@drawable/bg_dialog"
+-        android:orientation="vertical">
+-
+-        <ImageView
+-            android:id="@+id/dialog_cancel"
+-            android:layout_width="@dimen/dialog_cancel_width"
+-            android:layout_height="@dimen/dialog_cancel_width"
+-            android:layout_gravity="right"
+-            android:onClick="onDialogCancelClick"
+-            android:paddingBottom="@dimen/dialog_cancel_padding_bottom"
+-            android:paddingLeft="@dimen/dialog_cancel_padding_left"
+-            android:paddingRight="@dimen/dialog_cancel_padding_right"
+-            android:paddingTop="@dimen/dialog_cancel_padding_top"
+-            android:src="@drawable/ic_cancel" />
+-
+-        <TextView
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_gravity="center_horizontal"
+-            android:layout_marginEnd="@dimen/dialog_cancel_tv_margin_horizontal"
+-            android:layout_marginStart="@dimen/dialog_cancel_tv_margin_horizontal"
+-            android:text="@string/using_mobile_data_traffic"
+-            android:textColor="@android:color/black"
+-            android:textSize="@dimen/dialog_cancel_tv_text_size" />
+-
+-        <LinearLayout
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:orientation="horizontal"
+-            android:paddingEnd="@dimen/dialog_button_padding_horizontal"
+-            android:paddingStart="@dimen/dialog_button_padding_horizontal"
+-            android:paddingTop="@dimen/dialog_button_padding_top">
+-
+-            <Button
+-                style="@style/DialogButton"
+-                android:layout_width="0dp"
+-                android:layout_height="wrap_content"
+-                android:layout_weight="1"
+-                android:onClick="onDialogAlwaysClick"
+-                android:text="@string/always_allow" />
+-
+-            <Button
+-                style="@style/DialogButton"
+-                android:layout_width="0dp"
+-                android:layout_height="wrap_content"
+-                android:layout_weight="1"
+-                android:onClick="onDialogOnceClick"
+-                android:text="@string/once_allow" />
+-        </LinearLayout>
+-
+-    </LinearLayout>
+-
+-</FrameLayout>
+\ No newline at end of file
+diff --git a/app/src/main/res/layout/dialog_traffic.xml b/app/src/main/res/layout/dialog_traffic.xml
+index e0c62db..a33bcda 100644
+--- a/app/src/main/res/layout/dialog_traffic.xml
++++ b/app/src/main/res/layout/dialog_traffic.xml
+@@ -1,7 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+-    android:id="@+id/dialog_main"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:layout_gravity="center"
+diff --git a/app/src/main/res/layout/sdk_main.xml b/app/src/main/res/layout/sdk_main.xml
+deleted file mode 100644
+index 0976d9b..0000000
+--- a/app/src/main/res/layout/sdk_main.xml
++++ /dev/null
+@@ -1,155 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:id="@+id/root_layout"
+-    android:layout_width="match_parent"
+-    android:layout_height="match_parent"
+-    android:orientation="vertical">
+-
+-    <TextView
+-        android:id="@+id/id_tv_wakeup_tip"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:layout_gravity="center_horizontal"
+-        android:text="@string/wakeup_word"
+-        android:textColor="@android:color/black"
+-        android:textSize="@dimen/sdk_main_text_size" />
+-
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="0dp"
+-        android:layout_weight="1"
+-        android:orientation="vertical">
+-
+-        <ScrollView
+-            android:id="@+id/id_sv_request"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content">
+-
+-            <LinearLayout
+-                android:id="@+id/topLinearLayout"
+-                android:layout_width="match_parent"
+-                android:layout_height="wrap_content"
+-                android:orientation="vertical" />
+-        </ScrollView>
+-    </LinearLayout>
+-
+-    <LinearLayout
+-        android:id="@+id/control_panel"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:layout_gravity="center"
+-        android:orientation="horizontal">
+-
+-        <Button
+-            android:id="@+id/id_previous_audio"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_weight="1"
+-            android:text="@string/previous_audio" />
+-
+-        <Button
+-            android:id="@+id/id_audio_default_btn"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_weight="1"
+-            android:text="@string/audio_default" />
+-
+-        <Button
+-            android:id="@+id/id_next_audio_btn"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_weight="1"
+-            android:text="@string/next_audio" />
+-    </LinearLayout>
+-
+-    <TextView
+-        android:id="@+id/id_tv_RenderVoiceInputText"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:textColor="@android:color/black"
+-        android:textSize="@dimen/sdk_main_text_size" />
+-
+-    <LinearLayout
+-        android:id="@+id/voice_panel"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:orientation="horizontal">
+-
+-        <Button
+-            android:id="@+id/voiceBtn"
+-            android:layout_width="0dp"
+-            android:layout_height="match_parent"
+-            android:layout_margin="@dimen/sdk_margin_margin_1"
+-            android:layout_weight="1"
+-            android:text="@string/stop_record"
+-            android:textColor="@android:color/white"
+-            android:textSize="@dimen/sdk_main_text_size" />
+-
+-        <Button
+-            android:id="@+id/cancelBtn"
+-            android:layout_width="0dp"
+-            android:layout_height="match_parent"
+-            android:layout_margin="@dimen/sdk_margin_margin_1"
+-            android:layout_weight="1"
+-            android:text="@string/cancel_recognition"
+-            android:textColor="@android:color/white"
+-            android:textSize="@dimen/sdk_main_text_size" />
+-
+-        <Button
+-            android:id="@+id/openLogBtn"
+-            android:layout_width="0dp"
+-            android:layout_height="match_parent"
+-            android:layout_margin="@dimen/sdk_margin_margin_1"
+-            android:layout_weight="1"
+-            android:text="@string/open_log"
+-            android:textColor="@android:color/white"
+-            android:textSize="@dimen/sdk_main_text_size" />
+-
+-    </LinearLayout>
+-
+-    <LinearLayout
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:layout_marginBottom="@dimen/sdk_main_margin_2"
+-        android:layout_marginLeft="@dimen/sdk_main_margin_2"
+-        android:layout_marginRight="@dimen/sdk_main_margin_2"
+-        android:focusable="true"
+-        android:focusableInTouchMode="true"
+-        android:orientation="horizontal">
+-
+-        <EditText
+-            android:id="@+id/textInput"
+-            android:layout_width="0dp"
+-            android:layout_height="@dimen/sdk_main_et_height"
+-            android:layout_weight="1"
+-            android:hint="@string/send_edit_hint"
+-            android:inputType="text"
+-            android:padding="@dimen/sdk_main_et_padding" />
+-
+-        <Button
+-            android:id="@+id/sendBtn"
+-            android:layout_width="wrap_content"
+-            android:layout_height="@dimen/sdk_main_et_height"
+-            android:layout_marginStart="@dimen/sdk_main_button_margin_start"
+-            android:text="@string/send"
+-            android:textColor="@android:color/white"
+-            android:textSize="@dimen/sdk_main_text_size" />
+-
+-        <Button
+-            android:id="@+id/sendBtn2"
+-            android:layout_width="wrap_content"
+-            android:layout_height="@dimen/sdk_main_et_height"
+-            android:layout_marginStart="@dimen/sdk_main_button_margin_start"
+-            android:text="@string/send"
+-            android:textColor="@android:color/white"
+-            android:textSize="@dimen/sdk_main_text_size"
+-            android:visibility="gone" />
+-
+-    </LinearLayout>
+-
+-    <Button
+-        android:id="@+id/id_btn_volume"
+-        android:layout_width="match_parent"
+-        android:layout_height="wrap_content"
+-        android:text="@string/adjust_volume" />
+-</LinearLayout>
+diff --git a/app/src/main/res/values-320x320/dimens.xml b/app/src/main/res/values-320x320/dimens.xml
+index 6e7261c..aee0533 100644
+--- a/app/src/main/res/values-320x320/dimens.xml
++++ b/app/src/main/res/values-320x320/dimens.xml
+@@ -1,7 +1,5 @@
+ <resources>
+     <!-- Default screen margins, per the Android Design guidelines. -->
+-    <dimen name="activity_horizontal_margin">21px</dimen>
+-    <dimen name="activity_vertical_margin">21px</dimen>
+ 
+     <dimen name="display_width">320px</dimen>
+     <dimen name="display_height">320px</dimen>
+@@ -10,26 +8,9 @@
+ 
+     <dimen name="text_size_large">37px</dimen>
+     <dimen name="text_size_normal">32px</dimen>
+-    <dimen name="text_size_small">27px</dimen>
+-
+-    <dimen name="content_height">213px</dimen>
+-    <dimen name="content_padding">11px</dimen>
+-    <dimen name="progress_bar_width">120px</dimen>
+-
+-    <dimen name="loading_padding">4px</dimen>
+ 
+     <dimen name="record_padding_bottom">16px</dimen>
+     <dimen name="record_padding">0px</dimen>
+-    <dimen name="dialog_margin_1">16px</dimen>
+-    <dimen name="dialog_cancel_width">32px</dimen>
+-    <dimen name="dialog_cancel_padding_bottom">5px</dimen>
+-    <dimen name="dialog_cancel_padding_left">13px</dimen>
+-    <dimen name="dialog_cancel_padding_right">7px</dimen>
+-    <dimen name="dialog_cancel_padding_top">7px</dimen>
+-    <dimen name="dialog_cancel_tv_margin_horizontal">16dp</dimen>
+-    <dimen name="dialog_cancel_tv_text_size">32sp</dimen>
+-    <dimen name="dialog_button_padding_horizontal">16dp</dimen>
+-    <dimen name="dialog_button_padding_top">5dp</dimen>
+     <dimen name="dialog_traffic_margin_1">16px</dimen>
+     <dimen name="dialog_traffic_text_size">27px</dimen>
+     <dimen name="dialog_traffic_padding_2">11px</dimen>
+@@ -41,12 +22,6 @@
+     <dimen name="full_screen_text_view_text_size_2">24px</dimen>
+     <dimen name="help_margin_left">20px</dimen>
+     <dimen name="help_spacing_extra">8px</dimen>
+-    <dimen name="sdk_main_text_size">21sp</dimen>
+-    <dimen name="sdk_margin_margin_1">7dp</dimen>
+-    <dimen name="sdk_main_margin_2">13dp</dimen>
+-    <dimen name="sdk_main_et_height">53dp</dimen>
+-    <dimen name="sdk_main_et_padding">7dp</dimen>
+-    <dimen name="sdk_main_button_margin_start">13dp</dimen>
+     <dimen name="speech_recording_height">96px</dimen>
+     <dimen name="speech_loading_pb_width">80px</dimen>
+     <dimen name="speech_loading_pb_height">96px</dimen>
+@@ -54,7 +29,6 @@
+     <dimen name="speech_message_margin_top">9px</dimen>
+     <dimen name="speech_message_padding_horizontal">16px</dimen>
+     <dimen name="speech_message_text_size">32px</dimen>
+-    <dimen name="text_style_text_size">40px</dimen>
+     <dimen name="dialog_button_text_size">36sp</dimen>
+ 
+ </resources>
+diff --git a/app/src/main/res/values-en-rUS/strings.xml b/app/src/main/res/values-en-rUS/strings.xml
+index cd68e84..21972db 100644
+--- a/app/src/main/res/values-en-rUS/strings.xml
++++ b/app/src/main/res/values-en-rUS/strings.xml
+@@ -3,36 +3,20 @@
+ 
+     <string name="help_title">"You can ask me some questions, such as"</string>
+     <string name="help_content">"call dad\nmake a joke\nWhat’s the weather in Zhongshan\ntell a story"</string>
+-    <string name="help_content2">"Call dad\nMake a joke\nWhat\'s the weather like today\nRecite a Tang poem\nSing a children's song"</string>
+ 
+     <string name="hello1">Hi,I am your friend Xiao Wa,What can I do for you?</string>
+-    <string name="hello2">Hello,I am XiaoWa</string>
+     <string name="hello3">My master，Is there anything else I can do to help you？</string>
+     <string name="connect_time_out">The current network is unstable, please try again later.</string>
+-    <string name="error_no_network">The furthest distance in the world is that you have no network around me, set it up quickly！</string>
+     <string name="error_no_network2">The furthest distance in the world is that there is no network, set it up quickly!</string>
+     <string name="error_no_network3">Please check whether the network is available.</string>
+     <!-- 手表内部出问题 -->
+     <string name="error_internal">I\'m tired. I need to take a rest.</string>
+-    <string name="error_no_result1">Please say it again？</string>
+-    <string name="error_no_result2">I\'m sorry, I didn\'t hear it. Can you say it again</string>
+-    <string name="error_useless_result">It\'s a little difficult. You can ask your dad!</string>
+     <!--比如我们这边的网络被网管禁止了-->
+     <!--asr,tts服务器出问题了-->
+-    <string name="error_service">I\'m sick. I need to take a rest.</string>
+     <!--如：10086。冬天天气-->
+-    <string name="contact_not_exist">\"%s\" contacts do not exist</string>
+-    <string name="loading">recognizing&#8230;</string>
+-    <string name="hold_record">hold to talk</string>
+     <string name="hold_record_message">please hold to talk</string>
+-    <string name="short_time">Recording time is too short</string>
+ 
+     <string name="using_mobile_data_traffic">Unconnected WIFI, the use of traffic may produce costs, and is allowed to use?</string>
+-    <string name="yes">Yes</string>
+-    <string name="no">No</string>
+-
+-    <string name="always_allow">Always allow</string>
+-    <string name="once_allow">Allow this</string>
+ 
+     <string name="always">always</string>
+     <string name="once">once</string>
+@@ -41,45 +25,6 @@
+     <string name="cannot_using_traffic">Please connect WIFI！</string>
+     <string name="toast_max_record_time">The time of speaking is too long</string>
+ 
+-    <string name="recording_format_high">high</string>
+-    <string name="recording_format_mid">middle</string>
+-    <string name="recording_format_low">low</string>
+-
+-    <string name="err_net_msg">The current network connection failed, please try again later</string>
+-    <string name="voice_err_msg">Identification failed, please try again later</string>
+-    <string name="audio_paused">paused&#8230;</string>
+-    <string name="audio_playing">playing&#8230;</string>
+-    <string name="audio_default">wait music</string>
+-    <string name="stop_record">Click on speech</string>
+-    <string name="start_record">recording&#8230;</string>
+-    <string name="speaking">speaking&#8230;</string>
+-    <string name="think">thinking&#8230;</string>
+-    <string name="time_record">Time consuming:click->StopListen:%1$dms</string>
+-    <string name="request_error">it\'s error，please try again later</string>
+-    <string name="no_log">No log for the time being</string>
+-    <string name="no_directive">Sorry, no instructions have been received for the time being</string>
+-    <string name="inputed_text_cannot_be_empty">The contents of the input can not be empty</string>
+-    <string name="no_audio">There is no song for the time being. Please try again later.</string>
+-    <string name="open_file_title">Select browse tools</string>
+-    <string name="previous_audio">previous audio</string>
+-    <string name="upload_contacts">upload contacts</string>
+-    <string name="next_audio">new audio</string>
+-    <string name="open_log">open log</string>
+-    <string name="send">send</string>
+-    <string name="login">login</string>
+-    <string name="client_id">It client_id you applied</string>
+-    <string name="client_id_empty">Please enter the client_id you apply for</string>
+-    <string name="login_succeed">login succeed</string>
+-    <string name="login_failed">login failed</string>
+-    <string name="login_canceled">login canceled</string>
+-    <string name="wakeup_succeed">Wake-up success, what do you ask?</string>
+-    <string name="wakeup_word">You can say XiaoduXiaodu to wake up</string>
+-    <string name="audio_permission_error_msg">Unable to obtain record permissions</string>
+-    <string name="send_edit_hint">Enter the content you want to query</string>
+-    <string name="adjust_volume">Adjust the volume</string>
+-    <string name="cancel_recognition">Cancelling recognition</string>
+-
+-    <string name="traffic_dialog_title">Traffic is prohibit to use</string>
+     <string name="traffic_dialog_content">Traffic has been banned by parents，please connect wifi</string>
+     <string name="traffic_dialog_wifi">WIFI</string>
+     <string name="traffic_dialog_exit">CANCEL</string>
+diff --git a/app/src/main/res/values/aligntextview-styles.xml b/app/src/main/res/values/aligntextview-styles.xml
+index b56533e..a744dbb 100644
+--- a/app/src/main/res/values/aligntextview-styles.xml
++++ b/app/src/main/res/values/aligntextview-styles.xml
+@@ -4,11 +4,4 @@
+         Base application theme, dependent on API level. This theme is replaced
+         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+     -->
+-    <style name="AppBaseTheme" parent="android:Theme.Light">
+-        <!--
+-            Theme customizations available in newer API levels can go in
+-            res/values-vXX/styles.xml, while customizations related to
+-            backward-compatibility can go here.
+-        -->
+-    </style>
+ </resources>
+diff --git a/app/src/main/res/values/colors.xml b/app/src/main/res/values/colors.xml
+index b6164ec..fac3536 100644
+--- a/app/src/main/res/values/colors.xml
++++ b/app/src/main/res/values/colors.xml
+@@ -1,19 +1,8 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+ 
+-    <color name="blue">#029af1</color>
+-    <color name="blue_light">#43d3a0</color>
+-
+-    <color name="black_light">#c0000000</color>
+-    <color name="gray_light">#fefefe</color>
+-    <color name="gray_deep">#6b6b6b</color>
+-    <color name="gray_dark">#424242</color>
+     <color name="green">#00ff00</color>
+-    <color name="green_dark">#3e9231</color>
+ 
+-    <color name="white_opacity">#cdffffff</color>
+     <color name="white_dark">#dddddd</color>
+ 
+-    <color name="gray_translation">#88000000</color>
+-    
+ </resources>
+diff --git a/app/src/main/res/values/dimens.xml b/app/src/main/res/values/dimens.xml
+index b55cc93..acd19b5 100644
+--- a/app/src/main/res/values/dimens.xml
++++ b/app/src/main/res/values/dimens.xml
+@@ -1,7 +1,5 @@
+ <resources>
+     <!-- Default screen margins, per the Android Design guidelines. -->
+-    <dimen name="activity_horizontal_margin">16px</dimen>
+-    <dimen name="activity_vertical_margin">16px</dimen>
+ 
+     <dimen name="display_width">240px</dimen>
+     <dimen name="display_height">240px</dimen>
+@@ -10,26 +8,9 @@
+ 
+     <dimen name="text_size_large">28px</dimen>
+     <dimen name="text_size_normal">24px</dimen>
+-    <dimen name="text_size_small">20px</dimen>
+-
+-    <dimen name="content_height">160px</dimen>
+-    <dimen name="content_padding">8px</dimen>
+-    <dimen name="progress_bar_width">90px</dimen>
+-
+-    <dimen name="loading_padding">3px</dimen>
+ 
+     <dimen name="record_padding_bottom">12px</dimen>
+     <dimen name="record_padding">0px</dimen>
+-    <dimen name="dialog_margin_1">12px</dimen>
+-    <dimen name="dialog_cancel_width">24px</dimen>
+-    <dimen name="dialog_cancel_padding_bottom">4px</dimen>
+-    <dimen name="dialog_cancel_padding_left">10px</dimen>
+-    <dimen name="dialog_cancel_padding_right">5px</dimen>
+-    <dimen name="dialog_cancel_padding_top">5px</dimen>
+-    <dimen name="dialog_cancel_tv_margin_horizontal">12dp</dimen>
+-    <dimen name="dialog_cancel_tv_text_size">24sp</dimen>
+-    <dimen name="dialog_button_padding_horizontal">12dp</dimen>
+-    <dimen name="dialog_button_padding_top">4dp</dimen>
+     <dimen name="dialog_traffic_margin_1">12px</dimen>
+     <dimen name="dialog_traffic_text_size">20px</dimen>
+     <dimen name="dialog_traffic_padding_2">8px</dimen>
+@@ -41,12 +22,6 @@
+     <dimen name="full_screen_text_view_text_size_2">18px</dimen>
+     <dimen name="help_margin_left">15px</dimen>
+     <dimen name="help_spacing_extra">6px</dimen>
+-    <dimen name="sdk_main_text_size">16sp</dimen>
+-    <dimen name="sdk_margin_margin_1">5dp</dimen>
+-    <dimen name="sdk_main_margin_2">10dp</dimen>
+-    <dimen name="sdk_main_et_height">40dp</dimen>
+-    <dimen name="sdk_main_et_padding">5dp</dimen>
+-    <dimen name="sdk_main_button_margin_start">10dp</dimen>
+     <dimen name="speech_recording_height">72px</dimen>
+     <dimen name="speech_loading_pb_width">60px</dimen>
+     <dimen name="speech_loading_pb_height">72px</dimen>
+@@ -54,7 +29,6 @@
+     <dimen name="speech_message_margin_top">7px</dimen>
+     <dimen name="speech_message_padding_horizontal">12px</dimen>
+     <dimen name="speech_message_text_size">24px</dimen>
+-    <dimen name="text_style_text_size">30px</dimen>
+     <dimen name="dialog_button_text_size">27sp</dimen>
+ 
+ </resources>
+diff --git a/app/src/main/res/values/integers.xml b/app/src/main/res/values/integers.xml
+index 65a2b01..f4992cb 100644
+--- a/app/src/main/res/values/integers.xml
++++ b/app/src/main/res/values/integers.xml
+@@ -1,12 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+ 
+-    <integer name="duration_short">350</integer>
+     <integer name="duration">350</integer>
+-    <integer name="duration_long">500</integer>
+-    <integer name="view_show_duration">150</integer>
+-
+-    <integer name="recording_duration_short">80</integer>
+-    <integer name="recording_duration">100</integer>
+ 
+ </resources>
+\ No newline at end of file
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+index ff19a21..8f076b8 100644
+--- a/app/src/main/res/values/strings.xml
++++ b/app/src/main/res/values/strings.xml
+@@ -3,38 +3,21 @@
+ 
+     <string name="help_title">"您可以这样问我"</string>
+     <string name="help_content">"打电话给爸爸\n猜谜语\n词语接龙\n今天天气怎样\n讲个故事"</string>
+-    <string name="help_content2">打电话给爸爸\n猜谜语\n中山天气怎样\n讲个故事 </string>
+ 
+     <string name="hello1">Hi，我是你的好朋友小蛙，能帮你做点什么吗？</string>
+-    <string name="hello2">你好，我是小蛙</string>
+     <string name="hello3">小主人，请问还有什么可以帮你的？</string>
+     <string name="connect_time_out">当前网络不稳定，请稍后再试</string>
+-    <string name="error_no_network">世界上最遥远的距离，就是你在我身边却没有网络，赶紧去设置吧！</string>
+     <string name="error_no_network2">世界上最遥远的距离，就是没有了网络，快去设置吧！</string>
+     <string name="error_no_network3">请检查网络是否可用</string>
+     <!-- 手表内部出问题 -->
+     <string name="error_internal">小蛙累了，需要休息一会</string>
+-    <string name="error_no_result1">噢，你可以再说一遍吗？</string>
+-    <string name="error_no_result2">对不起，没有听清，能再说一遍吗？</string>
+     <string name="error_no_asr_result">抱歉，没有听到你说了什么</string>
+-    <string name="error_useless_result">这个问题有点难，你可以去问问你爸爸噢！</string>
+     <!--比如我们这边的网络被网管禁止了-->
+     <!--asr,tts服务器出问题了-->
+-    <string name="error_service">小蛙生病了，需要休息一会</string>
+     <!--如：10086。冬天天气-->
+-    <string name="contact_not_exist">\"%s\"联系人不存在</string>
+-    <string name="loading">识别中&#8230;</string>
+-    <string name="hold_record">按住说话</string>
+     <string name="hold_record_message">请长按录音</string>
+-    <string name="short_time">录音时间过短</string>
+ 
+     <string name="using_mobile_data_traffic">未连接WIFI，使用流量可能会产生费用，是否允许使用?</string>
+-    <string name="disable_using_traffic">流量已被家长禁止使用，请连接WIFI。</string>
+-    <string name="yes">确定</string>
+-    <string name="no">取消</string>
+-
+-    <string name="always_allow">总是允许</string>
+-    <string name="once_allow">允许本次</string>
+ 
+     <string name="always">总是</string>
+     <string name="once">本次</string>
+@@ -43,57 +26,10 @@
+     <string name="cannot_using_traffic">请连接WIFI！</string>
+     <string name="toast_max_record_time">说话时间超长</string>
+ 
+-    <string name="recording_format_high">高</string>
+-    <string name="recording_format_mid">中</string>
+-    <string name="recording_format_low">低</string>
+-
+-    <string name="err_net_msg">当前网络连接失败,请稍后重试</string>
+-    <string name="voice_err_msg">识别失败，请稍后再试</string>
+-    <string name="audio_paused">暂停中&#8230;</string>
+-    <string name="audio_playing">播放中&#8230;</string>
+-    <string name="audio_default">等待音乐</string>
+-    <string name="stop_record">点击说话</string>
+-    <string name="start_record">录音中&#8230;</string>
+-    <string name="speaking">播报中&#8230;</string>
+-    <string name="think">思考中&#8230;</string>
+-    <string name="time_record">耗时:click->StopListen:%1$dms</string>
+-    <string name="request_error">出错了，请稍后再试</string>
+-    <string name="no_log">暂时没有日志</string>
+-    <string name="no_directive">对不起，暂时没有收到指令</string>
+-    <string name="inputed_text_cannot_be_empty">输入的内容不能为空</string>
+-    <string name="no_audio">暂时没有歌曲了，请稍后再试</string>
+-    <string name="open_file_title">选择浏览工具</string>
+-    <string name="previous_audio">上一首</string>
+-    <string name="upload_contacts">上传联系人</string>
+-    <string name="next_audio">下一首</string>
+-    <string name="open_log">打开日志</string>
+-    <string name="send">发送</string>
+-    <string name="login">登陆</string>
+-    <string name="client_id">您应用的client_id</string>
+-    <string name="client_id_empty">请输入您申请的client_id</string>
+-    <string name="login_succeed">登陆成功</string>
+-    <string name="login_failed">登陆失败</string>
+-    <string name="login_canceled">登陆取消</string>
+-    <string name="wakeup_succeed">唤醒成功,您问点什么呢?</string>
+-    <string name="wakeup_word">您可以说【小度小度】进行唤醒</string>
+-    <string name="audio_permission_error_msg">录音权限失败</string>
+-    <string name="send_edit_hint">输入你要查询的内容</string>
+-    <string name="adjust_volume">调整音量</string>
+-    <string name="tts_info_volume_hint">声音大小（0&#8211;9）</string>
+-    <string name="tts_info_speed_hint">语速（0&#8211;9）</string>
+-    <string name="tts_info_pitch_hint">语调（0&#8211;9）</string>
+-    <string name="tts_info_speaker_hint">声音类型（0&#8211;4）</string>
+-    <string name="tts_info_aue_hint">音频格式</string>
+-    <string name="tts_info_rate_hint">码率</string>
+-    <string name="tts_info_xml_hint">是否为xml</string>
+-    <string name="tts_info_reset_hint">重置</string>
+-    <string name="cancel_recognition">取消识别</string>
+-
+     <string name="logging_toast">正在加载中,请稍后</string>
+     <string name="login_failed_toast">网络连接失败，请重试</string>
+     <string name="no_login">未登录</string>
+ 
+-    <string name="traffic_dialog_title">流量禁止使用</string>
+     <string name="traffic_dialog_content">流量已经被家长禁止使用，请连接WIFI。</string>
+     <string name="traffic_dialog_wifi">WIFI</string>
+     <string name="traffic_dialog_exit">退出</string>
+diff --git a/app/src/main/res/values/styles.xml b/app/src/main/res/values/styles.xml
+index 4f69d1e..365b562 100644
+--- a/app/src/main/res/values/styles.xml
++++ b/app/src/main/res/values/styles.xml
+@@ -31,31 +31,6 @@
+         <!--<item name="android:wallpaperCloseEnterAnimation">@anim/activity_bottom_enter</item>-->
+         <item name="android:wallpaperOpenExitAnimation">@anim/activity_bottom_exit</item>
+     </style>
+-    
+-    <style name="DisableSwipeToDismiss" parent="AppTheme">
+-        <item name="android:windowSwipeToDismiss">false</item>
+-        <item name="android:windowIsTranslucent">true</item>
+-        <item name="android:colorBackgroundCacheHint">@null</item>
+-        <item name="android:windowBackground">@android:color/transparent</item>
+-    </style>
+-
+-    <style name="TextStyle">
+-        <item name="android:textSize">@dimen/text_style_text_size</item>
+-        <item name="android:textColor">@color/gray_light</item>
+-    </style>
+-
+-    <style name="TitleStyle">
+-        <item name="android:textSize">@dimen/text_size_normal</item>
+-        <item name="android:text">@string/help_title</item>
+-        <item name="android:textColor">@color/green</item>
+-    </style>
+-
+-    <style name="Footer">
+-        <item name="android:textColor">@color/blue</item>
+-        <item name="android:textSize">@dimen/text_size_normal</item>
+-        <item name="android:gravity">center</item>
+-        <item name="android:text">@string/hold_record</item>
+-    </style>
+ 
+     <style name="DialogButton" parent="@android:style/Widget.Material.Button.Borderless.Colored">
+         <item name="android:textSize">@dimen/dialog_button_text_size</item>
+diff --git a/swipeback/src/main/res/drawable/shadow_top1.png b/swipeback/src/main/res/drawable/shadow_top1.png
+deleted file mode 100644
+index aaa075b3cbba7a7a6e82437e8eb1eb05eb0bea72..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 2845
+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
+
+diff --git a/swipeback/src/main/res/layout/swipeback_layout.xml b/swipeback/src/main/res/layout/swipeback_layout.xml
+index 4493d5e..9e0d9dc 100644
+--- a/swipeback/src/main/res/layout/swipeback_layout.xml
++++ b/swipeback/src/main/res/layout/swipeback_layout.xml
+@@ -1,7 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <com.readboy.swipeback.SwipeBackLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+-    android:id="@+id/swipe"
+     android:layout_width="match_parent"
+     app:edge_flag="left"
+     android:layout_height="match_parent" />
+-- 
+2.18.0.windows.1
+

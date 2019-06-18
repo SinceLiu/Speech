@@ -67,6 +67,7 @@ public final class SilkyAnimation {
     private Matrix mDrawMatrix;
     private int mScaleType;
     private Context mContext;
+    private float mZoom;
     /**
      * total frames.
      */
@@ -207,11 +208,13 @@ public final class SilkyAnimation {
         /**
          * @param surfaceView
          * @param assetPath   asset resource path, must be a directory
+         * @param zoom
          */
-        public Builder(@NonNull SurfaceView surfaceView, @NonNull String assetPath) {
+        public Builder(@NonNull SurfaceView surfaceView, @NonNull String assetPath, float zoom) {
             mAnimation = new SilkyAnimation();
             mAnimation.init(surfaceView);
             mAnimation.initPathList(mAnimation.getPathList(assetPath));
+            mAnimation.mZoom = zoom;
         }
 
         /**
@@ -1035,9 +1038,11 @@ public final class SilkyAnimation {
         if (mInBitmap != null) {
             mOptions.inBitmap = mInBitmap;
         }
+        Bitmap bitmap;
         if (isAssetResource) {
             try {
-                return BitmapFactory.decodeStream(mAssetManager.open(path), null, mOptions);
+                bitmap = BitmapFactory.decodeStream(mAssetManager.open(path), null, mOptions);
+                return Bitmap.createScaledBitmap(bitmap, (int) (mZoom * bitmap.getWidth()), (int) (mZoom * bitmap.getHeight()), true);
             } catch (IOException e) {
                 stop();
                 Log.e(TAG, "decodeBitmapReal: e = " + e);
@@ -1049,7 +1054,8 @@ public final class SilkyAnimation {
                 throw e;
             }
         } else {
-            return BitmapFactory.decodeFile(path, mOptions);
+            bitmap = BitmapFactory.decodeFile(path, mOptions);
+            return Bitmap.createScaledBitmap(bitmap, (int) (mZoom * bitmap.getWidth()), (int) (mZoom * bitmap.getHeight()), true);
         }
         return null;
     }
